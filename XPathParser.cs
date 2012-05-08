@@ -110,14 +110,17 @@ namespace XmlLib
                 }
                 else if ("*" != self)
                 {
-                    switch (key)
+                    if (key.StartsWith("last()"))
                     {
-                        case "last()":
+                        if ("last()" == key)
                             return new XElement[] { elements.Last() };
-                        default:
-                            elements = elements.Where(Elements_WhereFunction);
-                            break;
+                        int i;
+                        if (int.TryParse(key.Remove(0, "last()-".Length), out i))
+                            return new XElement[] { elements.ElementAt(elements.Count() - (i + 1)) };
+                        throw new ArgumentException(self);
                     }
+                    else
+                        elements = elements.Where(Elements_WhereFunction);
                 }
                 return elements;
             }
@@ -269,19 +272,24 @@ namespace XmlLib
             return elements;
         }
 
-        public XElement Parse(string path, bool create)
+        public IEnumerable<XElement> ParseEnumerable(string path, bool create)
         {
             if (null == path)
                 throw new ArgumentNullException("Path cannot be null.");
 
             string[] parts = path.Split('\\', '/');
             XElement result = source;
-            foreach (string _part in parts)
+            for (int i = 0; i < parts.Length; i++)
             {
-                string part = _part;
+                string part = parts[i];
+                bool last = (i + 1) == parts.Length;
                 if (part.Contains('['))
                 {
-                    XElement temp = ParseInternal(result, part).FirstOrDefault();
+                    var e = ParseInternal(result, part);
+                    if (last)
+                        return e;
+
+                    XElement temp = e.FirstOrDefault();
                     if (null != temp)
                     {
                         result = temp;
@@ -289,6 +297,8 @@ namespace XmlLib
                     }
                     part = part.Split('[')[0];
                 }
+                if (last)
+                    return result.GetElements(part);
                 if (create)
                     result = result.GetElement(part);
                 else
@@ -298,7 +308,15 @@ namespace XmlLib
                         throw new ArgumentOutOfRangeException(part);
                 }
             }
-            return result;
+            return new XElement[] { result };
+        }
+
+        public XElement Parse(string path, bool create)
+        {
+            if (null == path)
+                throw new ArgumentNullException("Path cannot be null.");
+
+            return ParseEnumerable(path, create).FirstOrDefault();
         }
 
         public static XElement Parse(XElement source, string path, params string[] args)
@@ -311,6 +329,11 @@ namespace XmlLib
         public static XElement Parse(XElement source, string path, bool create)
         {
             return new XPathParser(source).Parse(path, create);
+        }
+
+        public static IEnumerable<XElement> ParseEnumerable(XElement source, string path, bool create)
+        {
+            return new XPathParser(source).ParseEnumerable(path, create);
         }
     }
 }

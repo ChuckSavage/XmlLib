@@ -118,6 +118,8 @@ namespace XmlLib
             string defaultValue
         )
         {
+            if (null == source)
+                return defaultValue;
             string result;
             if (null == name)
                 result = (string)source;
@@ -431,6 +433,8 @@ namespace XmlLib
         {
             if (string.IsNullOrEmpty(name))
                 return GetEnumerable(source, convert);
+            if (name.Contains('['))
+                return XPath(source, name).Select(x => convert(x));
             source = NameCheck(source, name, out name);
             return GetEnumerable(source, ToXName(source, name), convert);
         }
@@ -513,6 +517,26 @@ namespace XmlLib
         /// <remarks>See XPath docs for help on using [number][key=value] 
         /// syntax (http://www.w3.org/TR/xpath/)</remarks>
         /// </summary>
+        public static IEnumerable<XElement> XPath(this XElement source, string path, bool create)
+        {
+            return XPathParser.ParseEnumerable(source, path, create);
+        }
+
+        /// <summary>
+        /// Navigate to a specific path within source, create it if it doesn't exist.
+        /// <remarks>See XPath docs for help on using [number][key=value] 
+        /// syntax (http://www.w3.org/TR/xpath/)</remarks>
+        /// </summary>
+        public static IEnumerable<XElement> XPath(this XElement source, string path)
+        {
+            return XPath(source, path, true);
+        }
+
+        /// <summary>
+        /// Navigate to a specific path within source.  (create path if it doesn't exist?)
+        /// <remarks>See XPath docs for help on using [number][key=value] 
+        /// syntax (http://www.w3.org/TR/xpath/)</remarks>
+        /// </summary>
         public static XElement Path(this XElement source, string path, bool create)
         {
             return XPathParser.Parse(source, path, create);
@@ -547,7 +571,7 @@ namespace XmlLib
         /// </summary>
         public static XName ToXName(this XElement source, string name)
         {
-            if (!string.IsNullOrEmpty(name))
+            if (null != source && !string.IsNullOrEmpty(name))
             {
                 XNamespace ns = source.Name.Namespace;
                 if (name.Contains(':'))
