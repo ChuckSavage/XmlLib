@@ -275,9 +275,9 @@ namespace XmlLib
             return Parse(source, string.Format(path, args));
         }
 
-        public static XElement Parse(XElement source, string path)
+        public static XElement Parse(XElement source, string path, bool create)
         {
-            return new XPathParser(source).Parse(path, true);
+            return new XPathParser(source).Parse(path, create);
         }
     }
 }

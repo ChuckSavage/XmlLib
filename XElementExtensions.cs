@@ -518,7 +518,7 @@ namespace XmlLib
             if (null == path)
                 throw new ArgumentNullException("Path cannot be null!");
             if (path.Contains('['))
-                return XPathParser.Parse(source, path);
+                return XPathParser.Parse(source, path, create);
             
             string[] parts = path.Split('\\', '/');
             XElement result = source;
