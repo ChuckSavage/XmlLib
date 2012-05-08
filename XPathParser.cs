@@ -22,13 +22,13 @@ namespace XmlLib
         class Bracket
         {
             string self, key, value;
-            public readonly bool equal, greater, less, isStringValue;
+            public readonly bool equal, greater, less, isStringValue, kvp;
 
             public Bracket(string part)
             {
                 value = self = part = part.TrimStart('[').TrimEnd(']');
                 // have quoted value
-                Match quotes = Regex.Match(self, "='.*'"); // "='[^]]*'" - works but isn't greedy
+                Match quotes = Regex.Match(self, "='.*'"); // greedy .* so that can have quotes within the quote
                 if (quotes.Success)
                 {
                     isStringValue = true;
@@ -46,18 +46,21 @@ namespace XmlLib
                         key = key.TrimEnd('<');
                     if (greater = key.EndsWith(">"))
                         key = key.TrimEnd('>');
+                    kvp = true;
                 }
                 else if (less = key.Contains("<"))
                 {
                     string[] parts = part.Split('<');
                     key = parts[0];
                     value = parts[1];
+                    kvp = true;
                 }
                 else if (greater = key.Contains(">"))
                 {
                     string[] parts = part.Split('>');
                     key = parts[0];
                     value = parts[1];
+                    kvp = true;
                 }
             }
 
@@ -105,36 +108,43 @@ namespace XmlLib
                         e = elements.First();
                     elements = new XElement[] { e };
                 }
-                else
-                    elements = elements.Where(WhereFunction);
+                else if ("*" != self)
+                {
+                    switch (key)
+                    {
+                        case "last()":
+                            return new XElement[] { elements.Last() };
+                        default:
+                            elements = elements.Where(Elements_WhereFunction);
+                            break;
+                    }
+                }
                 return elements;
             }
 
-            private bool IsMatch(string str)
+            // separate function instead of inline .Where(x => ...) so can use debugger.
+            private bool Elements_WhereFunction(XElement x)
             {
-                bool match = false;
-                if (equal)
-                    match = IsEqual(str);
-                if (less)
-                    match |= IsLess(str);
-                else
-                    if (greater)
-                        match |= IsGreater(str);
-                return match;
-            }
-
-            private bool WhereFunction(XElement x)
-            {
-                if (key.StartsWith("@"))
+                if (kvp)
                 {
-                    //key = key.TrimStart(
-                    var a = x.Attribute(key.TrimStart('@'));
-                    if (null == a) return false;
-                    return IsMatch(a.Value);
+                    if (key.StartsWith("@"))
+                    {
+                        //key = key.TrimStart(
+                        var a = x.Attribute(key.TrimStart('@'));
+                        if (null == a) return false;
+                        return IsMatch(a.Value);
+                    }
+                    return x.GetElements(key).Any(xx => IsMatch(xx.Value));
                 }
-                return x.GetElements(key).Any(xx => IsMatch(xx.Value));
+                if (key.StartsWith("@"))
+                    return null != x.Attribute(key.TrimStart('@'));
+                return x.GetElements(key).Count() > 0;
             }
 
+            /// <summary>
+            /// The left side of an expression.
+            /// <remarks>Aka: para[key=value]</remarks>
+            /// </summary>
             public string Key { get { return key; } }
 
             private bool IsEqual(string a)
@@ -178,6 +188,22 @@ namespace XmlLib
             }
 
             /// <summary>
+            /// Check if string is a match for a Where() clause.
+            /// </summary>
+            private bool IsMatch(string str)
+            {
+                bool match = false;
+                if (equal)
+                    match = IsEqual(str);
+                if (less)
+                    match |= IsLess(str);
+                else
+                    if (greater)
+                        match |= IsGreater(str);
+                return match;
+            }
+
+            /// <summary>
             /// If we're comparing value's by string
             /// </summary>
             private bool IsValueString(string value, out string result)
@@ -192,8 +218,15 @@ namespace XmlLib
                 return false;
             }
 
+            /// <summary>
+            /// The right side of an expression.
+            /// <remarks>Aka: para[key=value]</remarks>
+            /// </summary>
             public string Value { get { return value; } }
 
+            /// <summary>
+            /// The full expression.
+            /// </summary>
             public string XPath { get { return self; } }
         }
         XElement source;
@@ -223,21 +256,23 @@ namespace XmlLib
             return null;
         }
 
-        private XElement ParseInternal(XElement contextNode, string name, Bracket[] brackets)
+        private IEnumerable<XElement> ParseInternal(XElement contextNode, string part)
         {
+            string name;
+            Bracket[] brackets = GetBrackets(part, out name);
             var elements = contextNode.GetElements(name);
             if(null != brackets)
                 foreach (Bracket bracket in brackets)
                 {
                     elements = bracket.Elements(elements);
                 }
-            return elements.FirstOrDefault();
+            return elements;
         }
 
         public XElement Parse(string path, bool create)
         {
             if (null == path)
-                throw new ArgumentNullException("Path cannot be null to Parse method.");
+                throw new ArgumentNullException("Path cannot be null.");
 
             string[] parts = path.Split('\\', '/');
             XElement result = source;
@@ -246,9 +281,7 @@ namespace XmlLib
                 string part = _part;
                 if (part.Contains('['))
                 {
-                    string name;
-                    var brackets = GetBrackets(part,out name);
-                    XElement temp = ParseInternal(result, name, brackets);
+                    XElement temp = ParseInternal(result, part).FirstOrDefault();
                     if (null != temp)
                     {
                         result = temp;

@@ -515,36 +515,7 @@ namespace XmlLib
         /// </summary>
         public static XElement Path(this XElement source, string path, bool create)
         {
-            if (null == path)
-                throw new ArgumentNullException("Path cannot be null!");
-            if (path.Contains('['))
-                return XPathParser.Parse(source, path, create);
-            
-            string[] parts = path.Split('\\', '/');
-            XElement result = source;
-            foreach (string _part in parts)
-            {
-                string part = _part;
-                if (part.Contains('['))
-                {
-                    XElement temp = result._XPath(part);
-                    if (null != temp)
-                    {
-                        result = temp;
-                        continue;
-                    }
-                    part = part.Split('[')[0];
-                }
-                if (create)
-                    result = result.GetElement(part);
-                else
-                {
-                    result = result.Element(ToXName(result, part));
-                    if (null == result)
-                        throw new ArgumentOutOfRangeException(part);
-                }
-            }
-            return result;
+            return XPathParser.Parse(source, path, create);
         }
 
         /// <summary>
@@ -555,88 +526,6 @@ namespace XmlLib
         public static XElement Path(this XElement source, string path)
         {
             return Path(source, path, true);
-        }
-
-        private static XElement _XPath(this XElement source, string part)
-        {
-            decimal nValue = 0;
-            string value = string.Empty;
-            Func<bool, string, bool> IsEqual = (isString, sValue) =>
-            {
-                if (null == sValue)
-                    return false;
-                if (isString)
-                    return sValue == value;
-                else
-                {
-                    decimal dTemp;
-                    if (decimal.TryParse(sValue, out dTemp))
-                        return dTemp == nValue;
-                    return false;
-                }
-            };
-
-            string[] temp = part.Replace("]", string.Empty).Split('[');
-            if (temp.Length < 2 || temp.Length > 3)
-                throw new ArgumentException("Invalid parameter: " + part);
-
-            string name = temp[0];
-            string xpath = string.Empty;
-            int position = -1;
-            {
-                int i, // temp value
-                    j, // try to get [n] position value
-                    k; // reverse index to get xpath
-                for (j = 1, k = temp.Length - 1; j < 3 && j < temp.Length; j++, k--)
-                {
-                    xpath = temp[k];
-                    if (int.TryParse(temp[j], out i))
-                    {
-                        position = i;
-                        break;
-                    }
-                }
-            }
-            var elements = source.GetElements(name);
-            bool attrib = false;
-            if (xpath.StartsWith("@"))
-            {
-                attrib = true;
-                xpath = xpath.TrimStart('@');
-            }
-            if (xpath.Contains('='))
-            {
-                string[] kvp = xpath.Split('=');
-                if (kvp.Length != 2)
-                    throw new ArgumentException("Invalid parameter: " + part);
-                string key = kvp[0];
-                value = kvp[1];
-                // if we're comparing value's by string
-                bool isString = false;
-                if (value.Contains("'") || value.Contains("\""))
-                {
-                    value = value.Replace("\"", string.Empty)
-                                 .Replace("'", string.Empty);
-                    isString = true;
-                }
-                else
-                    nValue = decimal.Parse(value);
-                elements = elements
-                    .Where(x =>
-                    {
-                        if (attrib)
-                        {
-                            var a = x.Attribute(key);
-                            if (null == a) return false;
-                            return IsEqual(isString, a.Value);
-                        }
-                        return x.Elements(key).Any(xx => IsEqual(isString, xx.Value));
-                    });
-
-            }
-            if (position > 1)
-                return elements.ElementAtOrDefault(position - 1);
-            return elements.FirstOrDefault();
         }
 
 #if !SetSave
