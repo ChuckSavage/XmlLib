@@ -132,7 +132,7 @@ namespace XmlLib
                     if (null == a) return false;
                     return IsMatch(a.Value);
                 }
-                return x.Elements(key).Any(xx => IsMatch(xx.Value));
+                return x.GetElements(key).Any(xx => IsMatch(xx.Value));
             }
 
             public string Key { get { return key; } }
