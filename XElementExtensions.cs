@@ -10,6 +10,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
 using System.Xml.Linq;
+using XmlLib.nXPath;
 
 #if SeaRisenLib2
 namespace SeaRisenLib2.Xml
@@ -81,6 +82,35 @@ namespace XmlLib
                 return source.Elements();
             source = NameCheck(source, name, out name);
             return GetElements(source, ToXName(source, name));
+        }
+
+        /// <summary>
+        /// Get descendant elements.
+        /// </summary>
+        /// <param name="name">The tag name of the XElement.</param>
+        /// <returns>XElement found or created.</returns>
+        public static IEnumerable<XElement> GetDescendants(this XElement source, XName name)
+        {
+            if (null == name)
+                return source.Descendants();
+            IEnumerable<XElement> elements = source.Descendants(name);
+            if (0 == elements.Count())
+                elements = source.Descendants()
+                    .Where(x => x.Name.LocalName == name.LocalName);
+            return elements;
+        }
+
+        /// <summary>
+        /// Get descendant elements.
+        /// </summary>
+        /// <param name="name">The tag name of the XElement.</param>
+        /// <returns>XElement found or created.</returns>
+        public static IEnumerable<XElement> GetDescendants(this XElement source, string name)
+        {
+            if (string.IsNullOrEmpty(name))
+                return source.Descendants();
+            source = NameCheck(source, name, out name);
+            return GetDescendants(source, ToXName(source, name));
         }
 
         /// <summary>
@@ -517,9 +547,11 @@ namespace XmlLib
         /// <remarks>See XPath docs for help on using [number][key=value] 
         /// syntax (http://www.w3.org/TR/xpath/)</remarks>
         /// </summary>
-        public static IEnumerable<XElement> XPath(this XElement source, string path, bool create)
+        /// <exception cref="ArgumentOutOfRangeException" />
+        public static IEnumerable<XElement> XPath(this XElement source, XPathString path, bool create)
         {
-            return XPathParser.ParseEnumerable(source, path, create);
+            //return XPathParser.ParseEnumerable(source, path, create);
+            return new cXPath().ParseEnumerable(source, path, create);
         }
 
         /// <summary>
@@ -527,9 +559,10 @@ namespace XmlLib
         /// <remarks>See XPath docs for help on using [number][key=value] 
         /// syntax (http://www.w3.org/TR/xpath/)</remarks>
         /// </summary>
-        public static IEnumerable<XElement> XPath(this XElement source, string path)
+        /// <exception cref="ArgumentOutOfRangeException" />
+        public static IEnumerable<XElement> XPath(this XElement source, string path, params object[] args)
         {
-            return XPath(source, path, true);
+            return XPath(source, new XPathString(path, args), true);
         }
 
         /// <summary>
@@ -537,9 +570,10 @@ namespace XmlLib
         /// <remarks>See XPath docs for help on using [number][key=value] 
         /// syntax (http://www.w3.org/TR/xpath/)</remarks>
         /// </summary>
-        public static XElement Path(this XElement source, string path, bool create)
+        /// <exception cref="ArgumentOutOfRangeException" />
+        public static XElement Path(this XElement source, XPathString path, bool create)
         {
-            return XPathParser.Parse(source, path, create);
+            return XPath(source, path, create).FirstOrDefault();
         }
 
         /// <summary>
@@ -547,9 +581,10 @@ namespace XmlLib
         /// <remarks>See XPath docs for help on using [number][key=value] 
         /// syntax (http://www.w3.org/TR/xpath/)</remarks>
         /// </summary>
-        public static XElement Path(this XElement source, string path)
+        /// <exception cref="ArgumentOutOfRangeException" />
+        public static XElement Path(this XElement source, string path, params object[] args)
         {
-            return Path(source, path, true);
+            return Path(source, new XPathString(path, args), true);
         }
 
 #if !SetSave
