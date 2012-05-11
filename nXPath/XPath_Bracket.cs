@@ -7,7 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq; 
+using System.Linq;
 using System.Linq.Expressions;
 using System.Xml.Linq;
 #if SeaRisenLib2
@@ -34,10 +34,11 @@ namespace XmlLib.nXPath
             text = text.TrimStart('[').TrimEnd(']');
             AndOr = text.Contains(" and ");
 
-            string[] split = text.Split(new string[] { " and ", " or " }, StringSplitOptions.RemoveEmptyEntries);
             // need new XPathString() that has brackets removed.
-            XPathString[] paths = new XPathString(text, path.Values).ToPaths(split);
+            XPathString[] paths = new XPathString(text, path.Values)
+                .Split(new string[] { " and ", " or " }, StringSplitOptions.RemoveEmptyEntries);
             Parts = paths.Select(s => new XPath_Part(s)).ToArray();
+            var p = Parts;
         }
 
         private Expression ExpressionEquals(XPath_Part part, Expression left, Expression right)
@@ -66,8 +67,8 @@ namespace XmlLib.nXPath
                 ex = Expression.LessThan(left, right);
             else if (part.GreaterThan)
                 ex = Expression.GreaterThan(left, right);
-            else 
-                ex = null; // ?? what case is this?
+            else
+                throw new NotImplementedException(part.self.Text);
             return ex;
         }
 
@@ -106,40 +107,78 @@ namespace XmlLib.nXPath
                     break; // break out of foreach
                 }
 
+                // Parse Key Value Pair Expression
                 right = Expression.Constant(part.Value);
-                if (part.IsValueAttribute)
+                string[] split = part.Key.TrimStart('/').Split('/');
+                Expression _elements = null;
+                for (int i = 0; i < split.Length; i++)
                 {
-                    Expression a = Expression.Call(
-                        pe,
-                        typeof(XElement).GetMethod("Attribute", new Type[] { typeof(XName) }),
-                        Expression.Constant(contextNode.ToXName(part.Key))
-                        );
-                    left = Expression.Convert(a, part.Value.GetType());
-                    e = ExpressionEquals(part, left, right);
-                }
-                else // if any child 'key' node's text compares
-                {
-                    // Reference: x.GetElements(key).Any(xx => IsMatch(xx.Value));
+                    string key = split[i];
+                    bool last = (i + 1) == split.Length;
+                    if (part.IsValueAttribute || key.StartsWith("@"))
+                    {
+                        key = key.TrimStart('@');
+                        
+                        // How to get value of _elements into variable to next two calls?
 
-                    // x => x.GetElements()
-                    Expression _elements = Expression.Call(
+                        Expression toXName = Expression.Call(
+                            typeof(XElementExtensions),
+                            "ToXName",
+                            null,
+                            null == _elements ? pe : _elements,//new [] { typeof(string) },
+                            Expression.Constant(key)
+                            );
+                        
+                        Expression att = Expression.Call(
+                            null == _elements ? pe : _elements,
+                            typeof(XElement).GetMethod("Attribute", new Type[] { typeof(XName) }),
+                            toXName
+                            );
+                        att = Expression.Convert(att, part.Value.GetType());
+                        e = ExpressionEquals(part, att, right);
+
+                        break;
+                    }
+                    else
+                    {
+                        _elements = Expression.Call(
                         typeof(XElementExtensions),
-                        part.self.IsElements ? "GetElements" : "GetDescendants",
-                        null, 
-                        pe,
-                        Expression.Constant(part.Key)
+                        last ? "GetElements" : "GetElement",
+                        null,
+                        null == _elements ? pe : _elements,
+                        Expression.Constant(key)
                         );
+                        if (last)
+                        {
+                            if (null != part.Value)
+                            {
+                                Expression type = Expression.Convert(pe, part.Value.GetType());
+                                Expression equal = ExpressionEquals(part, type, Expression.Constant(part.Value));
 
-                    Expression type = Expression.Convert(pe, part.Value.GetType());
-                    Expression equal = ExpressionEquals(part, type, Expression.Constant(part.Value));
+                                e = Expression.Call(
+                                    typeof(Enumerable),
+                                    "Any",
+                                    new[] { typeof(XElement) },
+                                    _elements,
+                                    Expression.Lambda<Func<XElement, bool>>(equal, new ParameterExpression[] { pe })
+                                   );
+                            }
+                            else
+                            {
+                                Expression count = Expression.Call(
+                                    typeof(Enumerable),
+                                    "Count",
+                                    new[] { typeof(XElement) },
+                                    _elements
+                                    );
 
-                    e = Expression.Call(
-                        typeof(Enumerable),
-                        "Any",
-                        new[] { typeof(XElement) },
-                        _elements,
-                        Expression.Lambda<Func<XElement, bool>>(equal, new ParameterExpression[] { pe })
-                       );
+                                e = Expression.GreaterThan(
+                                    count,
+                                    Expression.Constant(0)
+                                    );
+                            }
+                        }
+                    }
                 }
                 if (null == ex)
                     ex = e;
@@ -148,7 +187,7 @@ namespace XmlLib.nXPath
                 else
                     ex = Expression.OrElse(ex, e);
             }
-            
+
             // if method returns a single element
             if ("ElementAt" == method)
             {

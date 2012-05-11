@@ -9,6 +9,16 @@
             "pair[@Key&gt;={0} and @Key&lt;{1}]", 4, 6
             </summary>
         </member>
+        <member name="M:XmlLib.nXPath.XPathString.Split(System.Char[])">
+            <summary>
+            Returns a XPathString array with the associated values in each XPathString.
+            </summary>
+        </member>
+        <member name="M:XmlLib.nXPath.XPathString.Split(System.String[],System.StringSplitOptions)">
+            <summary>
+            Returns a XPathString array with the associated values in each XPathString.
+            </summary>
+        </member>
         <member name="M:XmlLib.nXPath.XPathString.ToPaths(System.String[])">
             <summary>
             Split out separate XPathString's by parts of an array that concatted equals Text.

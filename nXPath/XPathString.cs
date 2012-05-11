@@ -7,7 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq; 
+using System.Linq;
 using System.Text.RegularExpressions;
 
 namespace XmlLib.nXPath
@@ -42,10 +42,71 @@ namespace XmlLib.nXPath
             Text = string.Format(path, values);
             Values = values;
 
-            PathSegments = ToPaths(path.Split('\\', '/'));
+            PathSegments = ToPaths(Split()); // Split('\\', '/');
         }
 
-        const string Pattern = @"\{(\d+):?\w*\}";  // "ggg[xcc={0}]/aa[xx={1}][fdjskl={2}]"
+        /*
+         * Split by '/' but not when '/' is with '[]' square brackets
+         */
+        private string[] Split()
+        {
+            // Regex test: http://regexpal.com/
+            //string s = "pair[@Key=2]/Items/Item[Person/Name='Martin']/Date";
+            //string[] result = Regex.Split(s, @"(?<!\[[^]]+)/"); // < this works
+            return Regex.Matches(Format, @"([^/\[\]]|\[[^]]*\])+")
+                                    .Cast<Match>()
+                                    .Select(m => m.Value)
+                                    .Where(s => !string.IsNullOrEmpty(s))
+                                    .ToArray();
+            /* Original I created before getting good responses on StackOverflow
+            List<string> list = new List<string>();
+            int pos = 0, i = 0;
+            bool within = false;
+            Func<string> add = () => Format.Substring(pos, i - pos);
+            //string a;
+            for (; i < Format.Length; i++)
+            {
+                //a = add();
+                char c = Format[i];
+                switch (c)
+                {
+                    case '/':
+                        if (!within)
+                        {
+                            list.Add(add());
+                            pos = i + 1;
+                        }
+                        break;
+                    case '[':
+                        within = true;
+                        break;
+                    case ']':
+                        within = false;
+                        break;
+                }
+            }
+            list.Add(add());
+            return list.Where(s => !string.IsNullOrEmpty(s)).ToArray();
+             */
+        }
+
+        /// <summary>
+        /// Returns a XPathString array with the associated values in each XPathString.
+        /// </summary>
+        public XPathString[] Split(params char[] separator)
+        {
+            return ToPaths(Format.Split(separator));
+        }
+
+        /// <summary>
+        /// Returns a XPathString array with the associated values in each XPathString.
+        /// </summary>
+        public XPathString[] Split(string[] separator, StringSplitOptions option)
+        {
+            return ToPaths(Format.Split(separator, option));
+        }
+
+        const string ToPaths_Pattern = @"\{(\d+):?\w*\}";  // "ggg[xcc={0}]/aa[xx={1}][fdjskl={2}]"
 
         /// <summary>
         /// Split out separate XPathString's by parts of an array that concatted equals Text.
@@ -64,7 +125,7 @@ namespace XmlLib.nXPath
                 {
                     string part = parts[i];
                     List<object> args = new List<object>();
-                    MatchCollection ms = Regex.Matches(part, Pattern);
+                    MatchCollection ms = Regex.Matches(part, ToPaths_Pattern);
                     if (ms.Count > 0)
                     {
                         args.AddRange(Values.Skip(index).Take(ms.Count));
