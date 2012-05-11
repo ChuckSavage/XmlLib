@@ -4,6 +4,18 @@
         <name>Git XmlLib vs2008</name>
     </assembly>
     <members>
+        <member name="M:XmlLib.nXPath.XPathString.#ctor(System.String,System.Object[])">
+            <summary>
+            "pair[@Key&gt;={0} and @Key&lt;{1}]", 4, 6
+            </summary>
+        </member>
+        <member name="M:XmlLib.nXPath.XPathString.ToPaths(System.String[])">
+            <summary>
+            Split out separate XPathString's by parts of an array that concatted equals Text.
+            </summary>
+            <param name="parts"></param>
+            <returns></returns>
+        </member>
         <member name="T:XmlLib.XElementExtensions">
             <summary>
             XElement extension methods.
@@ -252,49 +264,10 @@
             </remarks>
             </summary>
         </member>
-        <member name="M:XmlLib.XPathParser.Bracket.IsMatch(System.String)">
-            <summary>
-            Check if string is a match for a Where() clause.
-            </summary>
-        </member>
-        <member name="M:XmlLib.XPathParser.Bracket.IsValueString(System.String,System.String@)">
-            <summary>
-            If we're comparing value's by string
-            </summary>
-        </member>
-        <member name="P:XmlLib.XPathParser.Bracket.Key">
-            <summary>
-            The left side of an expression.
-            <remarks>Aka: para[key=value]</remarks>
-            </summary>
-        </member>
-        <member name="P:XmlLib.XPathParser.Bracket.Value">
-            <summary>
-            The right side of an expression.
-            <remarks>Aka: para[key=value]</remarks>
-            </summary>
-        </member>
-        <member name="P:XmlLib.XPathParser.Bracket.XPath">
-            <summary>
-            The full expression.
-            </summary>
-        </member>
         <member name="P:XmlLib.nXPath.XPath_Bracket.XPath">
             <summary>
             The expression.
             </summary>
-        </member>
-        <member name="M:XmlLib.nXPath.XPathString.#ctor(System.String,System.Object[])">
-            <summary>
-            "pair[@Key&gt;={0} and @Key&lt;{1}]", 4, 6
-            </summary>
-        </member>
-        <member name="M:XmlLib.nXPath.XPathString.ToPaths(System.String[])">
-            <summary>
-            Split out separate XPathString's by parts of an array that concatted equals Text.
-            </summary>
-            <param name="parts"></param>
-            <returns></returns>
         </member>
     </members>
 </doc>
