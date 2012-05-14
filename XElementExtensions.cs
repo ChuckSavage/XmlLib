@@ -458,8 +458,6 @@ namespace XmlLib
         {
             if (string.IsNullOrEmpty(name))
                 return GetEnumerable(source, convert);
-            if (name.Contains('['))
-                return source.XPath(name).Select(x => convert(x));
             source = NameCheck(source, name, out name);
             return GetEnumerable(source, ToXName(source, name), convert);
         }
