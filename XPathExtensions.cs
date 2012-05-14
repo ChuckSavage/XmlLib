@@ -58,5 +58,34 @@ namespace XmlLib
             return XPathElement(source, new XPathString(path, args), true);
         }
 
+        /// <summary>
+        /// Generic Get for a type.
+        /// <remarks>
+        /// It works as long as there is a converter for the type to convert 
+        /// from string.
+        /// </remarks>
+        /// </summary>
+        /// <returns>The elements converted to its type or the default if it 
+        /// didn't exist or was empty.</returns>
+        public static IEnumerable<T> XGet<T>(this XElement source, string path, T @default, params object[] args)
+        {
+            XPathString xp = new XPathString(path, args);
+            return XPath(source, xp, true)
+                .Select(x => x.Get(null, @default));
+        }
+
+        /// <summary>
+        /// Generic Get for a type.
+        /// <remarks>
+        /// It works as long as there is a converter for the type to convert 
+        /// from string.
+        /// </remarks>
+        /// </summary>
+        /// <returns>The element converted to its type or the default if it 
+        /// didn't exist or was empty.</returns>
+        public static T XGetElement<T>(this XElement source, string path, T @default, params object[] args)
+        {
+            return XGet(source, path, @default, args).FirstOrDefault();
+        }
     }
 }

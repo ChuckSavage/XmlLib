@@ -42,13 +42,18 @@ namespace XmlLib.nXPath
             Text = string.Format(path, values);
             Values = values;
 
-            PathSegments = ToPaths(Split()); // Split('\\', '/');
+            PathSegments = Split();
         }
+
+        /// <summary>
+        /// Split the path into its separate XPathStrings.
+        /// </summary>
+        public XPathString[] Split() { return ToPaths(SplitInternal()); } 
 
         /*
          * Split by '/' but not when '/' is with '[]' square brackets
          */
-        private string[] Split()
+        private string[] SplitInternal()
         {
             // Regex test: http://regexpal.com/
             //string s = "pair[@Key=2]/Items/Item[Person/Name='Martin']/Date";
