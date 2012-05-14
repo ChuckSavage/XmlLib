@@ -10,9 +10,6 @@ using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Xml.Linq;
-#if SeaRisenLib2
-using SeaRisenLib2.Xml;
-#endif
 
 namespace XmlLib.nXPath
 {
@@ -38,7 +35,6 @@ namespace XmlLib.nXPath
             XPathString[] paths = new XPathString(text, path.Values)
                 .Split(new string[] { " and ", " or " }, StringSplitOptions.RemoveEmptyEntries);
             Parts = paths.Select(s => new XPath_Part(s)).ToArray();
-            var p = Parts;
         }
 
         private Expression ExpressionEquals(XPath_Part part, Expression left, Expression right)
@@ -125,7 +121,7 @@ namespace XmlLib.nXPath
                             typeof(XElementExtensions),
                             "ToXName",
                             null,
-                            null == _elements ? pe : _elements,//new [] { typeof(string) },
+                            null == _elements ? pe : _elements,
                             Expression.Constant(key)
                             );
                         

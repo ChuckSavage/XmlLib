@@ -6,12 +6,9 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq; 
+using System.Linq;
 using System.Text.RegularExpressions;
 using System.Xml.Linq;
-#if SeaRisenLib2
-using SeaRisenLib2.Xml;
-#endif
 
 namespace XmlLib.nXPath
 {
@@ -32,7 +29,7 @@ namespace XmlLib.nXPath
                 if (matches.Length > 0)
                 {
                     name = part.Format.Remove(matches[0].Index);
-                    List<string> list = new List<string>(){ name };
+                    List<string> list = new List<string>() { name };
                     list.AddRange(matches.Select(m => m.Value));
                     XPathString[] parts = part.ToPaths(list);
                     XPath_Bracket[] result = parts
@@ -62,7 +59,16 @@ namespace XmlLib.nXPath
             return elements;
         }
 
-        public IEnumerable<XElement> ParseEnumerable(XElement source, XPathString path, bool create)
+        /// <summary>
+        /// Get the elements of a path "path/to/node" or "path[to/node/@attribute>=20.50]".
+        /// <remarks>
+        /// <para>See XPath docs for help on using [number][key=value]
+        /// - syntax (http://www.w3.org/TR/xpath/)</para>
+        /// </remarks>
+        /// </summary>
+        /// <param name="create">create path if it doesn't exist?</param>
+        /// <exception cref="ArgumentOutOfRangeException" />
+        public static IEnumerable<XElement> Enumerable(XElement source, XPathString path, bool create)
         {
             if (null == path)
                 throw new ArgumentNullException("Path cannot be null.");
@@ -74,7 +80,7 @@ namespace XmlLib.nXPath
                 bool last = (i + 1) == path.PathSegments.Length;
                 if (xp.IsXPath)
                 {
-                    var e = ParseInternal(result, xp);
+                    var e = new cXPath().ParseInternal(result, xp);
                     if (last)
                         return e;
 
@@ -85,7 +91,7 @@ namespace XmlLib.nXPath
                         continue;
                     }
                 }
-                string part = xp.Text;//.Split('[')[0];
+                string part = xp.Text;
                 if (last)
                     if (xp.IsElements)
                         return result.GetElements(part);
@@ -103,9 +109,17 @@ namespace XmlLib.nXPath
             return new XElement[] { result };
         }
 
-        public XElement Parse(XElement source, XPathString path, bool create)
+        /// <summary>
+        /// Get the first element of a path "path/to/node" or "path[to/node/@attribute>=20.50]".
+        /// <remarks>
+        /// <para>See XPath docs for help on using [number][key=value]
+        /// - syntax (http://www.w3.org/TR/xpath/)</para>
+        /// </remarks>
+        /// </summary>
+        /// <exception cref="ArgumentOutOfRangeException" />
+        public static XElement Element(XElement source, XPathString path, bool create)
         {
-            return ParseEnumerable(source, path, create).FirstOrDefault();
+            return Enumerable(source, path, create).FirstOrDefault();
         }
     }
 }

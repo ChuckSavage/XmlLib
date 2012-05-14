@@ -10,13 +10,8 @@ using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
 using System.Xml.Linq;
-using XmlLib.nXPath;
 
-#if SeaRisenLib2
-namespace SeaRisenLib2.Xml
-#else
 namespace XmlLib
-#endif
 {
     /// <summary>
     /// XElement extension methods.
@@ -464,7 +459,7 @@ namespace XmlLib
             if (string.IsNullOrEmpty(name))
                 return GetEnumerable(source, convert);
             if (name.Contains('['))
-                return XPath(source, name).Select(x => convert(x));
+                return source.XPath(name).Select(x => convert(x));
             source = NameCheck(source, name, out name);
             return GetEnumerable(source, ToXName(source, name), convert);
         }
@@ -544,47 +539,33 @@ namespace XmlLib
 
         /// <summary>
         /// Navigate to a specific path within source.  (create path if it doesn't exist?)
-        /// <remarks>See XPath docs for help on using [number][key=value] 
-        /// syntax (http://www.w3.org/TR/xpath/)</remarks>
         /// </summary>
-        /// <exception cref="ArgumentOutOfRangeException" />
-        public static IEnumerable<XElement> XPath(this XElement source, XPathString path, bool create)
+        public static XElement Path(this XElement source, string path, bool create)
         {
-            //return XPathParser.ParseEnumerable(source, path, create);
-            return new cXPath().ParseEnumerable(source, path, create);
+            if (null == path)
+                throw new ArgumentNullException("Path cannot be null!");
+            string[] parts = path.Split('\\', '/');
+            XElement result = source;
+            foreach (string part in parts)
+            {
+                if (create)
+                    result = result.GetElement(part);
+                else
+                {
+                    result = result.Element(ToXName(result, part));
+                    if (null == result)
+                        throw new ArgumentOutOfRangeException(part);
+                }
+            }
+            return result;
         }
 
         /// <summary>
-        /// Navigate to a specific path within source, create it if it doesn't exist.
-        /// <remarks>See XPath docs for help on using [number][key=value] 
-        /// syntax (http://www.w3.org/TR/xpath/)</remarks>
+        /// Navigate to a specific path within source.  Creates the path if it doesn't exist.
         /// </summary>
-        /// <exception cref="ArgumentOutOfRangeException" />
-        public static IEnumerable<XElement> XPath(this XElement source, string path, params object[] args)
+        public static XElement Path(this XElement source, string path)
         {
-            return XPath(source, new XPathString(path, args), true);
-        }
-
-        /// <summary>
-        /// Navigate to a specific path within source.  (create path if it doesn't exist?)
-        /// <remarks>See XPath docs for help on using [number][key=value] 
-        /// syntax (http://www.w3.org/TR/xpath/)</remarks>
-        /// </summary>
-        /// <exception cref="ArgumentOutOfRangeException" />
-        public static XElement Path(this XElement source, XPathString path, bool create)
-        {
-            return XPath(source, path, create).FirstOrDefault();
-        }
-
-        /// <summary>
-        /// Navigate to a specific path within source, create it if it doesn't exist.
-        /// <remarks>See XPath docs for help on using [number][key=value] 
-        /// syntax (http://www.w3.org/TR/xpath/)</remarks>
-        /// </summary>
-        /// <exception cref="ArgumentOutOfRangeException" />
-        public static XElement Path(this XElement source, string path, params object[] args)
-        {
-            return Path(source, new XPathString(path, args), true);
+            return Path(source, path, true);
         }
 
 #if !SetSave
