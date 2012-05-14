@@ -73,40 +73,56 @@ namespace XmlLib.nXPath
             if (null == path)
                 throw new ArgumentNullException("Path cannot be null.");
 
-            XElement result = source;
+            IEnumerable<XElement> e;
+            List<XElement> list = new[] { source }.ToList();
+            XElement result;
             for (int i = 0; i < path.PathSegments.Length; i++)
             {
+                List<XElement> newList = new List<XElement>();
                 XPathString xp = path.PathSegments[i];
                 bool last = (i + 1) == path.PathSegments.Length;
+
                 if (xp.IsXPath)
                 {
-                    var e = new cXPath().ParseInternal(result, xp);
-                    if (last)
-                        return e;
-
-                    XElement temp = e.FirstOrDefault();
-                    if (null != temp)
+                    bool foundOne = false;
+                    list.ForEach(x =>
                     {
-                        result = temp;
+                        e = new cXPath().ParseInternal(x, xp);
+                        if (null != e)
+                        {
+                            newList.AddRange(e);
+                            foundOne = true;
+                        }
+                    });
+                    if (foundOne)
+                    {
+                        list = newList;
                         continue;
                     }
                 }
-                string part = xp.Text;
+                string part = xp.Text.Split('[')[0];
                 if (last)
-                    if (xp.IsElements)
-                        return result.GetElements(part);
-                    else
-                        return result.GetDescendants(part);
-                if (create)
-                    result = result.GetElement(part);
+                    list.ForEach(x =>
+                    {
+                        if (xp.IsElements)
+                            newList.AddRange(x.GetElements(part));
+                        else
+                            newList.AddRange(x.GetDescendants(part));
+                    });
                 else
-                {
-                    result = result.Element(result.ToXName(part));
-                    if (null == result)
-                        throw new ArgumentOutOfRangeException(part);
-                }
+                    list.ForEach(x =>
+                    {
+                        if (create)
+                            result = x.GetElement(part);
+                        else
+                            result = x.Element(x.ToXName(part));
+                        if (null != result)
+                            newList.Add(result);
+                    });
+
+                list = newList;
             }
-            return new XElement[] { result };
+            return list;
         }
 
         /// <summary>

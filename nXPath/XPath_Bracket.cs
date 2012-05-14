@@ -42,13 +42,30 @@ namespace XmlLib.nXPath
             Expression ex;
             if (part.Value is string)
             {
-                // use string.Compare() 
-                left = Expression.Call(
-                    typeof(string),
-                    "Compare",
-                    null,
-                    new Expression[] { left, right });
-                right = Expression.Constant(0, typeof(int));
+                if (part.StartsWith)
+                {
+                    if (!(part.Value is string))
+                    {
+                        Func<Expression, Expression> Expression_ToString = e =>
+                            Expression.Call(e, typeof(string).GetMethod("ToString", Type.EmptyTypes));
+                        left = Expression_ToString(left);
+                        right = Expression_ToString(right);
+                    }
+                    return Expression.Call(
+                        left,
+                        typeof(string).GetMethod("StartsWith", new[] { typeof(string) }),
+                        right);
+                }
+                else
+                {
+                    // use string.Compare() 
+                    left = Expression.Call(
+                        typeof(string),
+                        "Compare",
+                        null,
+                        new Expression[] { left, right });
+                    right = Expression.Constant(0, typeof(int));
+                }
             }
 
             if (part.NotEqual)
@@ -72,14 +89,53 @@ namespace XmlLib.nXPath
         {
             IQueryable<XElement> query = elements.AsQueryable<XElement>();
             MethodCallExpression call;
-            Expression left, right, ex = null, e;
+            Expression right = null, ex = null, e;
             string method = "Where";
             ParameterExpression pe = Expression.Parameter(typeof(XElement), "XElement");
             ParameterExpression pa = Expression.Parameter(typeof(XAttribute), "XAttribute");
 
+            Func<XPath_Part, string, Expression, Expression> CompareAttribute = (part, key, _elements) =>
+            {
+                if ("*" != key)
+                {
+                    Expression toXName = Expression.Call(
+                        typeof(XElementExtensions),
+                        "ToXName",
+                        null,
+                        null == _elements ? pe : _elements,
+                        Expression.Constant(key)
+                        );
+
+                    Expression att = Expression.Call(
+                        null == _elements ? pe : _elements,
+                        typeof(XElement).GetMethod("Attribute", new Type[] { typeof(XName) }),
+                        toXName
+                        );
+                    att = Expression.Convert(att, part.Value.GetType());
+                    return ExpressionEquals(part, att, right);
+                }
+                else // [@*='ABC']
+                {
+                    Expression attributes = Expression.Call(
+                        null == _elements ? pe : _elements, 
+                        "Attributes", 
+                        null);
+                    Expression type = Expression.Convert(pa, part.Value.GetType());
+                    Expression equal = ExpressionEquals(part, type, Expression.Constant(part.Value));
+                    return Expression.Call(
+                            typeof(Enumerable),
+                            "Any",
+                            new[] { typeof(XAttribute) },
+                            attributes,
+                            Expression.Lambda<Func<XAttribute, bool>>(equal, new ParameterExpression[] { pa })
+                           );
+                }
+            };
+
             foreach (XPath_Part part in Parts)
             {
                 e = null;
+                right = Expression.Constant(part.Value);
                 if (part.ElementAt)
                 {
                     method = "ElementAt";
@@ -104,7 +160,6 @@ namespace XmlLib.nXPath
                 }
 
                 // Parse Key Value Pair Expression
-                right = Expression.Constant(part.Value);
                 string[] split = part.Key.TrimStart('/').Split('/');
                 Expression _elements = null;
                 for (int i = 0; i < split.Length; i++)
@@ -114,37 +169,7 @@ namespace XmlLib.nXPath
                     if (part.IsValueAttribute || key.StartsWith("@"))
                     {
                         key = key.TrimStart('@');
-                        if ("*" != key)
-                        {
-                            Expression toXName = Expression.Call(
-                                typeof(XElementExtensions),
-                                "ToXName",
-                                null,
-                                null == _elements ? pe : _elements,
-                                Expression.Constant(key)
-                                );
-
-                            Expression att = Expression.Call(
-                                null == _elements ? pe : _elements,
-                                typeof(XElement).GetMethod("Attribute", new Type[] { typeof(XName) }),
-                                toXName
-                                );
-                            att = Expression.Convert(att, part.Value.GetType());
-                            e = ExpressionEquals(part, att, right);
-                        }
-                        else // [@*='ABC']
-                        {
-                            Expression attributes = Expression.Call(pe, "Attributes", null);
-                            Expression type = Expression.Convert(pa, part.Value.GetType());
-                            Expression equal = ExpressionEquals(part, type, Expression.Constant(part.Value));
-                            e = Expression.Call(
-                                    typeof(Enumerable),
-                                    "Any",
-                                    new[] { typeof(XAttribute) },
-                                    attributes,
-                                    Expression.Lambda<Func<XAttribute, bool>>(equal, new ParameterExpression[] { pa })
-                                   );
-                        }
+                        e = CompareAttribute(part, key, _elements);
                         break;
                     }
                     else
@@ -163,7 +188,7 @@ namespace XmlLib.nXPath
                         {
                             _elements = Expression.Call(
                                 null == _elements ? pe : _elements,
-                                typeof(XElement).GetMethod("Elements", new Type[] {})
+                                typeof(XElement).GetMethod("Elements", Type.EmptyTypes)
                                 );
                         }
                         if (last)

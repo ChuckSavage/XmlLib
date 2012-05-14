@@ -22,6 +22,8 @@ namespace XmlLib.nXPath
         public bool GreaterThanOrEqual { get { return Equal && GreaterThan; } }
 
         public readonly bool ElementAt;
+        public readonly bool StartsWith;
+
         public bool KVP { get; private set; }
         public string Key { get; private set; }
         public object Value
@@ -57,12 +59,7 @@ namespace XmlLib.nXPath
                     return;
                 }
                 // have quoted value
-                Match quotes = Regex.Match(part, "='.*'"); // greedy .* so that can have quotes within the quote
-                if (quotes.Success)
-                {
-                    part = part.Replace("'", "");
-                    isString = true;
-                }
+                isString = IsString(part, out part);
             }
 
             Key = part;
@@ -96,13 +93,12 @@ namespace XmlLib.nXPath
             }
             
             {
-                Match functionMatch = Regex.Match(part, @"^\w+\(\w*\)"); // last()
+                Match functionMatch = Regex.Match(part, @"^\w+[^\(]*\([^\)]*\)"); // last(), starts-with(key, value)
                 if(functionMatch.Success)
                 {
-                    switch (functionMatch.Value)
+                    string func = functionMatch.Value;
+                    if(func.StartsWith("last"))
                     {
-                        //case "count()":
-                        case "last()":
                             ElementAt = true;
                             Key = functionMatch.Value;
                             Match digits = Regex.Match(part, @"\d+$"); // ddd
@@ -111,7 +107,15 @@ namespace XmlLib.nXPath
                                 _Value = i;
                             else
                                 _Value = 0;
-                            break;
+                    }
+                    else if (StartsWith = func.StartsWith("starts-with"))
+                    {
+                        string kvp = Regex.Match(func, @"\(([^\}]*)\)").Value.TrimStart('(').TrimEnd(')');
+                        string[] parts = kvp.Split(',');
+                        Key = parts[0];
+                        string value;
+                        isString = IsString(parts[1], out value);
+                        Value = value;
                     }
                 }
             }
@@ -125,6 +129,19 @@ namespace XmlLib.nXPath
                 if (decimal.TryParse((string)Value, out d))
                     _Value = d;
             }
+        }
+
+        bool IsString(string value, out string newValue)
+        {
+            newValue = value;
+            // have quoted value
+            Match quotes = Regex.Match(value, "'.*'"); // greedy .* so that can have quotes within the quote
+            if (quotes.Success)
+            {
+                newValue = value.Replace("'", "");
+                return true;
+            }
+            return false;
         }
     }
 }

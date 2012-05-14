@@ -26,6 +26,38 @@
             <param name="parts"></param>
             <returns></returns>
         </member>
+        <member name="M:XmlLib.XPathExtensions.XPath(System.Xml.Linq.XElement,XmlLib.nXPath.XPathString,System.Boolean)">
+            <summary>
+            Navigate to a specific path within source.  (create path if it doesn't exist?)
+            <remarks>See XPath docs for help on using [number][key=value] 
+            syntax (http://www.w3.org/TR/xpath/)</remarks>
+            </summary>
+            <exception cref="T:System.ArgumentOutOfRangeException"/>
+        </member>
+        <member name="M:XmlLib.XPathExtensions.XPath(System.Xml.Linq.XElement,System.String,System.Object[])">
+            <summary>
+            Navigate to a specific path within source, create it if it doesn't exist.
+            <remarks>See XPath docs for help on using [number][key=value] 
+            syntax (http://www.w3.org/TR/xpath/)</remarks>
+            </summary>
+            <exception cref="T:System.ArgumentOutOfRangeException"/>
+        </member>
+        <member name="M:XmlLib.XPathExtensions.XPathElement(System.Xml.Linq.XElement,XmlLib.nXPath.XPathString,System.Boolean)">
+            <summary>
+            Navigate to a specific path within source.  (create path if it doesn't exist?)
+            <remarks>See XPath docs for help on using [number][key=value] 
+            syntax (http://www.w3.org/TR/xpath/)</remarks>
+            </summary>
+            <exception cref="T:System.ArgumentOutOfRangeException"/>
+        </member>
+        <member name="M:XmlLib.XPathExtensions.XPathElement(System.Xml.Linq.XElement,System.String,System.Object[])">
+            <summary>
+            Navigate to a specific path within source, create it if it doesn't exist.
+            <remarks>See XPath docs for help on using [number][key=value] 
+            syntax (http://www.w3.org/TR/xpath/)</remarks>
+            </summary>
+            <exception cref="T:System.ArgumentOutOfRangeException"/>
+        </member>
         <member name="T:XmlLib.XElementExtensions">
             <summary>
             XElement extension methods.
@@ -275,38 +307,6 @@
             <para>See XPath docs for help on using [number][key=value]
             - syntax (http://www.w3.org/TR/xpath/)</para>
             </remarks>
-            </summary>
-            <exception cref="T:System.ArgumentOutOfRangeException"/>
-        </member>
-        <member name="M:XmlLib.XPathExtensions.XPath(System.Xml.Linq.XElement,XmlLib.nXPath.XPathString,System.Boolean)">
-            <summary>
-            Navigate to a specific path within source.  (create path if it doesn't exist?)
-            <remarks>See XPath docs for help on using [number][key=value] 
-            syntax (http://www.w3.org/TR/xpath/)</remarks>
-            </summary>
-            <exception cref="T:System.ArgumentOutOfRangeException"/>
-        </member>
-        <member name="M:XmlLib.XPathExtensions.XPath(System.Xml.Linq.XElement,System.String,System.Object[])">
-            <summary>
-            Navigate to a specific path within source, create it if it doesn't exist.
-            <remarks>See XPath docs for help on using [number][key=value] 
-            syntax (http://www.w3.org/TR/xpath/)</remarks>
-            </summary>
-            <exception cref="T:System.ArgumentOutOfRangeException"/>
-        </member>
-        <member name="M:XmlLib.XPathExtensions.XPathElement(System.Xml.Linq.XElement,XmlLib.nXPath.XPathString,System.Boolean)">
-            <summary>
-            Navigate to a specific path within source.  (create path if it doesn't exist?)
-            <remarks>See XPath docs for help on using [number][key=value] 
-            syntax (http://www.w3.org/TR/xpath/)</remarks>
-            </summary>
-            <exception cref="T:System.ArgumentOutOfRangeException"/>
-        </member>
-        <member name="M:XmlLib.XPathExtensions.XPathElement(System.Xml.Linq.XElement,System.String,System.Object[])">
-            <summary>
-            Navigate to a specific path within source, create it if it doesn't exist.
-            <remarks>See XPath docs for help on using [number][key=value] 
-            syntax (http://www.w3.org/TR/xpath/)</remarks>
             </summary>
             <exception cref="T:System.ArgumentOutOfRangeException"/>
         </member>
