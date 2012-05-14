@@ -114,36 +114,58 @@ namespace XmlLib.nXPath
                     if (part.IsValueAttribute || key.StartsWith("@"))
                     {
                         key = key.TrimStart('@');
-                        
-                        // How to get value of _elements into variable to next two calls?
+                        if ("*" != key)
+                        {
+                            Expression toXName = Expression.Call(
+                                typeof(XElementExtensions),
+                                "ToXName",
+                                null,
+                                null == _elements ? pe : _elements,
+                                Expression.Constant(key)
+                                );
 
-                        Expression toXName = Expression.Call(
-                            typeof(XElementExtensions),
-                            "ToXName",
-                            null,
-                            null == _elements ? pe : _elements,
-                            Expression.Constant(key)
-                            );
-                        
-                        Expression att = Expression.Call(
-                            null == _elements ? pe : _elements,
-                            typeof(XElement).GetMethod("Attribute", new Type[] { typeof(XName) }),
-                            toXName
-                            );
-                        att = Expression.Convert(att, part.Value.GetType());
-                        e = ExpressionEquals(part, att, right);
-
+                            Expression att = Expression.Call(
+                                null == _elements ? pe : _elements,
+                                typeof(XElement).GetMethod("Attribute", new Type[] { typeof(XName) }),
+                                toXName
+                                );
+                            att = Expression.Convert(att, part.Value.GetType());
+                            e = ExpressionEquals(part, att, right);
+                        }
+                        else // [@*='ABC']
+                        {
+                            Expression attributes = Expression.Call(pe, "Attributes", null);
+                            Expression type = Expression.Convert(pa, part.Value.GetType());
+                            Expression equal = ExpressionEquals(part, type, Expression.Constant(part.Value));
+                            e = Expression.Call(
+                                    typeof(Enumerable),
+                                    "Any",
+                                    new[] { typeof(XAttribute) },
+                                    attributes,
+                                    Expression.Lambda<Func<XAttribute, bool>>(equal, new ParameterExpression[] { pa })
+                                   );
+                        }
                         break;
                     }
                     else
                     {
-                        _elements = Expression.Call(
-                        typeof(XElementExtensions),
-                        last ? "GetElements" : "GetElement",
-                        null,
-                        null == _elements ? pe : _elements,
-                        Expression.Constant(key)
-                        );
+                        if ("*" != key)
+                        {
+                            _elements = Expression.Call(
+                                typeof(XElementExtensions),
+                                last ? "GetElements" : "GetElement",
+                                null,
+                                null == _elements ? pe : _elements,
+                                Expression.Constant(key)
+                                );
+                        }
+                        else // [*='ABC']
+                        {
+                            _elements = Expression.Call(
+                                null == _elements ? pe : _elements,
+                                typeof(XElement).GetMethod("Elements", new Type[] {})
+                                );
+                        }
                         if (last)
                         {
                             if (null != part.Value)
