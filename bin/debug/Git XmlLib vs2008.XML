@@ -311,6 +311,11 @@
             </remarks>
             </summary>
         </member>
+        <member name="M:XmlLib.nXPath.XPath_Bracket.Element(System.Linq.Expressions.Expression,System.String)">
+            <summary>
+            Returns an empty element if not found.
+            </summary>
+        </member>
         <member name="P:XmlLib.nXPath.XPath_Bracket.XPath">
             <summary>
             The expression.

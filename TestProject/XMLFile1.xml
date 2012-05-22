@@ -1,0 +1,90 @@
+﻿<root>
+  <pair Key="1">
+    <Value>1</Value>
+  </pair>
+  <pair Key="2">
+    <Items>
+      <Item>
+        <Name>Mike</Name>
+        <Date>5/4/2000</Date>
+      </Item>
+      <Item>
+        <Name>Martin</Name>
+        <Date>5/4/2010</Date>
+      </Item>
+    </Items>
+    <Value>2</Value>
+  </pair>
+  <pair Key="3">
+    <Value2>
+      <Value>3</Value>
+    </Value2>
+    <Value>3</Value>
+  </pair>
+  <pair Key="4">
+    <Value2>
+      <Value>4</Value>
+    </Value2>
+    <Value>4</Value>
+  </pair>
+  <pair Key="5">
+    <Value2>
+      <Value>5</Value>
+    </Value2>
+    <Value>5</Value>
+  </pair>
+  <pair >
+    <Items>
+      <Item>
+        <Name>Mike</Name>
+        <Date>5/4/2000</Date>
+      </Item>
+      <Item>
+        <Name>Martin</Name>
+        <Date>5/4/2010</Date>
+      </Item>
+    </Items>
+    <Value>6</Value>
+  </pair>
+  <pair Key="7">
+    <Value>7</Value>
+  </pair>
+  <Items>
+    <Item>
+      <Name>Mike</Name>
+      <Date>5/4/2000</Date>
+    </Item>
+    <Item>
+      <Name>Martin</Name>
+      <Date>5/4/2010</Date>
+    </Item>
+  </Items>
+  <details>
+    <code1>ADJ</code1>
+    <code2>ADC</code2>
+    <Shipment>
+      <foo>1</foo>
+      <bar></bar>
+    </Shipment>
+    <Shipment>
+      <foo>2</foo>
+      <bar></bar>
+    </Shipment>
+  </details>
+  <details>
+    <code1>ADJ</code1>
+    <code2>SCC</code2>
+    <Shipment>
+      <foo>3</foo>
+      <bar></bar>
+    </Shipment>
+  </details>
+  <details>
+    <code1>ADJ</code1>
+    <code2>ADC </code2>
+    <Shipment>
+      <foo>4</foo>
+      <bar></bar>
+    </Shipment>
+  </details>
+</root>

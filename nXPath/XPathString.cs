@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Collections;
 
 namespace XmlLib.nXPath
 {
@@ -31,6 +32,8 @@ namespace XmlLib.nXPath
         {
             if (string.IsNullOrEmpty(path))
                 throw new ArgumentNullException("XPath cannot be null or empty!");
+            if (null == values)
+                values = new object[] { };
             if (path.StartsWith("//"))
             {
                 IsElements = false; // is Descendants
@@ -48,7 +51,7 @@ namespace XmlLib.nXPath
         /// <summary>
         /// Split the path into its separate XPathStrings.
         /// </summary>
-        public XPathString[] Split() { return ToPaths(SplitInternal()); } 
+        public XPathString[] Split() { return ToPaths(SplitInternal()); }
 
         /*
          * Split by '/' but not when '/' is with '[]' square brackets
@@ -152,6 +155,45 @@ namespace XmlLib.nXPath
         public XPathString[] ToPaths(IEnumerable<string> parts)
         {
             return ToPaths(parts.ToArray());
+        }
+
+        #region Comparing
+
+        public static IComparer Comparer { get { return new _Comparer(); } }
+
+        private class _Comparer : IComparer<XPathString>, IComparer
+        {
+            public int Compare(XPathString x, XPathString y)
+            {
+                if (null == x && null == y) return 0;
+                if (null == x) return -1;
+                if (null == y) return 1;
+                return string.Compare(x.Text, y.Text);
+            }
+
+            public int Compare(object x, object y)
+            {
+                return Compare(x as XPathString, y as XPathString);
+            }
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is XPathString)
+                return Text == ((XPathString)obj).Text;
+            return base.Equals(obj);
+        }
+
+        public override int GetHashCode()
+        {
+            return Text.GetHashCode();
+        }
+
+        #endregion
+
+        public override string ToString()
+        {
+            return Text;
         }
     }
 }

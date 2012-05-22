@@ -16,6 +16,9 @@ namespace XmlLib.nXPath
     [DebuggerDisplay("{XPath}")]
     internal class XPath_Bracket
     {
+        ParameterExpression pe = Expression.Parameter(typeof(XElement), "xe");
+        ParameterExpression pa = Expression.Parameter(typeof(XAttribute), "xa");
+
         public readonly XPath_Part[] Parts;
         public readonly bool AndOr;
 
@@ -39,10 +42,15 @@ namespace XmlLib.nXPath
 
         private Expression ExpressionEquals(XPath_Part part, Expression left, Expression right)
         {
+            return ExpressionEquals(part, left, right, null);
+        }
+
+        private Expression ExpressionEquals(XPath_Part part, Expression left, Expression right, Expression path)
+        {
             Expression ex;
             if (part.Value is string)
             {
-                if (part.StartsWith)
+                if (XPath_Part.eFunction.StartsWith == part.Function)
                 {
                     if (!(part.Value is string))
                     {
@@ -67,6 +75,54 @@ namespace XmlLib.nXPath
                     right = Expression.Constant(0, typeof(int));
                 }
             }
+            else if (XPath_Part.eFunction.None != part.Function)
+            {
+                switch (part.Function)
+                {
+                    /*
+                     * Min/Max get the xelement's parent's elements and find the min/max value
+                     */
+                    case XPath_Part.eFunction.Max:
+                    case XPath_Part.eFunction.Min:
+                        // right = x.Parent.Elements(x.Name).Max(xx => (int)xx.Attribute("Key")
+                        string max = XPath_Part.eFunction.Max == part.Function ? "Max" : "Min";
+                        string[] keyParts = part.Key.Split('/');
+                        string key = keyParts.Last();
+                        ParameterExpression maxPe = Expression.Parameter(typeof(XElement), max.ToLower());
+                        Expression parent = Expression.Property(pe, "Parent");
+                        Expression value;
+                        if (keyParts.Length > 1)
+                            path = Expression.Call(
+                                    typeof(XElementExtensions),
+                                    "GetElement",
+                                    null,
+                                    maxPe,
+                                    Expression.Constant(string.Join("/", keyParts.Take(keyParts.Length - 1).ToArray()))
+                                    );
+
+                        if (part.IsValueAttribute)
+                            value = AttributeValue(path ?? maxPe, part, key);
+                        else
+                        {
+                            value = ElementValue(path ?? maxPe, part, key);
+                        }
+                        Expression name = Expression.Property(pe, "Name");
+                        Expression elements = Expression.Call(
+                                typeof(XElementExtensions),
+                                "GetElements",
+                                null,
+                                parent,
+                                name
+                                );
+                        right = Expression.Call(
+                                typeof(Enumerable),
+                                max,
+                                new[] { typeof(XElement), part.Value.GetType() },
+                                elements,
+                                Expression.Lambda(value, new ParameterExpression[] { maxPe }));
+                        break;
+                }
+            }
 
             if (part.NotEqual)
                 ex = Expression.NotEqual(left, right);
@@ -85,52 +141,85 @@ namespace XmlLib.nXPath
             return ex;
         }
 
+        protected Expression Attribute(Expression parent, string key)
+        {
+            Expression att = Expression.Call(
+                parent,
+                typeof(XElement).GetMethod("Attribute", new Type[] { typeof(XName) }),
+                ToXName(parent, key)
+                );
+            return att;
+        }
+
+        protected Expression AttributeValue(Expression parent, XPath_Part part, string key)
+        {
+            Expression att = Attribute(parent, key);
+            Expression isNull = Expression.Equal(att, Expression.Constant(null));
+            Expression safe = Expression.Condition(isNull, GetDefault(part), att);
+            Expression value = Expression.Convert(safe, part.Value.GetType());
+            return value;
+        }
+
+        /// <summary>
+        /// Returns an empty element if not found.
+        /// </summary>
+        protected Expression Element(Expression parent, string key)
+        {
+            Expression ex = Expression.Call(
+                                typeof(XElementExtensions),
+                                "GetElement",
+                                null,
+                                parent,
+                                Expression.Constant(key)
+                                );
+            return ex;
+        }
+
+        protected Expression ElementValue(Expression parent, XPath_Part part, string key)
+        {
+            Expression e = Element(parent, key);
+            Expression value = Expression.Property(e, "Value");
+            Expression isNullOrEmpty = Expression.Call(
+                typeof(string),
+                "IsNullOrEmpty",
+                null,
+                value);
+            Func<Expression, Expression> Convert = exp => Expression.Convert(exp, part.Value.GetType());
+            Expression safe = Expression.Condition(isNullOrEmpty, Convert(GetDefault(part)), Convert(e));
+            return safe;
+        }
+
+        protected Expression CompareAttribute(XPath_Part part, string key, Expression _elements, Expression right)
+        {
+            if ("*" != key)
+            {
+                Expression att = AttributeValue(_elements ?? pe, part, key);
+                return ExpressionEquals(part, att, right);
+            }
+            else // [@*='ABC']
+            {
+                Expression attributes = Expression.Call(
+                    null == _elements ? pe : _elements,
+                    "Attributes",
+                    null);
+                Expression type = Expression.Convert(pa, part.Value.GetType());
+                Expression equal = ExpressionEquals(part, type, Expression.Constant(part.Value));
+                return Expression.Call(
+                        typeof(Enumerable),
+                        "Any",
+                        new[] { typeof(XAttribute) },
+                        attributes,
+                        Expression.Lambda<Func<XAttribute, bool>>(equal, new ParameterExpression[] { pa })
+                       );
+            }
+        }
+
         public IEnumerable<XElement> Elements(XElement contextNode, IEnumerable<XElement> elements)
         {
             IQueryable<XElement> query = elements.AsQueryable<XElement>();
             MethodCallExpression call;
             Expression right = null, ex = null, e;
             string method = "Where";
-            ParameterExpression pe = Expression.Parameter(typeof(XElement), "XElement");
-            ParameterExpression pa = Expression.Parameter(typeof(XAttribute), "XAttribute");
-
-            Func<XPath_Part, string, Expression, Expression> CompareAttribute = (part, key, _elements) =>
-            {
-                if ("*" != key)
-                {
-                    Expression toXName = Expression.Call(
-                        typeof(XElementExtensions),
-                        "ToXName",
-                        null,
-                        null == _elements ? pe : _elements,
-                        Expression.Constant(key)
-                        );
-
-                    Expression att = Expression.Call(
-                        null == _elements ? pe : _elements,
-                        typeof(XElement).GetMethod("Attribute", new Type[] { typeof(XName) }),
-                        toXName
-                        );
-                    att = Expression.Convert(att, part.Value.GetType());
-                    return ExpressionEquals(part, att, right);
-                }
-                else // [@*='ABC']
-                {
-                    Expression attributes = Expression.Call(
-                        null == _elements ? pe : _elements, 
-                        "Attributes", 
-                        null);
-                    Expression type = Expression.Convert(pa, part.Value.GetType());
-                    Expression equal = ExpressionEquals(part, type, Expression.Constant(part.Value));
-                    return Expression.Call(
-                            typeof(Enumerable),
-                            "Any",
-                            new[] { typeof(XAttribute) },
-                            attributes,
-                            Expression.Lambda<Func<XAttribute, bool>>(equal, new ParameterExpression[] { pa })
-                           );
-                }
-            };
 
             foreach (XPath_Part part in Parts)
             {
@@ -169,11 +258,12 @@ namespace XmlLib.nXPath
                     if (part.IsValueAttribute || key.StartsWith("@"))
                     {
                         key = key.TrimStart('@');
-                        e = CompareAttribute(part, key, _elements);
+                        e = CompareAttribute(part, key, _elements, right);
                         break;
                     }
                     else
                     {
+                        Expression parent = _elements;
                         if ("*" != key)
                         {
                             _elements = Expression.Call(
@@ -193,32 +283,41 @@ namespace XmlLib.nXPath
                         }
                         if (last)
                         {
-                            if (null != part.Value)
+                            switch (part.Function)
                             {
-                                Expression type = Expression.Convert(pe, part.Value.GetType());
-                                Expression equal = ExpressionEquals(part, type, Expression.Constant(part.Value));
+                                case XPath_Part.eFunction.Max:
+                                case XPath_Part.eFunction.Min:
+                                    Expression left = ElementValue(parent ?? pe, part, key);
+                                    e = ExpressionEquals(part, left, right, null);
+                                    break;
+                                default:
+                                    if (null != part.Value)
+                                    {
+                                        Expression type = Expression.Convert(pe, part.Value.GetType());
+                                        Expression equal = ExpressionEquals(part, type, Expression.Constant(part.Value));
+                                        e = Expression.Call(
+                                            typeof(Enumerable),
+                                            "Any",
+                                            new[] { typeof(XElement) },
+                                            _elements,
+                                            Expression.Lambda<Func<XElement, bool>>(equal, new ParameterExpression[] { pe })
+                                           );
+                                    }
+                                    else
+                                    {
+                                        Expression count = Expression.Call(
+                                            typeof(Enumerable),
+                                            "Count",
+                                            new[] { typeof(XElement) },
+                                            _elements
+                                            );
 
-                                e = Expression.Call(
-                                    typeof(Enumerable),
-                                    "Any",
-                                    new[] { typeof(XElement) },
-                                    _elements,
-                                    Expression.Lambda<Func<XElement, bool>>(equal, new ParameterExpression[] { pe })
-                                   );
-                            }
-                            else
-                            {
-                                Expression count = Expression.Call(
-                                    typeof(Enumerable),
-                                    "Count",
-                                    new[] { typeof(XElement) },
-                                    _elements
-                                    );
-
-                                e = Expression.GreaterThan(
-                                    count,
-                                    Expression.Constant(0)
-                                    );
+                                        e = Expression.GreaterThan(
+                                            count,
+                                            Expression.Constant(0)
+                                            );
+                                    }
+                                    break;
                             }
                         }
                     }
@@ -256,6 +355,41 @@ namespace XmlLib.nXPath
                 IQueryable<XElement> results = query.Provider.CreateQuery<XElement>(call);
                 return results;
             }
+        }
+
+        protected Expression GetDefault(XPath_Part part)
+        {
+            Type type = part.Value.GetType();
+            object value = null;
+            switch (part.Function)
+            {
+                case XPath_Part.eFunction.Max:
+                case XPath_Part.eFunction.Min:
+                    value = part.Value;
+                    break;
+            }
+            if (null == value)
+                try { value = Activator.CreateInstance(type); }
+                catch (MissingMemberException) 
+                {
+                    return Expression.Constant(null);
+                }
+            if (part.IsValueAttribute || part.Key.Contains('@'))
+                return Expression.Constant(new XAttribute("default", value));
+            else
+                return Expression.Constant(new XElement("default", value));
+        }
+
+        protected Expression ToXName(Expression parent, string key)
+        {
+            Expression toXName = Expression.Call(
+                typeof(XElementExtensions),
+                "ToXName",
+                null,
+                parent,
+                Expression.Constant(key)
+                );
+            return toXName;
         }
     }
 }

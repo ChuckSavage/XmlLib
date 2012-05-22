@@ -4,6 +4,7 @@
 // If you find this code helpful and would like to donate, please consider purchasing one of
 // the products at http://products.searisen.com, thank you.
 
+using System;
 using System.Diagnostics;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -20,10 +21,16 @@ namespace XmlLib.nXPath
         public bool LessThanOrEqual { get { return Equal && LessThan; } }
         public bool GreaterThan { get; private set; }
         public bool GreaterThanOrEqual { get { return Equal && GreaterThan; } }
-
         public readonly bool ElementAt;
-        public readonly bool StartsWith;
 
+        public enum eFunction
+        {
+            None,
+            StartsWith,
+            Max,
+            Min
+        }
+        public readonly eFunction Function = eFunction.None;
         public bool KVP { get; private set; }
         public string Key { get; private set; }
         public object Value
@@ -97,9 +104,11 @@ namespace XmlLib.nXPath
                 if(functionMatch.Success)
                 {
                     string func = functionMatch.Value;
-                    if(func.StartsWith("last"))
+                    string function = func.Split('(')[0];
+                    switch(function)
                     {
-                            ElementAt = true;
+                        case "last":
+                                                        ElementAt = true;
                             Key = functionMatch.Value;
                             Match digits = Regex.Match(part, @"\d+$"); // ddd
                             int i;
@@ -107,16 +116,41 @@ namespace XmlLib.nXPath
                                 _Value = i;
                             else
                                 _Value = 0;
+
+                            break;
+                        case "starts-with":
+                            Function = eFunction.StartsWith;
+                            break;
+                        case "max":
+                            Function = eFunction.Max;
+                            break;
+                        case "min":
+                            Function = eFunction.Min;
+                            break;
                     }
-                    else if (StartsWith = func.StartsWith("starts-with"))
+                    switch(Function)
                     {
-                        string kvp = Regex.Match(func, @"\(([^\}]*)\)").Value.TrimStart('(').TrimEnd(')');
-                        string[] parts = kvp.Split(',');
-                        Key = parts[0];
-                        string value;
-                        isString = IsString(parts[1], out value);
-                        Value = value;
+                        case eFunction.Max:
+                        case eFunction.Min:
+                        case eFunction.StartsWith:
+                            string kvp = Regex.Match(func, @"\(([^\}]*)\)").Value.TrimStart('(').TrimEnd(')');
+                            string[] parts = kvp.Split(',');
+                            Key = parts[0];
+                            string value;
+                            try
+                            {
+                                isString = IsString(parts[1], out value);
+                            }
+                            catch (IndexOutOfRangeException)
+                            {
+                                throw new ArgumentException(string.Format(
+                                    "Syntax {0}(key, value):  Invalid {0}({1})", func.Split('(')[0], kvp));
+                            }
+                            Value = value;
+                            break;
                     }
+                    if (Function == eFunction.Max || Function == eFunction.Min)
+                        Equal = true;
                 }
             }
 
