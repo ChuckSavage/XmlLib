@@ -45,12 +45,33 @@ namespace XmlLib.nXPath
         private IEnumerable<XElement> ParseInternal(XElement contextNode, XPathString part)
         {
             string name;
+            bool star = false;
             XPath_Bracket[] brackets = GetBrackets(contextNode, part, out name);
+            if (star = name.Contains('*'))
+            {
+                string[] parts = name.Split('*');
+                if (parts.Length > 2)
+                    throw new ArgumentException("Invalid name: " + name);
+                name = parts[0];
+            }
             IEnumerable<XElement> elements;
             if (part.IsElements)
-                elements = contextNode.GetElements(name);
+            {
+                if (string.IsNullOrEmpty(name) || star)
+                    elements = contextNode.Elements();
+                else
+                    elements = contextNode.GetElements(name);
+            }
             else
-                elements = contextNode.GetDescendants(name);
+            {
+                if (string.IsNullOrEmpty(name) || star)
+                    elements = contextNode.Descendants();
+                else
+                    elements = contextNode.GetDescendants(name);
+            }
+            if (star && !string.IsNullOrEmpty(name))
+                elements = elements.Where(x => x.Name.LocalName.StartsWith(name));
+
             if (null != brackets)
                 foreach (XPath_Bracket bracket in brackets)
                 {
