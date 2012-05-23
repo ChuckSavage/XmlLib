@@ -199,7 +199,7 @@ namespace XmlLib.nXPath
             else // [@*='ABC']
             {
                 Expression attributes = Expression.Call(
-                    null == _elements ? pe : _elements,
+                    _elements ?? pe,
                     "Attributes",
                     null);
                 Expression type = Expression.Convert(pa, part.Value.GetType());
@@ -214,8 +214,9 @@ namespace XmlLib.nXPath
             }
         }
 
-        public IEnumerable<XElement> Elements(XElement contextNode, IEnumerable<XElement> elements)
+        public IEnumerable<XElement> Elements(IEnumerable<XElement> elements)
         {
+            Expression _elements = null;
             IQueryable<XElement> query = elements.AsQueryable<XElement>();
             MethodCallExpression call;
             Expression right = null, ex = null, e;
@@ -247,52 +248,55 @@ namespace XmlLib.nXPath
                     }
                     break; // break out of foreach
                 }
-
-                // Parse Key Value Pair Expression
-                string[] split = part.Key.TrimStart('/').Split('/');
-                Expression _elements = null;
-                for (int i = 0; i < split.Length; i++)
+                else if (null == part.Value)
                 {
-                    string key = split[i];
-                    bool last = (i + 1) == split.Length;
-                    if (part.IsValueAttribute || key.StartsWith("@"))
+                    e = HasChildNodes(part);
+                }
+                else
+                {
+                    // Parse Key Value Pair Expression
+                    string[] split = part.Key.TrimStart('/').Split('/');
+                    _elements = null;
+                    for (int i = 0; i < split.Length; i++)
                     {
-                        key = key.TrimStart('@');
-                        e = CompareAttribute(part, key, _elements, right);
-                        break;
-                    }
-                    else
-                    {
-                        Expression parent = _elements;
-                        if ("*" != key)
+                        string key = split[i];
+                        bool last = (i + 1) == split.Length;
+                        if (part.IsValueAttribute || key.StartsWith("@"))
                         {
-                            _elements = Expression.Call(
-                                typeof(XElementExtensions),
-                                last ? "GetElements" : "GetElement",
-                                null,
-                                null == _elements ? pe : _elements,
-                                Expression.Constant(key)
-                                );
+                            key = key.TrimStart('@');
+                            e = CompareAttribute(part, key, _elements, right);
+                            break;
                         }
-                        else // [*='ABC']
+                        else
                         {
-                            _elements = Expression.Call(
-                                null == _elements ? pe : _elements,
-                                typeof(XElement).GetMethod("Elements", Type.EmptyTypes)
-                                );
-                        }
-                        if (last)
-                        {
-                            switch (part.Function)
+                            Expression parent = _elements;
+                            if ("*" != key)
                             {
-                                case XPath_Part.eFunction.Max:
-                                case XPath_Part.eFunction.Min:
-                                    Expression left = ElementValue(parent ?? pe, part, key);
-                                    e = ExpressionEquals(part, left, right, null);
-                                    break;
-                                default:
-                                    if (null != part.Value)
-                                    {
+                                _elements = Expression.Call(
+                                    typeof(XElementExtensions),
+                                    last ? "GetElements" : "GetElement",
+                                    null,
+                                    _elements ?? pe,
+                                    Expression.Constant(key)
+                                    );
+                            }
+                            else // [*='ABC']
+                            {
+                                _elements = Expression.Call(
+                                    _elements ?? pe,
+                                    typeof(XElement).GetMethod("Elements", Type.EmptyTypes)
+                                    );
+                            }
+                            if (last)
+                            {
+                                switch (part.Function)
+                                {
+                                    case XPath_Part.eFunction.Max:
+                                    case XPath_Part.eFunction.Min:
+                                        Expression left = ElementValue(parent ?? pe, part, key);
+                                        e = ExpressionEquals(part, left, right, null);
+                                        break;
+                                    default:
                                         Expression type = Expression.Convert(pe, part.Value.GetType());
                                         Expression equal = ExpressionEquals(part, type, Expression.Constant(part.Value));
                                         e = Expression.Call(
@@ -302,22 +306,8 @@ namespace XmlLib.nXPath
                                             _elements,
                                             Expression.Lambda<Func<XElement, bool>>(equal, new ParameterExpression[] { pe })
                                            );
-                                    }
-                                    else
-                                    {
-                                        Expression count = Expression.Call(
-                                            typeof(Enumerable),
-                                            "Count",
-                                            new[] { typeof(XElement) },
-                                            _elements
-                                            );
-
-                                        e = Expression.GreaterThan(
-                                            count,
-                                            Expression.Constant(0)
-                                            );
-                                    }
-                                    break;
+                                        break;
+                                }
                             }
                         }
                     }
@@ -354,6 +344,68 @@ namespace XmlLib.nXPath
                        );
                 IQueryable<XElement> results = query.Provider.CreateQuery<XElement>(call);
                 return results;
+            }
+        }
+
+        private Expression HasChildNodes(XPath_Part part)
+        {
+            Expression _elements = null;
+            string path = part.Key, att = string.Empty;
+            bool attrib = false, star = false;
+
+            if (attrib = part.IsValueAttribute)
+            {
+                if (path.Contains('/'))
+                {
+                    string[] parts = path.Split('/').Where(s => !string.IsNullOrEmpty(s)).ToArray();
+                    att = parts.Last();
+                    path = string.Join("/", parts.Take(parts.Length - 1).ToArray());
+                }
+                else
+                {
+                    att = path;
+                    path = string.Empty;
+                }
+            }
+            else if (attrib = path.Contains('@'))
+            {
+                string[] parts = path.Split('@');
+                path = string.Join("/", parts[0].Split('/').Where(s => !string.IsNullOrEmpty(s)).ToArray());
+                att = parts[1];
+            }
+            if (star = path.Contains('*'))
+            {
+                throw new NotImplementedException();
+            }
+            if (!string.IsNullOrEmpty(path))
+                _elements = Expression.Call(
+                            typeof(XElementExtensions),
+                            attrib ? "GetElement" : "GetElements",
+                            null,
+                            pe,
+                            Expression.Constant(path)
+                            );
+            if (attrib)
+            {
+                Expression a = Attribute(_elements ?? pe, att);
+                return Expression.NotEqual(
+                    Expression.Constant(null, typeof(XAttribute)),
+                    a
+                    );
+            }
+            else
+            {
+                // Handles [nodes] nodes being greater than zero
+                Expression count = Expression.Call(
+                    typeof(Enumerable),
+                    "Count",
+                    new[] { typeof(XElement) },
+                    _elements ?? pe
+                    );
+                return Expression.GreaterThan(
+                    count,
+                    Expression.Constant(0)
+                    );
             }
         }
 

@@ -108,7 +108,7 @@ namespace XmlLib.nXPath
                     switch(function)
                     {
                         case "last":
-                                                        ElementAt = true;
+                            ElementAt = true;
                             Key = functionMatch.Value;
                             Match digits = Regex.Match(part, @"\d+$"); // ddd
                             int i;

@@ -4,6 +4,39 @@
         <name>Git XmlLib vs2008</name>
     </assembly>
     <members>
+        <member name="F:XmlLib.nXPath.XPathString.Create">
+            <summary>
+            Create elements if they don't exist so as not to throw null exceptions.
+            </summary>
+        </member>
+        <member name="F:XmlLib.nXPath.XPathString.Text">
+            <summary>
+            The text of the path will filled in values.
+            </summary>
+        </member>
+        <member name="F:XmlLib.nXPath.XPathString.Format">
+            <summary>
+            The string.Format version of the path.
+            </summary>
+        </member>
+        <member name="F:XmlLib.nXPath.XPathString.Values">
+            <summary>
+            The values to fill the Format with for string.Format.
+            </summary>
+        </member>
+        <member name="F:XmlLib.nXPath.XPathString.IsElements">
+            <summary>
+            Elements() or Descendants() to be called with the Name, 
+            aka the path was proceeded with two slashes.
+            </summary>
+        </member>
+        <member name="F:XmlLib.nXPath.XPathString.PathSegments">
+            <summary>
+            The breakdown in the path into its separate path segments.
+            Aka breaking it up via the forward-slash segments.
+            <para>Example: segement1[stillSegment1/1/1]/segment2[2/2=2]/segment3</para>
+            </summary>
+        </member>
         <member name="M:XmlLib.nXPath.XPathString.#ctor(System.String,System.Object[])">
             <summary>
             "pair[@Key&gt;={0} and @Key&lt;{1}]", 4, 6
@@ -30,6 +63,17 @@
             </summary>
             <param name="parts"></param>
             <returns></returns>
+        </member>
+        <member name="P:XmlLib.nXPath.XPathString.IsXPath">
+            <summary>
+            Does the path contain brackets.
+            This is weak-sauce, everything should be treated as an XPath for more advanced XPath scenarios.
+            </summary>
+        </member>
+        <member name="P:XmlLib.nXPath.XPathString.Name">
+            <summary>
+            The name of the node's that will be returned from the search if successful.
+            </summary>
         </member>
         <member name="M:XmlLib.XPathExtensions.XPath(System.Xml.Linq.XElement,XmlLib.nXPath.XPathString,System.Boolean)">
             <summary>
@@ -330,16 +374,6 @@
             </remarks>
             </summary>
             <param name="create">create path if it doesn't exist?</param>
-            <exception cref="T:System.ArgumentOutOfRangeException"/>
-        </member>
-        <member name="M:XmlLib.nXPath.cXPath.Element(System.Xml.Linq.XElement,XmlLib.nXPath.XPathString,System.Boolean)">
-            <summary>
-            Get the first element of a path "path/to/node" or "path[to/node/@attribute&gt;=20.50]".
-            <remarks>
-            <para>See XPath docs for help on using [number][key=value]
-            - syntax (http://www.w3.org/TR/xpath/)</para>
-            </remarks>
-            </summary>
             <exception cref="T:System.ArgumentOutOfRangeException"/>
         </member>
     </members>

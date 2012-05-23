@@ -5,24 +5,48 @@
 // the products at http://products.searisen.com, thank you.
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text.RegularExpressions;
-using System.Collections;
 
 namespace XmlLib.nXPath
 {
     [DebuggerDisplay("{Text}")]
     public class XPathString
     {
+        /// <summary>
+        /// Create elements if they don't exist so as not to throw null exceptions.
+        /// </summary>
+        public bool Create = true;
+        /// <summary>
+        /// The text of the path will filled in values.
+        /// </summary>
         public readonly string Text;
+        /// <summary>
+        /// The string.Format version of the path.
+        /// </summary>
         public readonly string Format;
+        /// <summary>
+        /// The values to fill the Format with for string.Format.
+        /// </summary>
         public readonly object[] Values;
+        /// <summary>
+        /// Elements() or Descendants() to be called with the Name, 
+        /// aka the path was proceeded with two slashes.
+        /// </summary>
         public readonly bool IsElements;
-
+        /// <summary>
+        /// Does the path contain brackets.
+        /// This is weak-sauce, everything should be treated as an XPath for more advanced XPath scenarios.
+        /// </summary>
         public bool IsXPath { get { return Text.Contains('['); } }
-
+        /// <summary>
+        /// The breakdown in the path into its separate path segments.
+        /// Aka breaking it up via the forward-slash segments.
+        /// <para>Example: segement1[stillSegment1/1/1]/segment2[2/2=2]/segment3</para>
+        /// </summary>
         public readonly XPathString[] PathSegments;
 
         /// <summary>
@@ -48,54 +72,65 @@ namespace XmlLib.nXPath
             PathSegments = Split();
         }
 
+        internal XPath_Bracket[] Brackets
+        {
+            get { return _Brackets ?? (_Brackets = GetBrackets(out _Name)); }
+        }
+        XPath_Bracket[] _Brackets;
+
+        /// <summary>
+        /// The name of the node's that will be returned from the search if successful.
+        /// </summary>
+        public string Name
+        {
+            get
+            {
+                if (null == _Name)
+                    _Brackets = GetBrackets(out _Name);
+                return _Name;
+            }
+        }
+        string _Name;
+
+        private XPath_Bracket[] GetBrackets(out string name)
+        {
+            name = Text;
+            if (Text.Contains('['))
+            {
+                Match[] matches = Regex.Matches(Format, @"\[[^]]*\]")
+                       .Cast<Match>()
+                       .ToArray();
+                if (matches.Length > 0)
+                {
+                    name = Format.Remove(matches[0].Index);
+                    List<string> list = new List<string>() { name };
+                    list.AddRange(matches.Select(m => m.Value));
+                    XPathString[] parts = ToPaths(list);
+                    XPath_Bracket[] result = parts
+                           .Skip(1)
+                           .Select(xps => new XPath_Bracket(xps))
+                           .ToArray();
+                    return result;
+                }
+            }
+            return new XPath_Bracket[] { };
+        }
+
         /// <summary>
         /// Split the path into its separate XPathStrings.
         /// </summary>
-        public XPathString[] Split() { return ToPaths(SplitInternal()); }
+        public XPathString[] Split() { return ToPaths(SplitInternal()); } 
 
         /*
          * Split by '/' but not when '/' is with '[]' square brackets
          */
         private string[] SplitInternal()
         {
-            // Regex test: http://regexpal.com/
-            //string s = "pair[@Key=2]/Items/Item[Person/Name='Martin']/Date";
-            //string[] result = Regex.Split(s, @"(?<!\[[^]]+)/"); // < this works
             return Regex.Matches(Format, @"([^/\[\]]|\[[^]]*\])+")
                                     .Cast<Match>()
                                     .Select(m => m.Value)
                                     .Where(s => !string.IsNullOrEmpty(s))
                                     .ToArray();
-            /* Original I created before getting good responses on StackOverflow
-            List<string> list = new List<string>();
-            int pos = 0, i = 0;
-            bool within = false;
-            Func<string> add = () => Format.Substring(pos, i - pos);
-            //string a;
-            for (; i < Format.Length; i++)
-            {
-                //a = add();
-                char c = Format[i];
-                switch (c)
-                {
-                    case '/':
-                        if (!within)
-                        {
-                            list.Add(add());
-                            pos = i + 1;
-                        }
-                        break;
-                    case '[':
-                        within = true;
-                        break;
-                    case ']':
-                        within = false;
-                        break;
-                }
-            }
-            list.Add(add());
-            return list.Where(s => !string.IsNullOrEmpty(s)).ToArray();
-             */
         }
 
         /// <summary>
@@ -132,6 +167,8 @@ namespace XmlLib.nXPath
                 for (int i = 0; i < parts.Length; i++)
                 {
                     string part = parts[i];
+                    if (string.IsNullOrEmpty(part))
+                        continue;
                     List<object> args = new List<object>();
                     MatchCollection ms = Regex.Matches(part, ToPaths_Pattern);
                     if (ms.Count > 0)

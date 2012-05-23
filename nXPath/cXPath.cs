@@ -14,39 +14,19 @@ namespace XmlLib.nXPath
 {
     public class cXPath
     {
-        public cXPath()
+        private static IEnumerable<XElement> ParseInternal(XElement contextNode, XPathString part)
         {
+            IEnumerable<XElement> elements = PartToElements(contextNode, part);
+            foreach (XPath_Bracket bracket in part.Brackets)
+                elements = bracket.Elements(elements);
+
+            return elements;
         }
 
-        private XPath_Bracket[] GetBrackets(XElement contextNode, XPathString part, out string name)
+        private static IEnumerable<XElement> PartToElements(XElement contextNode, XPathString part)
         {
-            name = part.Text;
-            if (part.Text.Contains('['))
-            {
-                Match[] matches = Regex.Matches(part.Format, @"\[[^]]*\]")
-                       .Cast<Match>()
-                       .ToArray();
-                if (matches.Length > 0)
-                {
-                    name = part.Format.Remove(matches[0].Index);
-                    List<string> list = new List<string>() { name };
-                    list.AddRange(matches.Select(m => m.Value));
-                    XPathString[] parts = part.ToPaths(list);
-                    XPath_Bracket[] result = parts
-                           .Skip(1)
-                           .Select(xps => new XPath_Bracket(xps))
-                           .ToArray();
-                    return result;
-                }
-            }
-            return null;
-        }
-
-        private IEnumerable<XElement> ParseInternal(XElement contextNode, XPathString part)
-        {
-            string name;
+            string name = part.Name;
             bool star = false;
-            XPath_Bracket[] brackets = GetBrackets(contextNode, part, out name);
             if (star = name.Contains('*'))
             {
                 string[] parts = name.Split('*');
@@ -71,12 +51,6 @@ namespace XmlLib.nXPath
             }
             if (star && !string.IsNullOrEmpty(name))
                 elements = elements.Where(x => x.Name.LocalName.StartsWith(name));
-
-            if (null != brackets)
-                foreach (XPath_Bracket bracket in brackets)
-                {
-                    elements = bracket.Elements(contextNode, elements);
-                }
             return elements;
         }
 
@@ -94,24 +68,24 @@ namespace XmlLib.nXPath
             if (null == path)
                 throw new ArgumentNullException("Path cannot be null.");
 
-            IEnumerable<XElement> e;
+            IEnumerable<XElement> enumerableXElement;
             List<XElement> list = new[] { source }.ToList();
             XElement result;
             for (int i = 0; i < path.PathSegments.Length; i++)
             {
                 List<XElement> newList = new List<XElement>();
-                XPathString xp = path.PathSegments[i];
+                XPathString xpathString = path.PathSegments[i];
                 bool last = (i + 1) == path.PathSegments.Length;
 
-                if (xp.IsXPath)
+                if (xpathString.IsXPath)
                 {
                     bool foundOne = false;
-                    list.ForEach(x =>
+                    list.ForEach(xElement =>
                     {
-                        e = new cXPath().ParseInternal(x, xp);
-                        if (null != e)
+                        enumerableXElement = ParseInternal(xElement, xpathString);
+                        if (null != enumerableXElement)
                         {
-                            newList.AddRange(e);
+                            newList.AddRange(enumerableXElement.ToList());
                             foundOne = true;
                         }
                     });
@@ -121,22 +95,22 @@ namespace XmlLib.nXPath
                         continue;
                     }
                 }
-                string part = xp.Text.Split('[')[0];
+                string part = xpathString.Text.Split('[')[0];
                 if (last)
-                    list.ForEach(x =>
+                    list.ForEach(xElement =>
                     {
-                        if (xp.IsElements)
-                            newList.AddRange(x.GetElements(part));
+                        if (xpathString.IsElements)
+                            newList.AddRange(xElement.GetElements(part));
                         else
-                            newList.AddRange(x.GetDescendants(part));
+                            newList.AddRange(xElement.GetDescendants(part));
                     });
                 else
-                    list.ForEach(x =>
+                    list.ForEach(xElement =>
                     {
                         if (create)
-                            result = x.GetElement(part);
+                            result = xElement.GetElement(part);
                         else
-                            result = x.Element(x.ToXName(part));
+                            result = xElement.Element(xElement.ToXName(part));
                         if (null != result)
                             newList.Add(result);
                     });
@@ -144,19 +118,6 @@ namespace XmlLib.nXPath
                 list = newList;
             }
             return list;
-        }
-
-        /// <summary>
-        /// Get the first element of a path "path/to/node" or "path[to/node/@attribute>=20.50]".
-        /// <remarks>
-        /// <para>See XPath docs for help on using [number][key=value]
-        /// - syntax (http://www.w3.org/TR/xpath/)</para>
-        /// </remarks>
-        /// </summary>
-        /// <exception cref="ArgumentOutOfRangeException" />
-        public static XElement Element(XElement source, XPathString path, bool create)
-        {
-            return Enumerable(source, path, create).FirstOrDefault();
         }
     }
 }

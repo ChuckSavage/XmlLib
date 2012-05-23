@@ -68,7 +68,72 @@ namespace XmlLib_Test
         #endregion
 
         [TestMethod]
-        public void Last()
+        public void Function_GenericCount_Descendants_TwoDeep()
+        {
+            string path = "//*[Items/Item]";
+            object[] args = new object[] { };
+            XElement[] expected = root.Descendants()
+                .Where(x => x.GetElements("Items/Item").Count() > 0)
+                .ToArray();
+
+            XElement[] actual = XPathExtensions.XPath(root, path, args).ToArray();
+            CollectionAssert.AreEqual(expected, actual);
+        }
+
+        [TestMethod]
+        public void Function_Count_Descendants_TwoDeep()
+        {
+            string path = "//pair[Items/Item]";
+            object[] args = new object[] { };
+            XElement[] expected = root.Descendants("pair")
+                .Where(x => x.GetElements("Items/Item").Count() > 0)
+                .ToArray();
+
+            XElement[] actual = XPathExtensions.XPath(root, path, args).ToArray();
+            CollectionAssert.AreEqual(expected, actual);
+        }
+
+        [TestMethod]
+        public void Function_Count_Descendants()
+        {
+            string path = "//pair[Items]";
+            object[] args = new object[] { };
+            XElement[] expected = root.Descendants("pair")
+                .Where(x => x.GetElements("Items").Count() > 0)
+                .ToArray();
+
+            XElement[] actual = XPathExtensions.XPath(root, path, args).ToArray();
+            CollectionAssert.AreEqual(expected, actual);
+        }
+
+        [TestMethod]
+        public void Function_Count_Descendants_Attribute()
+        {
+            string path = "//pair[@Key]";
+            object[] args = new object[] { };
+            XElement[] expected = root.Descendants("pair")
+                .Where(x => null != x.Attribute("Key"))
+                .ToArray();
+
+            XElement[] actual = XPathExtensions.XPath(root, path, args).ToArray();
+            CollectionAssert.AreEqual(expected, actual);
+        }
+
+        [TestMethod]
+        public void Function_Count_Descendants_Attribute_TwoDeep()
+        {
+            string path = "//pair[Value2/@Key]";
+            object[] args = new object[] { };
+            XElement[] expected = root.Descendants("pair")
+                .Where(x => null != x.GetElement("Value2").Attribute("Key"))
+                .ToArray();
+
+            XElement[] actual = XPathExtensions.XPath(root, path, args).ToArray();
+            CollectionAssert.AreEqual(expected, actual);
+        }
+
+        [TestMethod]
+        public void Function_Last()
         {
             string path = "pair[last()]";
             object[] args = new object[] { };

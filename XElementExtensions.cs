@@ -29,10 +29,14 @@ namespace XmlLib
         /// <returns>XElement found or created.</returns>
         public static XElement GetElement(this XElement source, XName name)
         {
-            XElement xe = source.Element(name);
-            if (null == xe) // get first node that matches by tag name (if one exists)
-                xe = source.Elements()
-                    .FirstOrDefault(x => x.Name.LocalName == name.LocalName);
+            XElement xe = null;
+            if (source.HasElements)
+            {
+                xe = source.Element(name);
+                if (null == xe) // get first node that matches by tag name (if one exists)
+                    xe = source.Elements()
+                        .FirstOrDefault(x => x.Name.LocalName == name.LocalName);
+            }
             if (null == xe)
                 source.Add(xe = new XElement(name));
             return xe;
@@ -57,13 +61,17 @@ namespace XmlLib
         /// <returns>XElement found or created.</returns>
         public static IEnumerable<XElement> GetElements(this XElement source, XName name)
         {
-            if (null == name)
-                return source.Elements();
-            IEnumerable<XElement> elements = source.Elements(name);
-            if (0 == elements.Count())
-                elements = source.Elements()
-                    .Where(x => x.Name.LocalName == name.LocalName);
-            return elements;
+            if (source.HasElements)
+            {
+                if (null == name)
+                    return source.Elements();
+                IEnumerable<XElement> elements = source.Elements(name);
+                if (0 == elements.Count())
+                    elements = source.Elements()
+                        .Where(x => x.Name.LocalName == name.LocalName);
+                return elements;
+            }
+            return new XElement[] { };
         }
 
         /// <summary>
@@ -73,10 +81,14 @@ namespace XmlLib
         /// <returns>XElement found or created.</returns>
         public static IEnumerable<XElement> GetElements(this XElement source, string name)
         {
-            if (string.IsNullOrEmpty(name))
-                return source.Elements();
-            source = NameCheck(source, name, out name);
-            return GetElements(source, ToXName(source, name));
+            if (source.HasElements)
+            {
+                if (string.IsNullOrEmpty(name))
+                    return source.Elements();
+                source = NameCheck(source, name, out name);
+                return GetElements(source, ToXName(source, name));
+            }
+            return new XElement[] { };
         }
 
         /// <summary>

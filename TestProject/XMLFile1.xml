@@ -16,7 +16,7 @@
     <Value>2</Value>
   </pair>
   <pair Key="3">
-    <Value2>
+    <Value2 Key="3">
       <Value>3</Value>
     </Value2>
     <Value>3</Value>
@@ -49,7 +49,7 @@
   <pair Key="7">
     <Value>7</Value>
   </pair>
-  <Items>
+  <Items Key="1">
     <Item>
       <Name>Mike</Name>
       <Date>5/4/2000</Date>
