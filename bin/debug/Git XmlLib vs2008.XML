@@ -42,6 +42,20 @@
             "pair[@Key&gt;={0} and @Key&lt;{1}]", 4, 6
             </summary>
         </member>
+        <member name="M:XmlLib.nXPath.XPathString.Combine(System.Collections.Generic.IEnumerable{XmlLib.nXPath.XPathString})">
+            <summary>
+            Combine two or more XPathString's into one.
+            </summary>
+            <param name="list"></param>
+            <returns></returns>
+        </member>
+        <member name="M:XmlLib.nXPath.XPathString.Combine(XmlLib.nXPath.XPathString[])">
+            <summary>
+            Combine two or more XPathString's into one.
+            </summary>
+            <param name="list"></param>
+            <returns></returns>
+        </member>
         <member name="M:XmlLib.nXPath.XPathString.Split">
             <summary>
             Split the path into its separate XPathStrings.

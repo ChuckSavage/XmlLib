@@ -9,6 +9,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
 
 namespace XmlLib.nXPath
@@ -79,18 +80,49 @@ namespace XmlLib.nXPath
         XPath_Bracket[] _Brackets;
 
         /// <summary>
-        /// The name of the node's that will be returned from the search if successful.
+        /// Combine two or more XPathString's into one.
         /// </summary>
-        public string Name
+        /// <param name="list"></param>
+        /// <returns></returns>
+        public static XPathString Combine(IEnumerable<XPathString> list) { return Combine(list.ToArray()); }
+
+        /// <summary>
+        /// Combine two or more XPathString's into one.
+        /// </summary>
+        /// <param name="list"></param>
+        /// <returns></returns>
+        public static XPathString Combine(params XPathString[] list)
         {
-            get
+            if (null == list)
+                throw new ArgumentNullException("List cannot be null");
+            if (0 == list.Length)
+                throw new ArgumentException("List cannot be empty");
+            if (1 == list.Length)
+                return list[0];
+
+            StringBuilder format = new StringBuilder(list[0].Format);
+            List<object> values = list[0].Values.ToList();
+            int index = values.Count;
+           
+            foreach (XPathString xp in list.Skip(1))
             {
-                if (null == _Name)
-                    _Brackets = GetBrackets(out _Name);
-                return _Name;
+                string xpFormat = xp.Format;
+                MatchCollection ms = Regex.Matches(xpFormat, ToPaths_Pattern);
+                if (ms.Count > 0)
+                {
+                    for (int j = 0; j < ms.Count; j++)
+                    {
+                        Match match = ms[j];
+                        string s = string.Format("{{{0}}}", j + index);
+                        xpFormat = xpFormat.Replace(match.Value, s);
+                    }
+                    index += ms.Count;
+                    values.AddRange(xp.Values);
+                }
+                format.Append("/" + xpFormat);
             }
+            return new XPathString(format.ToString(), values.ToArray());
         }
-        string _Name;
 
         private XPath_Bracket[] GetBrackets(out string name)
         {
@@ -115,6 +147,20 @@ namespace XmlLib.nXPath
             }
             return new XPath_Bracket[] { };
         }
+
+        /// <summary>
+        /// The name of the node's that will be returned from the search if successful.
+        /// </summary>
+        public string Name
+        {
+            get
+            {
+                if (null == _Name)
+                    _Brackets = GetBrackets(out _Name);
+                return _Name;
+            }
+        }
+        string _Name;
 
         /// <summary>
         /// Split the path into its separate XPathStrings.

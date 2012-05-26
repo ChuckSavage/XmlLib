@@ -70,6 +70,16 @@ namespace XmlLib
         public static IEnumerable<T> XGet<T>(this XElement source, string path, T @default, params object[] args)
         {
             XPathString xp = new XPathString(path, args);
+            if (xp.PathSegments.Length > 1)
+            {
+                XPathString last = xp.PathSegments.Last();
+                if (last.Text == last.Format && 0 == last.Values.Length && !last.IsXPath)
+                {
+                    xp = XPathString.Combine(xp.PathSegments.Take(xp.PathSegments.Length - 1));
+                    var results = XPath(source, xp, true);
+                    return results.Select(x => x.Get(last.Text, @default));
+                }
+            }
             return XPath(source, xp, true)
                 .Select(x => x.Get(null, @default));
         }
@@ -85,7 +95,10 @@ namespace XmlLib
         /// didn't exist or was empty.</returns>
         public static T XGetElement<T>(this XElement source, string path, T @default, params object[] args)
         {
-            return XGet(source, path, @default, args).FirstOrDefault();
+            var results = XGet(source, path, @default, args);
+            if (results.Count() > 0)
+                return results.FirstOrDefault();
+            return @default;
         }
     }
 }

@@ -2,6 +2,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace XmlLib_Test
 {
@@ -160,6 +161,22 @@ namespace XmlLib_Test
             string[] actual;
             actual = target.SplitInternal();
             CollectionAssert.AreEqual(expected, actual);
+        }
+
+        /// <summary>
+        ///A test for SplitInternal
+        ///</summary>
+        [TestMethod()]
+        public void Combine()
+        {
+            string path = "pair[path/to/@Key={0}]/Items/Item[Name={1}]/Date";
+            object[] values = new object[] { 2, "Martin" };
+            XPathString xp = new XPathString(path, values);
+
+            string expected = "pair[path/to/@Key={0}]/Items/Item[Name={1}]";
+            XPathString actual = XPathString.Combine(xp.PathSegments.Take(3));
+            Assert.AreEqual(expected, actual.Format);
+            CollectionAssert.AreEqual(values, actual.Values);
         }
 
         /// <summary>
