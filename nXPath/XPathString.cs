@@ -168,7 +168,7 @@ namespace XmlLib.nXPath
         public XPathString[] Split() { return ToPaths(SplitInternal()); } 
 
         /*
-         * Split by '/' but not when '/' is with '[]' square brackets
+         * Split by '/' but not when '/' is within '[]' square brackets
          */
         private string[] SplitInternal()
         {

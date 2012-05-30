@@ -424,7 +424,9 @@ namespace XmlLib.nXPath
                 try { value = Activator.CreateInstance(type); }
                 catch (MissingMemberException) 
                 {
-                    return Expression.Constant(null);
+                    // what to do if type doesn't have a parameterless constructor?
+                    // string has no string()
+                    value = Guid.NewGuid(); 
                 }
             if (part.IsValueAttribute || part.Key.Contains('@'))
                 return Expression.Constant(new XAttribute("default", value));
