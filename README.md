@@ -14,3 +14,8 @@ SeaRisen LLC does not guarentee these files for any purpose and will not be resp
 You the user/developer take full responsibility for your use of them.
 
 That said, we hope you find them useful.
+
+Issues
+======
+
+When submitting a new issue please provide sample Xml and the expected resulting Xml so that a test can be created to go along with the issue request.
