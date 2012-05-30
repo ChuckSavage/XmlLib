@@ -10,14 +10,15 @@ using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Xml.Linq;
+using XmlLib.nXPath.Functions;
 
 namespace XmlLib.nXPath
 {
     [DebuggerDisplay("{XPath}")]
     internal class XPath_Bracket
     {
-        ParameterExpression pe = Expression.Parameter(typeof(XElement), "xe");
-        ParameterExpression pa = Expression.Parameter(typeof(XAttribute), "xa");
+        internal readonly static ParameterExpression pe = Expression.Parameter(typeof(XElement), "xe");
+        internal readonly static ParameterExpression pa = Expression.Parameter(typeof(XAttribute), "xa");
 
         public readonly XPath_Part[] Parts;
         public readonly bool AndOr;
@@ -48,80 +49,28 @@ namespace XmlLib.nXPath
         private Expression ExpressionEquals(XPath_Part part, Expression left, Expression right, Expression path)
         {
             Expression ex;
+            switch (part.Function)
+            {
+                /*
+                 * Min/Max get the xelement's parent's elements and find the min/max value
+                 */
+                case XPath_Part.eFunction.Max:
+                case XPath_Part.eFunction.Min:
+                    // right = x.Parent.Elements(x.Name).Max(xx => (int)xx.Attribute("Key")
+                    right = MinMax.Parse(part, left, right, path);
+                    break;
+                case XPath_Part.eFunction.StartsWith:
+                    return StartsWith.Parse(part, left, right, path);
+            }
             if (part.Value is string)
             {
-                if (XPath_Part.eFunction.StartsWith == part.Function)
-                {
-                    if (!(part.Value is string))
-                    {
-                        Func<Expression, Expression> Expression_ToString = e =>
-                            Expression.Call(e, typeof(string).GetMethod("ToString", Type.EmptyTypes));
-                        left = Expression_ToString(left);
-                        right = Expression_ToString(right);
-                    }
-                    return Expression.Call(
-                        left,
-                        typeof(string).GetMethod("StartsWith", new[] { typeof(string) }),
-                        right);
-                }
-                else
-                {
-                    // use string.Compare() 
-                    left = Expression.Call(
-                        typeof(string),
-                        "Compare",
-                        null,
-                        new Expression[] { left, right });
-                    right = Expression.Constant(0, typeof(int));
-                }
-            }
-            else if (XPath_Part.eFunction.None != part.Function)
-            {
-                switch (part.Function)
-                {
-                    /*
-                     * Min/Max get the xelement's parent's elements and find the min/max value
-                     */
-                    case XPath_Part.eFunction.Max:
-                    case XPath_Part.eFunction.Min:
-                        // right = x.Parent.Elements(x.Name).Max(xx => (int)xx.Attribute("Key")
-                        string max = XPath_Part.eFunction.Max == part.Function ? "Max" : "Min";
-                        string[] keyParts = part.Key.Split('/');
-                        string key = keyParts.Last();
-                        ParameterExpression maxPe = Expression.Parameter(typeof(XElement), max.ToLower());
-                        Expression parent = Expression.Property(pe, "Parent");
-                        Expression value;
-                        if (keyParts.Length > 1)
-                            path = Expression.Call(
-                                    typeof(XElementExtensions),
-                                    "GetElement",
-                                    null,
-                                    maxPe,
-                                    Expression.Constant(string.Join("/", keyParts.Take(keyParts.Length - 1).ToArray()))
-                                    );
-
-                        if (part.IsValueAttribute)
-                            value = AttributeValue(path ?? maxPe, part, key);
-                        else
-                        {
-                            value = ElementValue(path ?? maxPe, part, key);
-                        }
-                        Expression name = Expression.Property(pe, "Name");
-                        Expression elements = Expression.Call(
-                                typeof(XElementExtensions),
-                                "GetElements",
-                                null,
-                                parent,
-                                name
-                                );
-                        right = Expression.Call(
-                                typeof(Enumerable),
-                                max,
-                                new[] { typeof(XElement), part.Value.GetType() },
-                                elements,
-                                Expression.Lambda(value, new ParameterExpression[] { maxPe }));
-                        break;
-                }
+                // use string.Compare() 
+                left = Expression.Call(
+                    typeof(string),
+                    "Compare",
+                    null,
+                    new Expression[] { left, right });
+                right = Expression.Constant(0, typeof(int));
             }
 
             if (part.NotEqual)
@@ -141,7 +90,7 @@ namespace XmlLib.nXPath
             return ex;
         }
 
-        protected Expression Attribute(Expression parent, string key)
+        internal static Expression Attribute(Expression parent, string key)
         {
             Expression att = Expression.Call(
                 parent,
@@ -151,7 +100,7 @@ namespace XmlLib.nXPath
             return att;
         }
 
-        protected Expression AttributeValue(Expression parent, XPath_Part part, string key)
+        internal static Expression AttributeValue(Expression parent, XPath_Part part, string key)
         {
             Expression att = Attribute(parent, key);
             Expression isNull = Expression.Equal(att, Expression.Constant(null));
@@ -163,7 +112,7 @@ namespace XmlLib.nXPath
         /// <summary>
         /// Returns an empty element if not found.
         /// </summary>
-        protected Expression Element(Expression parent, string key)
+        internal static Expression Element(Expression parent, string key)
         {
             Expression ex = Expression.Call(
                                 typeof(XElementExtensions),
@@ -175,7 +124,7 @@ namespace XmlLib.nXPath
             return ex;
         }
 
-        protected Expression ElementValue(Expression parent, XPath_Part part, string key)
+        internal static Expression ElementValue(Expression parent, XPath_Part part, string key)
         {
             Expression e = Element(parent, key);
             Expression value = Expression.Property(e, "Value");
@@ -409,7 +358,7 @@ namespace XmlLib.nXPath
             }
         }
 
-        protected Expression GetDefault(XPath_Part part)
+        internal static Expression GetDefault(XPath_Part part)
         {
             Type type = part.Value.GetType();
             object value = null;
@@ -434,7 +383,7 @@ namespace XmlLib.nXPath
                 return Expression.Constant(new XElement("default", value));
         }
 
-        protected Expression ToXName(Expression parent, string key)
+        internal static Expression ToXName(Expression parent, string key)
         {
             Expression toXName = Expression.Call(
                 typeof(XElementExtensions),

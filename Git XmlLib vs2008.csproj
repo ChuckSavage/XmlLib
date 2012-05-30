@@ -47,6 +47,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="nXPath\cXPath.cs" />
+    <Compile Include="nXPath\Functions\MinMax.cs" />
+    <Compile Include="nXPath\Functions\StartsWith.cs" />
     <Compile Include="nXPath\XPathString.cs" />
     <Compile Include="nXPath\XPath_Bracket.cs" />
     <Compile Include="nXPath\XPath_Part.cs" />
