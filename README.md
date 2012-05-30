@@ -18,4 +18,6 @@ That said, we hope you find them useful.
 Issues
 ======
 
-When submitting a new issue please provide sample Xml and the expected resulting Xml so that a test can be created to go along with the issue request.
+When submitting an issue please provide sample Xml and the expected resulting Xml so that a test can be created to go along with the issue request.
+
+Also if it is a complex xpath expression, please break it down into smaller expressions and submit issues on each of the small pieces as well as the bigger, so it can be worked on in pieces.
