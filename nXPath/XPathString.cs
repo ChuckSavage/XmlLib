@@ -228,6 +228,9 @@ namespace XmlLib.nXPath
                         }
                         index += ms.Count;
                     }
+                    // Pass on Descendants flag to new XPathString
+                    if (0 == list.Count && !IsElements)
+                        part = "//" + part;
                     list.Add(new XPathString(part, args.ToArray()));
                 }
                 return list.ToArray();
