@@ -31,9 +31,9 @@ namespace XmlLib.nXPath.Functions
                         );
 
             if (part.IsValueAttribute)
-                value = XPath_Bracket.AttributeValue(path ?? maxPe, part, key);
+                value = XPathUtils.AttributeValue(path ?? maxPe, part, key);
             else
-                value = XPath_Bracket.ElementValue(path ?? maxPe, part, key);
+                value = XPathUtils.ElementValue(path ?? maxPe, part, key);
             
             Expression name = Expression.Property(XPath_Bracket.pe, "Name");
             Expression elements = Expression.Call(

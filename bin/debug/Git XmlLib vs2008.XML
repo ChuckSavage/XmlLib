@@ -369,11 +369,6 @@
             </remarks>
             </summary>
         </member>
-        <member name="M:XmlLib.nXPath.XPath_Bracket.Element(System.Linq.Expressions.Expression,System.String)">
-            <summary>
-            Returns an empty element if not found.
-            </summary>
-        </member>
         <member name="P:XmlLib.nXPath.XPath_Bracket.XPath">
             <summary>
             The expression.
@@ -389,6 +384,42 @@
             </summary>
             <param name="create">create path if it doesn't exist?</param>
             <exception cref="T:System.ArgumentOutOfRangeException"/>
+        </member>
+        <member name="M:XmlLib.nXPath.XPathUtils.ToStringExpression(System.Linq.Expressions.Expression)">
+            <summary>
+            Call .ToString() on the Expression value.
+            </summary>
+        </member>
+        <member name="M:XmlLib.nXPath.XPathUtils.Attribute(System.Linq.Expressions.Expression,System.String)">
+            <summary>
+            Get the Attribute from the parent node.
+            </summary>
+        </member>
+        <member name="M:XmlLib.nXPath.XPathUtils.AttributeValue(System.Linq.Expressions.Expression,XmlLib.nXPath.XPath_Part,System.String)">
+            <summary>
+            Get the Attribute value from the parent node.
+            </summary>
+        </member>
+        <member name="M:XmlLib.nXPath.XPathUtils.Element(System.Linq.Expressions.Expression,System.String)">
+            <summary>
+            Get the child element based on the key.
+            Returns an empty element if not found.
+            </summary>
+        </member>
+        <member name="M:XmlLib.nXPath.XPathUtils.ElementValue(System.Linq.Expressions.Expression,XmlLib.nXPath.XPath_Part,System.String)">
+            <summary>
+            Get the child Element value from the parent node.
+            </summary>
+        </member>
+        <member name="M:XmlLib.nXPath.XPathUtils.GetDefault(XmlLib.nXPath.XPath_Part)">
+            <summary>
+            Get a default expression based on the value type that is being evaluated in the part.
+            </summary>
+        </member>
+        <member name="M:XmlLib.nXPath.XPathUtils.ToXName(System.Linq.Expressions.Expression,System.String)">
+            <summary>
+            Convert Attribute or Element key to the proper XName via the parent XElement node.
+            </summary>
         </member>
     </members>
 </doc>

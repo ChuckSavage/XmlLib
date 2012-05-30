@@ -90,59 +90,11 @@ namespace XmlLib.nXPath
             return ex;
         }
 
-        internal static Expression Attribute(Expression parent, string key)
-        {
-            Expression att = Expression.Call(
-                parent,
-                typeof(XElement).GetMethod("Attribute", new Type[] { typeof(XName) }),
-                ToXName(parent, key)
-                );
-            return att;
-        }
-
-        internal static Expression AttributeValue(Expression parent, XPath_Part part, string key)
-        {
-            Expression att = Attribute(parent, key);
-            Expression isNull = Expression.Equal(att, Expression.Constant(null));
-            Expression safe = Expression.Condition(isNull, GetDefault(part), att);
-            Expression value = Expression.Convert(safe, part.Value.GetType());
-            return value;
-        }
-
-        /// <summary>
-        /// Returns an empty element if not found.
-        /// </summary>
-        internal static Expression Element(Expression parent, string key)
-        {
-            Expression ex = Expression.Call(
-                                typeof(XElementExtensions),
-                                "GetElement",
-                                null,
-                                parent,
-                                Expression.Constant(key)
-                                );
-            return ex;
-        }
-
-        internal static Expression ElementValue(Expression parent, XPath_Part part, string key)
-        {
-            Expression e = Element(parent, key);
-            Expression value = Expression.Property(e, "Value");
-            Expression isNullOrEmpty = Expression.Call(
-                typeof(string),
-                "IsNullOrEmpty",
-                null,
-                value);
-            Func<Expression, Expression> Convert = exp => Expression.Convert(exp, part.Value.GetType());
-            Expression safe = Expression.Condition(isNullOrEmpty, Convert(GetDefault(part)), Convert(e));
-            return safe;
-        }
-
         protected Expression CompareAttribute(XPath_Part part, string key, Expression _elements, Expression right)
         {
             if ("*" != key)
             {
-                Expression att = AttributeValue(_elements ?? pe, part, key);
+                Expression att = XPathUtils.AttributeValue(_elements ?? pe, part, key);
                 return ExpressionEquals(part, att, right);
             }
             else // [@*='ABC']
@@ -182,11 +134,7 @@ namespace XmlLib.nXPath
                     switch (part.Key)
                     {
                         case "last()":
-                            ex = Expression.Call(
-                                typeof(Queryable),
-                                "Count",
-                                new[] { query.ElementType },
-                                query.Expression);
+                            ex = Count.Nodes(query.Expression);
                             // last() - 1 is the last element so it should be last() - (1 + 1)
                             ex = Expression.Subtract(ex, Expression.Constant(i + 1));
                             break;
@@ -242,7 +190,7 @@ namespace XmlLib.nXPath
                                 {
                                     case XPath_Part.eFunction.Max:
                                     case XPath_Part.eFunction.Min:
-                                        Expression left = ElementValue(parent ?? pe, part, key);
+                                        Expression left = XPathUtils.ElementValue(parent ?? pe, part, key);
                                         e = ExpressionEquals(part, left, right, null);
                                         break;
                                     default:
@@ -336,7 +284,7 @@ namespace XmlLib.nXPath
                             );
             if (attrib)
             {
-                Expression a = Attribute(_elements ?? pe, att);
+                Expression a = XPathUtils.Attribute(_elements ?? pe, att);
                 return Expression.NotEqual(
                     Expression.Constant(null, typeof(XAttribute)),
                     a
@@ -345,54 +293,11 @@ namespace XmlLib.nXPath
             else
             {
                 // Handles [nodes] nodes being greater than zero
-                Expression count = Expression.Call(
-                    typeof(Enumerable),
-                    "Count",
-                    new[] { typeof(XElement) },
-                    _elements ?? pe
-                    );
                 return Expression.GreaterThan(
-                    count,
+                    Count.Nodes(_elements ?? pe),
                     Expression.Constant(0)
                     );
             }
-        }
-
-        internal static Expression GetDefault(XPath_Part part)
-        {
-            Type type = part.Value.GetType();
-            object value = null;
-            switch (part.Function)
-            {
-                case XPath_Part.eFunction.Max:
-                case XPath_Part.eFunction.Min:
-                    value = part.Value;
-                    break;
-            }
-            if (null == value)
-                try { value = Activator.CreateInstance(type); }
-                catch (MissingMemberException) 
-                {
-                    // what to do if type doesn't have a parameterless constructor?
-                    // string has no string()
-                    value = Guid.NewGuid(); 
-                }
-            if (part.IsValueAttribute || part.Key.Contains('@'))
-                return Expression.Constant(new XAttribute("default", value));
-            else
-                return Expression.Constant(new XElement("default", value));
-        }
-
-        internal static Expression ToXName(Expression parent, string key)
-        {
-            Expression toXName = Expression.Call(
-                typeof(XElementExtensions),
-                "ToXName",
-                null,
-                parent,
-                Expression.Constant(key)
-                );
-            return toXName;
         }
     }
 }

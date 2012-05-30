@@ -15,10 +15,8 @@ namespace XmlLib.nXPath.Functions
         {
             if (!(part.Value is string))
             {
-                Func<Expression, Expression> Expression_ToString = e =>
-                    Expression.Call(e, typeof(string).GetMethod("ToString", Type.EmptyTypes));
-                left = Expression_ToString(left);
-                right = Expression_ToString(right);
+                left = left.ToStringExpression();
+                right = right.ToStringExpression();
             }
             return Expression.Call(
                 left,
