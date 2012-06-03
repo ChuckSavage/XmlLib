@@ -39,6 +39,10 @@ namespace XmlLib.nXPath
         /// </summary>
         public readonly bool IsElements;
         /// <summary>
+        /// Is search relative from current node, or from the root of the document?
+        /// </summary>
+        public readonly bool IsRelative;
+        /// <summary>
         /// Does the path contain brackets.
         /// This is weak-sauce, everything should be treated as an XPath for more advanced XPath scenarios.
         /// </summary>
@@ -54,18 +58,31 @@ namespace XmlLib.nXPath
         /// "pair[@Key&gt;={0} and @Key&lt;{1}]", 4, 6
         /// </summary>
         public XPathString(string path, params object[] values)
+            : this(false, path, values)
+        {
+        }
+
+        internal XPathString(bool @internal, string path, params object[] values)
         {
             if (string.IsNullOrEmpty(path))
                 throw new ArgumentNullException("XPath cannot be null or empty!");
             if (null == values)
                 values = new object[] { };
-            if (path.StartsWith("//"))
+            if (!@internal)
             {
-                IsElements = false; // is Descendants
-                path = path.Substring("//".Length);
+                if (IsRelative = path.StartsWith("."))
+                    path = path.Substring(".".Length);
+
+                if (path.StartsWith("//"))
+                {
+                    path = path.Substring("//".Length);
+                }
+                else
+                {
+                    IsRelative = true;
+                    IsElements = true;
+                }
             }
-            else
-                IsElements = true;
             Format = path;
             Text = string.Format(path, values);
             Values = values;
@@ -230,7 +247,11 @@ namespace XmlLib.nXPath
                     }
                     // Pass on Descendants flag to new XPathString
                     if (0 == list.Count && !IsElements)
+                    {
                         part = "//" + part;
+                        if (IsRelative)
+                            part = "." + part;
+                    }
                     list.Add(new XPathString(part, args.ToArray()));
                 }
                 return list.ToArray();

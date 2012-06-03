@@ -36,7 +36,7 @@ namespace XmlLib.nXPath
             AndOr = text.Contains(" and ");
 
             // need new XPathString() that has brackets removed.
-            XPathString[] paths = new XPathString(text, path.Values)
+            XPathString[] paths = new XPathString(true, text, path.Values)
                 .Split(new string[] { " and ", " or " }, StringSplitOptions.RemoveEmptyEntries);
             Parts = paths.Select(s => new XPath_Part(s)).ToArray();
         }

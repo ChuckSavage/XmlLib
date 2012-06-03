@@ -23,9 +23,9 @@ namespace XmlLib.nXPath
             return elements;
         }
 
-        private static IEnumerable<XElement> PartToElements(XElement contextNode, XPathString part)
+        private static IEnumerable<XElement> PartToElements(XElement contextNode, XPathString xp)
         {
-            string name = part.Name;
+            string name = xp.Name;
             bool star = false;
             if (star = name.Contains('*'))
             {
@@ -35,7 +35,7 @@ namespace XmlLib.nXPath
                 name = parts[0];
             }
             IEnumerable<XElement> elements;
-            if (part.IsElements)
+            if (xp.IsElements)
             {
                 if (string.IsNullOrEmpty(name) || star)
                     elements = contextNode.Elements();
@@ -44,6 +44,8 @@ namespace XmlLib.nXPath
             }
             else
             {
+                if (!xp.IsRelative)
+                    contextNode = contextNode.Root();
                 if (string.IsNullOrEmpty(name) || star)
                     elements = contextNode.Descendants();
                 else

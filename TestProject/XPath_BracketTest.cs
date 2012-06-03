@@ -87,19 +87,56 @@ namespace XmlLib_Test
                 .Where(xe => xe.Value == "Mike");
             IEnumerable<XElement> actual;
             actual = target.Elements(elements);
+            var test = actual.Select(x => x.Value).ToArray();
             CollectionAssert.AreEqual(expected.ToArray(), actual.ToArray());
         }
-        /*
+
         /// <summary>
         ///A test for XPath_Bracket Constructor
         ///</summary>
         [TestMethod()]
-        public void XPath_BracketConstructorTest()
+        public void XPath_Bracket_Constructor()
         {
-            XPathString path = null; // TODO: Initialize to an appropriate value
+            XPathString path = new XPathString("[.='Mike']");
             XPath_Bracket target = new XPath_Bracket(path);
-            Assert.Inconclusive("TODO: Implement code to verify target");
+            Assert.AreEqual(target.Parts.Length, 1);
+            var part = target.Parts[0];
+            Assert.AreEqual(part.ElementAt, false);
+            Assert.AreEqual(part.Equal, true);
+            Assert.AreEqual(part.Function, XPath_Part.eFunction.None);
+            Assert.AreEqual(part.GreaterThan, false);
+            Assert.AreEqual(part.GreaterThanOrEqual, false);
+            Assert.AreEqual(part.IsValueAttribute, false);
+            Assert.AreEqual(part.Key, ".");
+            Assert.AreEqual(part.KVP, true);
+            Assert.AreEqual(part.LessThan, false);
+            Assert.AreEqual(part.LessThanOrEqual, false);
+            Assert.AreEqual(part.NotEqual, false);
+            Assert.AreEqual(part.Value, "Mike");
         }
-         */
+
+        /// <summary>
+        ///A test for XPath_Bracket Constructor
+        ///</summary>
+        [TestMethod()]
+        public void XPath_Bracket_Constructor2()
+        {
+            XPathString path = new XPathString("[min(Value2/Value, {0})]", 0);
+            XPath_Bracket target = new XPath_Bracket(path);
+            Assert.AreEqual(target.Parts.Length, 1);
+            var part = target.Parts[0];
+            Assert.AreEqual(part.ElementAt, false);
+            Assert.AreEqual(part.Equal, true);
+            Assert.AreEqual(part.Function, XPath_Part.eFunction.Min);
+            Assert.AreEqual(part.GreaterThan, false);
+            Assert.AreEqual(part.GreaterThanOrEqual, false);
+            Assert.AreEqual(part.IsValueAttribute, false);
+            Assert.AreEqual(part.Key, "Value2/Value");
+            Assert.AreEqual(part.KVP, false);
+            Assert.AreEqual(part.LessThan, false);
+            Assert.AreEqual(part.LessThanOrEqual, false);
+            Assert.AreEqual(part.NotEqual, false);
+            Assert.AreEqual(part.Value, 0);
+        }
     }
 }

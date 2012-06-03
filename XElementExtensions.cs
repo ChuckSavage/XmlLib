@@ -578,6 +578,19 @@ namespace XmlLib
             return Path(source, path, true);
         }
 
+        /// <summary>
+        /// Return root node of Xml tree of node that calls this
+        /// </summary>
+        /// <param name="source"></param>
+        /// <returns>the root element</returns>
+        public static XElement Root(this XElement source)
+        {
+            XElement root = source;
+            while (null != root.Parent)
+                root = root.Parent;
+            return root;
+        }
+
 #if !SetSave
         /// <summary>
         /// Set a save value in the root node so that the containing xml file class

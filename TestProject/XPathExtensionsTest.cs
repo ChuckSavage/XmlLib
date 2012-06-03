@@ -4,6 +4,7 @@ using System.Xml.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using XmlLib;
 using XmlLib.nXPath;
+using System.Collections.Generic;
 
 namespace XmlLib_Test
 {
@@ -104,23 +105,53 @@ namespace XmlLib_Test
             actual = XPathExtensions.XPathElement(source, path, create);
             Assert.AreEqual(expected, actual);
         }
-        /*
+
         /// <summary>
         ///A test for XPath
         ///</summary>
         [TestMethod()]
-        public void XPathTest1()
+        public void XPath_RootDescendants()
         {
-            XElement source = null; // TODO: Initialize to an appropriate value
-            string path = string.Empty; // TODO: Initialize to an appropriate value
-            object[] args = null; // TODO: Initialize to an appropriate value
-            IEnumerable<XElement> expected = null; // TODO: Initialize to an appropriate value
-            IEnumerable<XElement> actual;
-            actual = XPathExtensions.XPath(source, path, args);
-            Assert.AreEqual(expected, actual);
-            Assert.Inconclusive("Verify the correctness of this test method.");
+            XElement pair2 = root1.XPathElement("pair[@Key=2]");
+            XElement[] expected = pair2.Root().Descendants("Item")
+                .Where(x => x.Elements().Any(xx => xx.Value == "Mike"))
+                .ToArray();
+            XElement[] actual = XPathExtensions.XPath(pair2, "//Item[Name='Mike']", null)
+                .ToArray();
+            CollectionAssert.AreEqual(expected, actual);
         }
 
+        /// <summary>
+        ///A test for XPath
+        ///</summary>
+        [TestMethod()]
+        public void XPath_RelativeDescendants()
+        {
+            XElement pair2 = root1.XPathElement("pair[@Key=2]");
+            XElement[] expected = pair2.Descendants("Item")
+                .Where(x => x.Elements().Any(xx => xx.Value == "Mike"))
+                .ToArray();
+            XElement[] actual = XPathExtensions.XPath(pair2, ".//Item[Name='Mike']", null)
+                .ToArray();
+            CollectionAssert.AreEqual(expected, actual);
+        }
+
+        /// <summary>
+        ///A test for XPath
+        ///</summary>
+        [TestMethod()]
+        public void XPath_RelativeElements()
+        {
+            XElement pair2 = root1.XPathElement("pair[@Key=2]");
+            XElement[] expected = pair2.GetElements("Items/Item")
+                .Where(x => x.Elements().Any(xx => xx.Value == "Mike"))
+                .ToArray();
+            XElement[] actual = XPathExtensions.XPath(pair2, "Items/Item[Name='Mike']", null)
+                .ToArray();
+            CollectionAssert.AreEqual(expected, actual);
+        }
+
+        /*
         /// <summary>
         ///A test for XPath
         ///</summary>
