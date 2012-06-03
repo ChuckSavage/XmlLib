@@ -44,8 +44,6 @@ namespace XmlLib.nXPath
             }
             else
             {
-                if (!xp.IsRelative)
-                    contextNode = contextNode.Root();
                 if (string.IsNullOrEmpty(name) || star)
                     elements = contextNode.Descendants();
                 else
@@ -67,12 +65,15 @@ namespace XmlLib.nXPath
         /// <exception cref="ArgumentOutOfRangeException" />
         public static IEnumerable<XElement> Enumerable(XElement source, XPathString path, bool create)
         {
+            IEnumerable<XElement> enumerableXElement;
+            XElement result;
+
             if (null == path)
                 throw new ArgumentNullException("Path cannot be null.");
 
-            IEnumerable<XElement> enumerableXElement;
+            if (!path.IsRelative)
+                source = source.Root();
             List<XElement> list = new[] { source }.ToList();
-            XElement result;
             for (int i = 0; i < path.PathSegments.Length; i++)
             {
                 List<XElement> newList = new List<XElement>();

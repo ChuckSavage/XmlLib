@@ -5,6 +5,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using XmlLib;
 using XmlLib.nXPath;
 using System.Collections.Generic;
+using System;
 
 namespace XmlLib_Test
 {
@@ -151,6 +152,18 @@ namespace XmlLib_Test
             CollectionAssert.AreEqual(expected, actual);
         }
 
+        /// <summary>
+        /// XGetElement 
+        ///</summary>
+        [TestMethod()]
+        public void XGetElement_RootElement_DateValue()
+        {
+            XElement pair2 = root1.XPathElement("pair[@Key=2]");
+            var actual = pair2.XGetElement("/Items/Item[Name='Mike']/Date", DateTime.MinValue);
+            var expected = DateTime.Parse("5/4/2008"); // pair2's date is 5/4/2000
+            Assert.AreEqual(expected, actual);
+        }
+
         /*
         /// <summary>
         ///A test for XPath
@@ -164,22 +177,6 @@ namespace XmlLib_Test
             IEnumerable<XElement> expected = null; // TODO: Initialize to an appropriate value
             IEnumerable<XElement> actual;
             actual = XPathExtensions.XPath(source, path, create);
-            Assert.AreEqual(expected, actual);
-            Assert.Inconclusive("Verify the correctness of this test method.");
-        }
-
-        /// <summary>
-        ///A test for XGetElement
-        ///</summary>
-        public void XGetElementTestHelper<T>()
-        {
-            XElement source = null; // TODO: Initialize to an appropriate value
-            string path = string.Empty; // TODO: Initialize to an appropriate value
-            T @default = default(T); // TODO: Initialize to an appropriate value
-            object[] args = null; // TODO: Initialize to an appropriate value
-            T expected = default(T); // TODO: Initialize to an appropriate value
-            T actual;
-            actual = XPathExtensions.XGetElement<T>(source, path, @default, args);
             Assert.AreEqual(expected, actual);
             Assert.Inconclusive("Verify the correctness of this test method.");
         }

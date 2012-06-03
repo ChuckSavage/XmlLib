@@ -73,9 +73,10 @@ namespace XmlLib.nXPath
                 if (IsRelative = path.StartsWith("."))
                     path = path.Substring(".".Length);
 
-                if (path.StartsWith("//"))
+                if (path.StartsWith("/"))
                 {
-                    path = path.Substring("//".Length);
+                    IsElements = !path.StartsWith("//");
+                    path = path.TrimStart('/');
                 }
                 else
                 {
@@ -138,6 +139,10 @@ namespace XmlLib.nXPath
                 }
                 format.Append("/" + xpFormat);
             }
+            string flags;
+            if (list[0].PreceedPathWithFlags(out flags))
+                format.Insert(0, flags);
+
             return new XPathString(format.ToString(), values.ToArray());
         }
 
@@ -178,6 +183,27 @@ namespace XmlLib.nXPath
             }
         }
         string _Name;
+
+        /// <summary>
+        /// Get forward slashes before path if Root or Descendants based.
+        /// </summary>
+        private bool PreceedPathWithFlags(out string flags)
+        {
+            flags = "";
+            if (IsElements && !IsRelative) // root path "/path/to/nodes"
+            {
+                flags = "/";
+                return true;
+            }
+            if (!IsElements) // descendants either ".//" or "//"
+            {
+                flags = "//";
+                if (IsRelative)
+                    flags = "." + flags;
+                return true;
+            }
+            return false;
+        }
 
         /// <summary>
         /// Split the path into its separate XPathStrings.
@@ -245,12 +271,12 @@ namespace XmlLib.nXPath
                         }
                         index += ms.Count;
                     }
-                    // Pass on Descendants flag to new XPathString
-                    if (0 == list.Count && !IsElements)
+                    // Pass on flags to new XPathString
+                    if (0 == list.Count)
                     {
-                        part = "//" + part;
-                        if (IsRelative)
-                            part = "." + part;
+                        string flags;
+                        if (PreceedPathWithFlags(out flags))
+                            part = flags + part;
                     }
                     list.Add(new XPathString(part, args.ToArray()));
                 }
