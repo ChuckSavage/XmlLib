@@ -167,22 +167,26 @@ namespace XmlLib.nXPath
                         else
                         {
                             Expression parent = _elements;
-                            if ("*" != key)
+                            switch (key)
                             {
-                                _elements = Expression.Call(
-                                    typeof(XElementExtensions),
-                                    last ? "GetElements" : "GetElement",
-                                    null,
-                                    _elements ?? pe,
-                                    Expression.Constant(key)
-                                    );
-                            }
-                            else // [*='ABC']
-                            {
-                                _elements = Expression.Call(
-                                    _elements ?? pe,
-                                    typeof(XElement).GetMethod("Elements", Type.EmptyTypes)
-                                    );
+                                case "*": // [*='ABC']
+                                    _elements = Expression.Call(
+                                        _elements ?? pe,
+                                        typeof(XElement).GetMethod("Elements", Type.EmptyTypes)
+                                        );
+                                    break;
+                                case ".": // [.='ABC'] means current node equals
+                                    _elements = _elements ?? pe;
+                                    break;
+                                default:
+                                    _elements = Expression.Call(
+                                        typeof(XElementExtensions),
+                                        last ? "GetElements" : "GetElement",
+                                        null,
+                                        _elements ?? pe,
+                                        Expression.Constant(key)
+                                        );
+                                    break;
                             }
                             if (last)
                             {
@@ -196,13 +200,16 @@ namespace XmlLib.nXPath
                                     default:
                                         Expression type = Expression.Convert(pe, part.Value.GetType());
                                         Expression equal = ExpressionEquals(part, type, Expression.Constant(part.Value));
-                                        e = Expression.Call(
-                                            typeof(Enumerable),
-                                            "Any",
-                                            new[] { typeof(XElement) },
-                                            _elements,
-                                            Expression.Lambda<Func<XElement, bool>>(equal, new ParameterExpression[] { pe })
-                                           );
+                                        if ("." == key) // [.='ABC'] means current node equals
+                                            e = equal;
+                                        else
+                                            e = Expression.Call(
+                                                typeof(Enumerable),
+                                                "Any",
+                                                new[] { typeof(XElement) },
+                                                _elements,
+                                                Expression.Lambda<Func<XElement, bool>>(equal, new ParameterExpression[] { pe })
+                                               );
                                         break;
                                 }
                             }

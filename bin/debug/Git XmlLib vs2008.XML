@@ -369,22 +369,6 @@
             </remarks>
             </summary>
         </member>
-        <member name="P:XmlLib.nXPath.XPath_Bracket.XPath">
-            <summary>
-            The expression.
-            </summary>
-        </member>
-        <member name="M:XmlLib.nXPath.cXPath.Enumerable(System.Xml.Linq.XElement,XmlLib.nXPath.XPathString,System.Boolean)">
-            <summary>
-            Get the elements of a path "path/to/node" or "path[to/node/@attribute&gt;=20.50]".
-            <remarks>
-            <para>See XPath docs for help on using [number][key=value]
-            - syntax (http://www.w3.org/TR/xpath/)</para>
-            </remarks>
-            </summary>
-            <param name="create">create path if it doesn't exist?</param>
-            <exception cref="T:System.ArgumentOutOfRangeException"/>
-        </member>
         <member name="M:XmlLib.nXPath.XPathUtils.ToStringExpression(System.Linq.Expressions.Expression)">
             <summary>
             Call .ToString() on the Expression value.
@@ -420,6 +404,22 @@
             <summary>
             Convert Attribute or Element key to the proper XName via the parent XElement node.
             </summary>
+        </member>
+        <member name="P:XmlLib.nXPath.XPath_Bracket.XPath">
+            <summary>
+            The expression.
+            </summary>
+        </member>
+        <member name="M:XmlLib.nXPath.cXPath.Enumerable(System.Xml.Linq.XElement,XmlLib.nXPath.XPathString,System.Boolean)">
+            <summary>
+            Get the elements of a path "path/to/node" or "path[to/node/@attribute&gt;=20.50]".
+            <remarks>
+            <para>See XPath docs for help on using [number][key=value]
+            - syntax (http://www.w3.org/TR/xpath/)</para>
+            </remarks>
+            </summary>
+            <param name="create">create path if it doesn't exist?</param>
+            <exception cref="T:System.ArgumentOutOfRangeException"/>
         </member>
     </members>
 </doc>
