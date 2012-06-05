@@ -9,9 +9,15 @@ using System.Linq.Expressions;
 
 namespace XmlLib.nXPath.Functions
 {
-    public class StartsWith
+    internal class StartsWith : FunctionBase
     {
-        internal static Expression Parse(XPath_Part part, Expression left, Expression right, Expression path)
+        internal StartsWith(XPath_Part part) : base(part) { }
+        /// <summary>
+        /// false
+        /// </summary>
+        internal override bool IsEqual { get { return false; } }
+
+        internal override Expression Left(XPath_Part part, Expression left, Expression right, Expression path)
         {
             if (!(part.Value is string))
             {

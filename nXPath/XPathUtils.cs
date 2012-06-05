@@ -8,6 +8,7 @@ using System;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Xml.Linq;
+using System.Text.RegularExpressions;
 
 namespace XmlLib.nXPath
 {
@@ -86,12 +87,9 @@ namespace XmlLib.nXPath
         {
             Type type = part.Value.GetType();
             object value = null;
-            switch (part.Function)
+            if (null != part.Function && part.Function.IsEqual)
             {
-                case XPath_Part.eFunction.Max:
-                case XPath_Part.eFunction.Min:
-                    value = part.Value;
-                    break;
+                value = part.Value;
             }
             if (null == value)
                 try { value = Activator.CreateInstance(type); }

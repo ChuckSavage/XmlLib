@@ -143,6 +143,30 @@ namespace XmlLib_Test
         }
 
         [TestMethod]
+        public void Function_LocalName()
+        {
+            string path = "//*[local-name()={0}]";
+            object[] args = new object[] { "div" };
+            XElement[] expected = root.Descendants()
+                .Where(x => x.Elements().Any(xx => xx.Name.LocalName == "div"))
+                .ToArray();
+            XElement[] actual = XPathExtensions.XPath(root, path, args).ToArray();
+            CollectionAssert.AreEqual(expected, actual);
+        }
+
+        [TestMethod]
+        public void Function_LocalName_CurrentNode()
+        {
+            string path = "//*[local-name(.)={0}]";
+            object[] args = new object[] { "div" };
+            XElement[] expected = root.Descendants()
+                .Where(x => x.Name.LocalName == "div")
+                .ToArray();
+            XElement[] actual = XPathExtensions.XPath(root, path, args).ToArray();
+            CollectionAssert.AreEqual(expected, actual);
+        }
+
+        [TestMethod]
         public void Function_StartsWith()
         {
             string path = "details[starts-with(*,'ADC')]";

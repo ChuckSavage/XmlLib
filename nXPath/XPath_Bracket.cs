@@ -49,18 +49,12 @@ namespace XmlLib.nXPath
         private Expression ExpressionEquals(XPath_Part part, Expression left, Expression right, Expression path)
         {
             Expression ex;
-            switch (part.Function)
+            if (null != part.Function)
             {
-                /*
-                 * Min/Max get the xelement's parent's elements and find the min/max value
-                 */
-                case XPath_Part.eFunction.Max:
-                case XPath_Part.eFunction.Min:
-                    // right = x.Parent.Elements(x.Name).Max(xx => (int)xx.Attribute("Key")
-                    right = MinMax.Parse(part, left, right, path);
-                    break;
-                case XPath_Part.eFunction.StartsWith:
-                    return StartsWith.Parse(part, left, right, path);
+                left = part.Function.Left(part, left, right, path);
+                right = part.Function.Right(part, left, right, path);
+                if (!part.Function.IsEqual)
+                    return left;
             }
             if (part.Value is string)
             {
@@ -169,6 +163,8 @@ namespace XmlLib.nXPath
                             Expression parent = _elements;
                             switch (key)
                             {
+                                case null:
+                                case "":
                                 case "*": // [*='ABC']
                                     _elements = Expression.Call(
                                         _elements ?? pe,
@@ -190,27 +186,25 @@ namespace XmlLib.nXPath
                             }
                             if (last)
                             {
-                                switch (part.Function)
+                                if (part.Function is MinMax)
                                 {
-                                    case XPath_Part.eFunction.Max:
-                                    case XPath_Part.eFunction.Min:
-                                        Expression left = XPathUtils.ElementValue(parent ?? pe, part, key);
-                                        e = ExpressionEquals(part, left, right, null);
-                                        break;
-                                    default:
-                                        Expression type = Expression.Convert(pe, part.Value.GetType());
-                                        Expression equal = ExpressionEquals(part, type, Expression.Constant(part.Value));
-                                        if ("." == key) // [.='ABC'] means current node equals
-                                            e = equal;
-                                        else
-                                            e = Expression.Call(
-                                                typeof(Enumerable),
-                                                "Any",
-                                                new[] { typeof(XElement) },
-                                                _elements,
-                                                Expression.Lambda<Func<XElement, bool>>(equal, new ParameterExpression[] { pe })
-                                               );
-                                        break;
+                                    Expression left = XPathUtils.ElementValue(parent ?? pe, part, key);
+                                    e = ExpressionEquals(part, left, right, null);
+                                }
+                                else
+                                {
+                                    Expression type = Expression.Convert(pe, part.Value.GetType());
+                                    Expression equal = ExpressionEquals(part, type, Expression.Constant(part.Value));
+                                    if ("." == key) // [.='ABC'] means current node equals
+                                        e = equal;
+                                    else
+                                        e = Expression.Call(
+                                            typeof(Enumerable),
+                                            "Any",
+                                            new[] { typeof(XElement) },
+                                            _elements,
+                                            Expression.Lambda<Func<XElement, bool>>(equal, new ParameterExpression[] { pe })
+                                           );
                                 }
                             }
                         }

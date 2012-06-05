@@ -10,12 +10,35 @@ using System.Xml.Linq;
 
 namespace XmlLib.nXPath.Functions
 {
-    public class MinMax
+    /// <summary>
+    /// <para>Example: root2.XPathElement("pair[max(@Key, {0})]", 0);</para>
+    /// <para>Syntax: max(key, type)</para>
+    /// <para>- key: is element or attribute path nodeset</para>
+    /// <para>- type: isn't a value to compare against, but the type of the key to get 
+    /// the min/max value of.</para>
+    /// <para>Returns: The min/max pair node.</para>
+    /// </summary>
+    internal class MinMax : FunctionBase
     {
-        internal static Expression Parse(XPath_Part part, Expression left, Expression right, Expression path)
+        enum eMinMax
+        {
+            Min, Max
+        }
+        readonly eMinMax Function;
+
+        internal MinMax(XPath_Part part, string function)
+            : base(part)
+        {
+            if (function.StartsWith("min"))
+                Function = eMinMax.Min;
+            else
+                Function = eMinMax.Max;
+        }
+
+        internal override Expression Right(XPath_Part part, Expression left, Expression right, Expression path)
         {
             // right = x.Parent.Elements(x.Name).Max(xx => (int)xx.Attribute("Key")
-            string minmax = XPath_Part.eFunction.Max == part.Function ? "Max" : "Min";
+            string minmax = ((MinMax)part.Function).Function.ToString();
             string[] keyParts = part.Key.Split('/');
             string key = keyParts.Last();
             ParameterExpression maxPe = Expression.Parameter(typeof(XElement), minmax.ToLower());

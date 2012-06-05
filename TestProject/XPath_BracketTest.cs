@@ -4,6 +4,7 @@ using System.Xml.Linq;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using XmlLib.nXPath.Functions;
 
 namespace XmlLib_Test
 {
@@ -103,7 +104,7 @@ namespace XmlLib_Test
             var part = target.Parts[0];
             Assert.AreEqual(part.ElementAt, false);
             Assert.AreEqual(part.Equal, true);
-            Assert.AreEqual(part.Function, XPath_Part.eFunction.None);
+            Assert.AreEqual(part.Function, null);
             Assert.AreEqual(part.GreaterThan, false);
             Assert.AreEqual(part.GreaterThanOrEqual, false);
             Assert.AreEqual(part.IsValueAttribute, false);
@@ -127,7 +128,8 @@ namespace XmlLib_Test
             var part = target.Parts[0];
             Assert.AreEqual(part.ElementAt, false);
             Assert.AreEqual(part.Equal, true);
-            Assert.AreEqual(part.Function, XPath_Part.eFunction.Min);
+            Assert.AreNotEqual(null, part.Function);
+            Assert.IsInstanceOfType(part.Function, typeof(MinMax));
             Assert.AreEqual(part.GreaterThan, false);
             Assert.AreEqual(part.GreaterThanOrEqual, false);
             Assert.AreEqual(part.IsValueAttribute, false);

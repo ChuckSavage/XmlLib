@@ -8,6 +8,7 @@ using System;
 using System.Diagnostics;
 using System.Linq;
 using System.Text.RegularExpressions;
+using XmlLib.nXPath.Functions;
 
 namespace XmlLib.nXPath
 {
@@ -22,15 +23,7 @@ namespace XmlLib.nXPath
         public bool GreaterThan { get; private set; }
         public bool GreaterThanOrEqual { get { return Equal && GreaterThan; } }
         public readonly bool ElementAt;
-
-        public enum eFunction
-        {
-            None,
-            StartsWith,
-            Max,
-            Min
-        }
-        public readonly eFunction Function = eFunction.None;
+        public readonly FunctionBase Function = null;
         public bool KVP { get; private set; }
         public string Key { get; private set; }
         public object Value
@@ -101,11 +94,11 @@ namespace XmlLib.nXPath
             
             {
                 Match functionMatch = Regex.Match(part, @"^\w+[^\(]*\([^\)]*\)"); // last(), starts-with(key, value)
-                if(functionMatch.Success)
+                if (functionMatch.Success)
                 {
                     string func = functionMatch.Value;
                     string function = func.Split('(')[0];
-                    switch(function)
+                    switch (function)
                     {
                         case "last":
                             ElementAt = true;
@@ -118,39 +111,46 @@ namespace XmlLib.nXPath
                                 _Value = 0;
 
                             break;
+                        case "local-name":
+                            Function = new LocalName(this);
+                            break;
                         case "starts-with":
-                            Function = eFunction.StartsWith;
+                            Function = new StartsWith(this);
                             break;
                         case "max":
-                            Function = eFunction.Max;
-                            break;
                         case "min":
-                            Function = eFunction.Min;
+                            Function = new MinMax(this, func);
                             break;
                     }
-                    switch(Function)
+
+                    if (null != Function)
                     {
-                        case eFunction.Max:
-                        case eFunction.Min:
-                        case eFunction.StartsWith:
+                        if (Function.HasKVP)
+                        {
                             string kvp = Regex.Match(func, @"\(([^\}]*)\)").Value.TrimStart('(').TrimEnd(')');
-                            string[] parts = kvp.Split(',');
-                            Key = parts[0];
-                            string value;
-                            try
+                            if(!string.IsNullOrEmpty(kvp) || Function.ArgumentsRequired)
                             {
-                                isString = IsString(parts[1], out value);
+                                string[] parts = kvp.Split(',');
+                                Key = parts[0];
+                                string value;
+                                try
+                                {
+                                    isString = IsString(parts[1], out value);
+                                    Value = value;
+                                }
+                                catch (IndexOutOfRangeException)
+                                {
+                                    if (Function.ArgumentsValueRequired)
+                                        throw new ArgumentException(string.Format(
+                                            "Syntax {0}(key, value):  Invalid {0}({1})", func.Split('(')[0], kvp));
+                                }
                             }
-                            catch (IndexOutOfRangeException)
-                            {
-                                throw new ArgumentException(string.Format(
-                                    "Syntax {0}(key, value):  Invalid {0}({1})", func.Split('(')[0], kvp));
-                            }
-                            Value = value;
-                            break;
+                            else
+                                Key = string.Empty;
+                        }
+                        if (Function.IsEqual)
+                            Equal = true;
                     }
-                    if (Function == eFunction.Max || Function == eFunction.Min)
-                        Equal = true;
                 }
             }
 
