@@ -33,6 +33,13 @@ namespace XmlLib.nXPath.Functions
                 Function = eMinMax.Min;
             else
                 Function = eMinMax.Max;
+            _CompareElement = MinMax_CompareElement;
+        }
+
+        internal Expression MinMax_CompareElement(XPath_Part part, string key, Expression parent, Expression left, Expression right)
+        {
+            left = XPathUtils.ElementValue(parent, part, key);
+            return XPath_Bracket.ExpressionEquals(part, left, right, null);
         }
 
         internal override Expression Right(XPath_Part part, Expression left, Expression right, Expression path)

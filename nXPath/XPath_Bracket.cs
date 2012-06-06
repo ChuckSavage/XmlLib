@@ -195,12 +195,6 @@ namespace XmlLib.nXPath
                                 if (null != part.Function && null != part.Function.CompareElement)
                                     e = part.Function.CompareElement(part, key, parent ?? pe, _elements ?? pe, right);
                                 else
-                                if (part.Function is MinMax)
-                                {
-                                    Expression left = XPathUtils.ElementValue(parent ?? pe, part, key);
-                                    e = ExpressionEquals(part, left, right, null);
-                                }
-                                else
                                 {
                                     Expression type = Expression.Convert(pe, part.Value.GetType());
                                     Expression equal = ExpressionEquals(part, type, Expression.Constant(part.Value));
