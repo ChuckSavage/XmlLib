@@ -114,12 +114,15 @@ namespace XmlLib.nXPath
                         case "local-name":
                             Function = new LocalName(this);
                             break;
-                        case "starts-with":
-                            Function = new StartsWith(this);
-                            break;
                         case "max":
                         case "min":
                             Function = new MinMax(this, func);
+                            break;
+                        case "name":
+                            Function = new Name(this);
+                            break;
+                        case "starts-with":
+                            Function = new StartsWith(this);
                             break;
                     }
 
@@ -128,7 +131,7 @@ namespace XmlLib.nXPath
                         if (Function.HasKVP)
                         {
                             string kvp = Regex.Match(func, @"\(([^\}]*)\)").Value.TrimStart('(').TrimEnd(')');
-                            if(!string.IsNullOrEmpty(kvp) || Function.ArgumentsRequired)
+                            if (!string.IsNullOrEmpty(kvp) || Function.ArgumentsRequired)
                             {
                                 string[] parts = kvp.Split(',');
                                 Key = parts[0];

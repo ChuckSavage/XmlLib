@@ -17,6 +17,9 @@ namespace XmlLib.nXPath
     [DebuggerDisplay("{XPath}")]
     internal class XPath_Bracket
     {
+        public delegate Expression DCompareAttribute(XPath_Part part, string key, Expression left, Expression right);
+        public delegate Expression DCompareElement(XPath_Part part, string key, Expression parent, Expression left, Expression right);
+
         internal readonly static ParameterExpression pe = Expression.Parameter(typeof(XElement), "xe");
         internal readonly static ParameterExpression pa = Expression.Parameter(typeof(XAttribute), "xa");
 
@@ -41,12 +44,12 @@ namespace XmlLib.nXPath
             Parts = paths.Select(s => new XPath_Part(s)).ToArray();
         }
 
-        private Expression ExpressionEquals(XPath_Part part, Expression left, Expression right)
+        internal static Expression ExpressionEquals(XPath_Part part, Expression left, Expression right)
         {
             return ExpressionEquals(part, left, right, null);
         }
 
-        private Expression ExpressionEquals(XPath_Part part, Expression left, Expression right, Expression path)
+        internal static Expression ExpressionEquals(XPath_Part part, Expression left, Expression right, Expression path)
         {
             Expression ex;
             if (null != part.Function)
@@ -155,7 +158,10 @@ namespace XmlLib.nXPath
                         if (part.IsValueAttribute || key.StartsWith("@"))
                         {
                             key = key.TrimStart('@');
-                            e = CompareAttribute(part, key, _elements, right);
+                            if (null != part.Function && null != part.Function.CompareAttribute)
+                                e = part.Function.CompareAttribute(part, key, _elements ?? pe, right);
+                            else
+                                e = CompareAttribute(part, key, _elements, right);
                             break;
                         }
                         else
@@ -186,6 +192,9 @@ namespace XmlLib.nXPath
                             }
                             if (last)
                             {
+                                if (null != part.Function && null != part.Function.CompareElement)
+                                    e = part.Function.CompareElement(part, key, parent ?? pe, _elements ?? pe, right);
+                                else
                                 if (part.Function is MinMax)
                                 {
                                     Expression left = XPathUtils.ElementValue(parent ?? pe, part, key);

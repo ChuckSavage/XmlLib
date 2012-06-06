@@ -51,6 +51,7 @@
     <Compile Include="nXPath\Functions\FunctionBase.cs" />
     <Compile Include="nXPath\Functions\LocalName.cs" />
     <Compile Include="nXPath\Functions\MinMax.cs" />
+    <Compile Include="nXPath\Functions\Name.cs" />
     <Compile Include="nXPath\Functions\StartsWith.cs" />
     <Compile Include="nXPath\XPathString.cs" />
     <Compile Include="nXPath\XPathUtils.cs" />

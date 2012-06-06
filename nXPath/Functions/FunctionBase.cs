@@ -17,6 +17,18 @@ namespace XmlLib.nXPath.Functions
         }
 
         /// <summary>
+        /// Compare Attribute value Expression generator, if different than the norm.
+        /// </summary>
+        internal XPath_Bracket.DCompareAttribute CompareAttribute { get { return _CompareAttribute; } }
+        protected XPath_Bracket.DCompareAttribute _CompareAttribute = null;
+
+        /// <summary>
+        /// Compare Element value Expression generator, if different than the norm.
+        /// </summary>
+        internal XPath_Bracket.DCompareElement CompareElement { get { return _CompareElement; } }
+        protected XPath_Bracket.DCompareElement _CompareElement = null;
+
+        /// <summary>
         /// true
         /// </summary>
         internal virtual bool HasKVP { get { return true; } }

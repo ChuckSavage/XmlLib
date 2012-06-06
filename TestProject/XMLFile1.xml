@@ -94,6 +94,9 @@
       <div id="title">
         <h1>The Title</h1>
       </div>
+      <xsi:div xsi:id="xsi_div">
+        <h1>Xsi_div Title</h1>
+      </xsi:div>
       <nav>
       </nav>
     </header>

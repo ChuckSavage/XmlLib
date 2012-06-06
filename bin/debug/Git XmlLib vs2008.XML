@@ -14,6 +14,16 @@
             <para>Returns: The min/max pair node.</para>
             </summary>
         </member>
+        <member name="P:XmlLib.nXPath.Functions.FunctionBase.CompareAttribute">
+            <summary>
+            Compare Attribute value Expression generator, if different than the norm.
+            </summary>
+        </member>
+        <member name="P:XmlLib.nXPath.Functions.FunctionBase.CompareElement">
+            <summary>
+            Compare Element value Expression generator, if different than the norm.
+            </summary>
+        </member>
         <member name="P:XmlLib.nXPath.Functions.FunctionBase.HasKVP">
             <summary>
             true
@@ -489,6 +499,25 @@
             </summary>
         </member>
         <member name="P:XmlLib.nXPath.Functions.LocalName.ArgumentsValueRequired">
+            <summary>
+            false
+            </summary>
+        </member>
+        <member name="T:XmlLib.nXPath.Functions.Name">
+            <summary>
+            <para>Example: root2.XPathElement("//*[name()={0}]", "div");</para>
+            <para>Syntax: name()</para>
+            <para>Syntax: name(nodeset)</para>
+            <para>- nodeset: path to a node or attribute, and its name.</para>
+            <para>Returns the name of the current node or the first node in the specified node set</para>
+            </summary>
+        </member>
+        <member name="P:XmlLib.nXPath.Functions.Name.ArgumentsRequired">
+            <summary>
+            false
+            </summary>
+        </member>
+        <member name="P:XmlLib.nXPath.Functions.Name.ArgumentsValueRequired">
             <summary>
             false
             </summary>
