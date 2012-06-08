@@ -162,6 +162,16 @@ namespace XmlLib.nXPath
                                 e = part.Function.CompareAttribute(part, key, _elements ?? pe, right);
                             else
                                 e = CompareAttribute(part, key, _elements, right);
+                            {
+                                // speeds up compares a lot if they don't have children elements or attributes
+                                Expression hasAttributes = Expression.Property(_elements ?? pe, "HasAttributes");
+                                e = Expression.Condition(hasAttributes, e, Expression.Constant(false));
+                                if (null != _elements)
+                                {
+                                    Expression hasElements = Expression.Property(pe, "HasElements");
+                                    e = Expression.Condition(hasElements, e, Expression.Constant(false));
+                                }
+                            }
                             break;
                         }
                         else
@@ -208,6 +218,13 @@ namespace XmlLib.nXPath
                                             _elements,
                                             Expression.Lambda<Func<XElement, bool>>(equal, new ParameterExpression[] { pe })
                                            );
+                                }
+                                if ("." != part.Key)
+                                {
+                                    // Check if element has children before doing above compares
+                                    // Can speed things up a lot
+                                    Expression hasElements = Expression.Property(pe, "HasElements");
+                                    e = Expression.Condition(hasElements, e, Expression.Constant(false));
                                 }
                             }
                         }

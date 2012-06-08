@@ -145,4 +145,55 @@
       <tr>22</tr>
     </tbody>
   </table>
+  <DAY date="11/8/1995" id ="1">
+    <Breakfast>
+      <food size="1">mys</food>
+    </Breakfast>
+    <MidAfternoon>
+      <food size="2">mys</food>
+    </MidAfternoon>
+    <Lunch>
+      <food size="0.5">mys</food>
+    </Lunch>
+    <PostWorkout>
+      <food size="10">mys</food>
+    </PostWorkout>
+    <BeforeBed>
+      <food size="20">mys</food>
+    </BeforeBed>
+  </DAY>
+  <DAY date="5/20/12" id="2">
+    <Breakfast>
+      <food size="1">mys</food>
+    </Breakfast>
+    <MidAfternoon>
+      <food size="2">mys</food>
+    </MidAfternoon>
+    <Lunch>
+      <food size="0.5">mys</food>
+    </Lunch>
+    <PostWorkout>
+      <food size="10">mys</food>
+    </PostWorkout>
+    <BeforeBed>
+      <food size="20">mys</food>
+    </BeforeBed>
+  </DAY>
+  <DAY date="5/21/12" id="2">
+    <Breakfast>
+      <food size="1">mys</food>
+    </Breakfast>
+    <MidAfternoon>
+      <food size="2">mys</food>
+    </MidAfternoon>
+    <Lunch>
+      <food size="0.5">mys</food>
+    </Lunch>
+    <PostWorkout>
+      <food size="10">mys</food>
+    </PostWorkout>
+    <BeforeBed>
+      <food size="20">mys</food>
+    </BeforeBed>
+  </DAY>
 </root>

@@ -164,6 +164,79 @@ namespace XmlLib_Test
             Assert.AreEqual(expected, actual);
         }
 
+        [TestMethod]
+        public void Equal_AttribPath()
+        {
+            string path = "//*[food/@size={0}]";
+            object[] args = new object[] { (decimal)2 };
+            XElement[] expected = root1.Descendants()
+                .Where(a =>
+                {
+                    if (!a.HasElements) return false;
+                    XElement x = a.GetElement("food");
+                    if (!x.HasAttributes) return false;
+                    return x.Get("size", decimal.MinValue) == 2;
+                })
+                .ToArray();
+            XElement[] actual = XPathExtensions.XPath(root1, path, args).ToArray();
+            CollectionAssert.AreEqual(expected, actual);
+        }
+
+        [TestMethod]
+        public void Greater_AttribPath()
+        {
+            string path = "//*[food/@size>{0}]";
+            object[] args = new object[] { (decimal)2 };
+            XElement[] expected = root1.Descendants()
+                .Where(a =>
+                {
+                    if (!a.HasElements) return false;
+                    XElement x = a.GetElement("food");
+                    if (!x.HasAttributes) return false;
+                    return x.Get("size", decimal.MinValue) > 2;
+                })
+                .ToArray();
+            XElement[] actual = XPathExtensions.XPath(root1, path, args).ToArray();
+            CollectionAssert.AreEqual(expected, actual);
+        }
+
+        [TestMethod]
+        public void LessThan_AttribPath()
+        {
+            string path = "//*[food/@size<{0}]";
+            object[] args = new object[] { (decimal)2 };
+            XElement[] expected = root1.Descendants()
+                .Where(a =>
+                {
+                    if (!a.HasElements) return false;
+                    XElement x = a.GetElement("food");
+                    if (!x.HasAttributes) return false;
+                    return x.Get("size", decimal.MinValue) < 2;
+                })
+                .ToArray();
+            XElement[] actual = XPathExtensions.XPath(root1, path, args).ToArray();
+            CollectionAssert.AreEqual(expected, actual);
+        }
+
+        [TestMethod]
+        public void NotEqual_AttribPath()
+        {
+            string path = "//*[food/@size!={0}]";
+            object[] args = new object[] { (decimal)2 };
+            XElement[] expected = root1.Descendants()
+                .Where(a =>
+                {
+                    if (!a.HasElements) return false;
+                    XElement x = a.GetElement("food");
+                    if (!x.HasAttributes) return false;
+                    return x.Get("size", decimal.MinValue) != 2;
+                })
+                .ToArray();
+            XElement[] actual = XPathExtensions.XPath(root1, path, args).ToArray();
+            CollectionAssert.AreEqual(expected, actual);
+        }
+
+
         /*
         /// <summary>
         ///A test for XPath

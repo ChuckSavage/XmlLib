@@ -100,6 +100,9 @@ namespace XmlLib.nXPath
                     string function = func.Split('(')[0];
                     switch (function)
                     {
+                        case "ends-with":
+                            Function = new EndsWith(this);
+                            break;
                         case "last":
                             ElementAt = true;
                             Key = functionMatch.Value;
@@ -138,8 +141,13 @@ namespace XmlLib.nXPath
                                 string value;
                                 try
                                 {
-                                    isString = IsString(parts[1], out value);
-                                    Value = value;
+                                    if (isString) // had form "node[func(@key, 'value')]"
+                                        Value = parts[1];
+                                    else
+                                    {
+                                        isString = IsString(parts[1], out value);
+                                        Value = value;
+                                    }
                                 }
                                 catch (IndexOutOfRangeException)
                                 {

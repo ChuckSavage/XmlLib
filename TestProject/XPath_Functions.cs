@@ -133,6 +133,75 @@ namespace XmlLib_Test
         }
 
         [TestMethod]
+        public void Function_EndsWith_Dot()
+        {
+            string path = "//Name[ends-with(.,'tin')]";
+            object[] args = new object[] { };
+            XElement[] expected = root.Descendants("Name")
+                                      .Where(x => x.Value.EndsWith("tin"))
+                                      .ToArray();
+            XElement[] actual = XPathExtensions.XPath(root, path, args).ToArray();
+            CollectionAssert.AreEqual(expected, actual);
+        }
+
+        [TestMethod]
+        public void Function_EndsWith_Star()
+        {
+            string path = "//*[ends-with(*,'tin')]";
+            object[] args = new object[] { };
+            XElement[] expected = root.Descendants()
+                                      .Where(x => x.Elements().Any(xx => ((string)xx).EndsWith("tin")))
+                                      .ToArray();
+            XElement[] actual = XPathExtensions.XPath(root, path, args).ToArray();
+            CollectionAssert.AreEqual(expected, actual);
+        }
+
+        [TestMethod]
+        public void Function_EndsWith_Path()
+        {
+            string path = "//*[ends-with(Item/Name,'tin')]";
+            object[] args = new object[] { };
+            XElement[] expected = root.Descendants()
+                .Where(x => x.HasElements ? x.GetElements("Item/Name").Any(xx => ((string)xx).EndsWith("tin")) : false)
+                                      .ToArray();
+            XElement[] actual = XPathExtensions.XPath(root, path, args).ToArray();
+            CollectionAssert.AreEqual(expected, actual);
+        }
+
+        [TestMethod]
+        public void Function_EndsWith_Attrib()
+        {
+            string path = "//*[ends-with(@Key,'2')]";
+            object[] args = new object[] { };
+            XElement[] expected = root.Descendants()
+                .Where(x => //x.HasAttributes ? 
+                    (null == x.Attribute("Key") ? false : x.Attribute("Key").Value.EndsWith("2"))
+                //: false
+                    )
+                .ToArray();
+            XElement[] actual = XPathExtensions.XPath(root, path, args).ToArray();
+            CollectionAssert.AreEqual(expected, actual);
+        }
+
+        [TestMethod]
+        public void Function_EndsWith_AttribPath()
+        {
+            string path = "//*[ends-with(food/@size,{0})]";
+            object[] args = new object[] { "2" };
+            XElement[] expected = root.Descendants()
+                .Where(a =>
+                {
+                    if (!a.HasElements) return false;
+                    XElement x = a.GetElement("food");
+                    if (!x.HasAttributes) return false;
+                    return (null == x.Attribute("size") ? false : x.Attribute("size").Value.EndsWith("2"));
+                })
+                .ToArray();
+            XElement[] actual = XPathExtensions.XPath(root, path, args).ToArray();
+            CollectionAssert.AreEqual(expected, actual);
+        }
+
+        [TestMethod]
         public void Function_Last()
         {
             string path = "pair[last()]";

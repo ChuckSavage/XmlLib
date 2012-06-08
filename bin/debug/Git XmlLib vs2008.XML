@@ -467,21 +467,24 @@
             The expression.
             </summary>
         </member>
-        <member name="P:XmlLib.nXPath.Functions.StartsWith.IsEqual">
+        <member name="T:XmlLib.nXPath.Functions.Name">
+            <summary>
+            <para>Example: root2.XPathElement("//*[name()={0}]", "div");</para>
+            <para>Syntax: name()</para>
+            <para>Syntax: name(nodeset)</para>
+            <para>- nodeset: path to a node or attribute, and its name.</para>
+            <para>Returns the name of the current node or the first node in the specified node set</para>
+            </summary>
+        </member>
+        <member name="P:XmlLib.nXPath.Functions.Name.ArgumentsRequired">
             <summary>
             false
             </summary>
         </member>
-        <member name="M:XmlLib.nXPath.cXPath.Enumerable(System.Xml.Linq.XElement,XmlLib.nXPath.XPathString,System.Boolean)">
+        <member name="P:XmlLib.nXPath.Functions.Name.ArgumentsValueRequired">
             <summary>
-            Get the elements of a path "path/to/node" or "path[to/node/@attribute&gt;=20.50]".
-            <remarks>
-            <para>See XPath docs for help on using [number][key=value]
-            - syntax (http://www.w3.org/TR/xpath/)</para>
-            </remarks>
+            false
             </summary>
-            <param name="create">create path if it doesn't exist?</param>
-            <exception cref="T:System.ArgumentOutOfRangeException"/>
         </member>
         <member name="T:XmlLib.nXPath.Functions.LocalName">
             <summary>
@@ -503,21 +506,23 @@
             false
             </summary>
         </member>
-        <member name="T:XmlLib.nXPath.Functions.Name">
-            <summary>
-            <para>Example: root2.XPathElement("//*[name()={0}]", "div");</para>
-            <para>Syntax: name()</para>
-            <para>Syntax: name(nodeset)</para>
-            <para>- nodeset: path to a node or attribute, and its name.</para>
-            <para>Returns the name of the current node or the first node in the specified node set</para>
-            </summary>
-        </member>
-        <member name="P:XmlLib.nXPath.Functions.Name.ArgumentsRequired">
+        <member name="P:XmlLib.nXPath.Functions.StartsWith.IsEqual">
             <summary>
             false
             </summary>
         </member>
-        <member name="P:XmlLib.nXPath.Functions.Name.ArgumentsValueRequired">
+        <member name="M:XmlLib.nXPath.cXPath.Enumerable(System.Xml.Linq.XElement,XmlLib.nXPath.XPathString,System.Boolean)">
+            <summary>
+            Get the elements of a path "path/to/node" or "path[to/node/@attribute&gt;=20.50]".
+            <remarks>
+            <para>See XPath docs for help on using [number][key=value]
+            - syntax (http://www.w3.org/TR/xpath/)</para>
+            </remarks>
+            </summary>
+            <param name="create">create path if it doesn't exist?</param>
+            <exception cref="T:System.ArgumentOutOfRangeException"/>
+        </member>
+        <member name="P:XmlLib.nXPath.Functions.EndsWith.IsEqual">
             <summary>
             false
             </summary>
