@@ -236,6 +236,33 @@ namespace XmlLib_Test
             CollectionAssert.AreEqual(expected, actual);
         }
 
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException))]
+        public void Namespace_NotRoot_AbbreviationSpecified()
+        {
+            string path = "//a:link[@rel={0}]";
+            object[] args = new object[] { "next" };
+            XPathExtensions.XPathElement(root1, path, args);
+        }
+
+        [TestMethod]
+        public void Namespace_NotRoot_AbbreviationNotSpecified()
+        {
+            string path = "//link[@rel={0}]";
+            object[] args = new object[] { "next" };
+            XElement actual = XPathExtensions.XPathElement(root1, path, args);
+            XElement expected = root1.GetDescendants("link")
+                .FirstOrDefault(x =>
+                {
+                    XAttribute xa = x.GetAttribute("rel");
+                    if (null == xa) return false;
+                    return xa.Value == "next";
+                });
+            Assert.AreEqual(expected, actual);
+        }
+
+
+
 
         /*
         /// <summary>

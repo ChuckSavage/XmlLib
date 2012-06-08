@@ -39,9 +39,11 @@
         <Name>Mike</Name>
         <Date>5/4/2006</Date>
       </Item>
-      <Item>
+      <Item xmlns:a="http://www.xxx.yyy/2001/XML">
         <Name>Martin</Name>
         <Date>5/4/2010</Date>
+        <a:link rel="prev" type="application/atom+xml" href="/v3.2/en-us/" />
+        <a:link rel="next" type="application/atom+xml" href="/v3.2/en-us/" />
       </Item>
     </Items>
     <Value>6</Value>

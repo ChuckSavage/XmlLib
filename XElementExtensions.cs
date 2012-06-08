@@ -21,6 +21,29 @@ namespace XmlLib
         public const bool ATTRIBUTE = true;
         public const bool ELEMENT = false;
 
+        #region GetAttribute
+        /// <summary>
+        /// An attribute with the same namespace as the source will be null if it doesn't
+        /// specify the namespace abbreviation.
+        /// </summary>
+        public static XAttribute GetAttribute(this XElement source, string name)
+        {
+            return GetAttribute(source, source.ToXName(name));
+        }
+
+        /// <summary>
+        /// An attribute with the same namespace as the source will be null if it doesn't
+        /// specify the namespace abbreviation.
+        /// </summary>
+        public static XAttribute GetAttribute(this XElement source, XName name)
+        {
+            XAttribute result = source.Attribute(name);
+            if (null == result && (name.Namespace == source.Name.Namespace))
+                result = source.Attribute(name.LocalName);
+            return result;
+        }
+        #endregion
+
         #region GetElement
         /// <summary>
         /// Get child element, create it if it doesn't exist in source.  
@@ -162,10 +185,7 @@ namespace XmlLib
                 result = (string)source;
             else
             {
-                if (name.Namespace == source.Name.Namespace)
-                    result = (string)source.Attribute(name.LocalName);
-                else
-                    result = (string)source.Attribute(name);
+                result = (string)GetAttribute(source, name);
                 if (null == result)
                     result = (string)source.Element(name);
             }

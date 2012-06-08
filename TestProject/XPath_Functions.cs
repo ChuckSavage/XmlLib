@@ -224,18 +224,6 @@ namespace XmlLib_Test
         }
 
         [TestMethod]
-        public void Function_LocalName_CurrentNode()
-        {
-            string path = "//*[local-name(.)={0}]";
-            object[] args = new object[] { "div" };
-            XElement[] expected = root.Descendants()
-                .Where(x => x.Name.LocalName == "div")
-                .ToArray();
-            XElement[] actual = XPathExtensions.XPath(root, path, args).ToArray();
-            CollectionAssert.AreEqual(expected, actual);
-        }
-
-        [TestMethod]
         public void Function_LocalName_Attribute()
         {
             string path = "//*[local-name(@id)={0}]";
@@ -266,6 +254,18 @@ namespace XmlLib_Test
         }
 
         [TestMethod]
+        public void Function_LocalName_CurrentNode()
+        {
+            string path = "//*[local-name(.)={0}]";
+            object[] args = new object[] { "div" };
+            XElement[] expected = root.Descendants()
+                .Where(x => x.Name.LocalName == "div")
+                .ToArray();
+            XElement[] actual = XPathExtensions.XPath(root, path, args).ToArray();
+            CollectionAssert.AreEqual(expected, actual);
+        }
+
+        [TestMethod]
         public void Function_Name()
         {
             XNamespace ns = "http://www.w3.org/2001/XMLSchema-instance";
@@ -273,19 +273,6 @@ namespace XmlLib_Test
             object[] args = new object[] { ns + "div" };
             XElement[] expected = root.Descendants()
                 .Where(x => x.Elements().Any(xx => xx.Name == ns + "div"))
-                .ToArray();
-            XElement[] actual = XPathExtensions.XPath(root, path, args).ToArray();
-            CollectionAssert.AreEqual(expected, actual);
-        }
-
-        [TestMethod]
-        public void Function_Name_CurrentNode()
-        {
-            XNamespace ns = "http://www.w3.org/2001/XMLSchema-instance";
-            string path = "//*[name(.)={0}]";
-            object[] args = new object[] { ns + "div" };
-            XElement[] expected = root.Descendants()
-                .Where(x => x.Name == ns + "div")
                 .ToArray();
             XElement[] actual = XPathExtensions.XPath(root, path, args).ToArray();
             CollectionAssert.AreEqual(expected, actual);
@@ -318,6 +305,19 @@ namespace XmlLib_Test
             object[] args = new object[] { ns + "id" };
             XElement[] expected = root.Descendants()
                 .Where(x => x.Attributes().Any(xa => xa.Name == ns + "id"))
+                .ToArray();
+            XElement[] actual = XPathExtensions.XPath(root, path, args).ToArray();
+            CollectionAssert.AreEqual(expected, actual);
+        }
+
+        [TestMethod]
+        public void Function_Name_CurrentNode()
+        {
+            XNamespace ns = "http://www.w3.org/2001/XMLSchema-instance";
+            string path = "//*[name(.)={0}]";
+            object[] args = new object[] { ns + "div" };
+            XElement[] expected = root.Descendants()
+                .Where(x => x.Name == ns + "div")
                 .ToArray();
             XElement[] actual = XPathExtensions.XPath(root, path, args).ToArray();
             CollectionAssert.AreEqual(expected, actual);

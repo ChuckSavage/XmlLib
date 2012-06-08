@@ -203,6 +203,18 @@
             XElement extension methods.
             </summary>
         </member>
+        <member name="M:XmlLib.XElementExtensions.GetAttribute(System.Xml.Linq.XElement,System.String)">
+            <summary>
+            An attribute with the same namespace as the source will be null if it doesn't
+            specify the namespace abbreviation.
+            </summary>
+        </member>
+        <member name="M:XmlLib.XElementExtensions.GetAttribute(System.Xml.Linq.XElement,System.Xml.Linq.XName)">
+            <summary>
+            An attribute with the same namespace as the source will be null if it doesn't
+            specify the namespace abbreviation.
+            </summary>
+        </member>
         <member name="M:XmlLib.XElementExtensions.GetElement(System.Xml.Linq.XElement,System.Xml.Linq.XName)">
             <summary>
             Get child element, create it if it doesn't exist in source.  

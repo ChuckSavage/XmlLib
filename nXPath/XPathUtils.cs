@@ -28,9 +28,11 @@ namespace XmlLib.nXPath
         internal static Expression Attribute(Expression parent, string key)
         {
             Expression att = Expression.Call(
+                typeof(XElementExtensions),
+                "GetAttribute",
+                null,
                 parent,
-                typeof(XElement).GetMethod("Attribute", new Type[] { typeof(XName) }),
-                ToXName(parent, key)
+                Expression.Constant(key)
                 );
             return att;
         }
