@@ -619,6 +619,11 @@ namespace XmlLib
                     if (parts.Length > 2)
                         throw new ArgumentException("Invalid name: " + name);
                     ns = source.GetNamespaceOfPrefix(parts[0]);
+                    if (null == ns)
+                        throw new ArgumentException(string.Format(
+                            "Undefined namespace abreviation ({0}) for source node. " +
+                            "Provide a source closer to the specified node that contains " +
+                            "the namespace definition.", parts[0]));
                     name = parts[1];
                 }
                 return ns + name;
