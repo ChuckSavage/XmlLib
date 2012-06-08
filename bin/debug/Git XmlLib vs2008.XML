@@ -4,16 +4,6 @@
         <name>Git XmlLib vs2008</name>
     </assembly>
     <members>
-        <member name="T:XmlLib.nXPath.Functions.MinMax">
-            <summary>
-            <para>Example: root2.XPathElement("pair[max(@Key, {0})]", 0);</para>
-            <para>Syntax: max(key, type)</para>
-            <para>- key: is element or attribute path nodeset</para>
-            <para>- type: isn't a value to compare against, but the type of the key to get 
-            the min/max value of.</para>
-            <para>Returns: The min/max pair node.</para>
-            </summary>
-        </member>
         <member name="P:XmlLib.nXPath.Functions.FunctionBase.CompareAttribute">
             <summary>
             Compare Attribute value Expression generator, if different than the norm.
@@ -42,6 +32,21 @@
         <member name="P:XmlLib.nXPath.Functions.FunctionBase.IsEqual">
             <summary>
             true
+            </summary>
+        </member>
+        <member name="P:XmlLib.nXPath.Functions.EndsWith.IsEqual">
+            <summary>
+            false
+            </summary>
+        </member>
+        <member name="T:XmlLib.nXPath.Functions.MinMax">
+            <summary>
+            <para>Example: root2.XPathElement("pair[max(@Key, {0})]", 0);</para>
+            <para>Syntax: max(key, type)</para>
+            <para>- key: is element or attribute path nodeset</para>
+            <para>- type: isn't a value to compare against, but the type of the key to get 
+            the min/max value of.</para>
+            <para>Returns: The min/max pair node.</para>
             </summary>
         </member>
         <member name="F:XmlLib.nXPath.XPathString.Create">
@@ -521,11 +526,6 @@
             </summary>
             <param name="create">create path if it doesn't exist?</param>
             <exception cref="T:System.ArgumentOutOfRangeException"/>
-        </member>
-        <member name="P:XmlLib.nXPath.Functions.EndsWith.IsEqual">
-            <summary>
-            false
-            </summary>
         </member>
     </members>
 </doc>
