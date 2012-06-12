@@ -44,83 +44,9 @@ namespace XmlLib.nXPath
             Parts = paths.Select(s => new XPath_Part(s)).ToArray();
         }
 
-        internal static Expression ExpressionEquals(XPath_Part part, Expression left, Expression right)
-        {
-            return ExpressionEquals(part, left, right, null);
-        }
-
-        internal static Expression ExpressionEquals(XPath_Part part, Expression left, Expression right, Expression path)
-        {
-            Expression ex;
-            if (null != part.Function)
-            {
-                left = part.Function.Left(part, left, right, path);
-                right = part.Function.Right(part, left, right, path);
-                if (!part.Function.IsEqual)
-                    return left;
-            }
-            if (part.Value is string)
-            {
-                // use string.Compare() 
-                left = Expression.Call(
-                    typeof(string),
-                    "Compare",
-                    null,
-                    new Expression[] { left, right });
-                right = Expression.Constant(0, typeof(int));
-            }
-
-            if (part.NotEqual)
-                ex = Expression.NotEqual(left, right);
-            else if (part.LessThanOrEqual)
-                ex = Expression.LessThanOrEqual(left, right);
-            else if (part.GreaterThanOrEqual)
-                ex = Expression.GreaterThanOrEqual(left, right);
-            else if (part.Equal)
-                ex = Expression.Equal(left, right);
-            else if (part.LessThan)
-                ex = Expression.LessThan(left, right);
-            else if (part.GreaterThan)
-                ex = Expression.GreaterThan(left, right);
-            else
-                throw new NotImplementedException(part.self.Text);
-            return ex;
-        }
-
-        protected Expression CompareAttribute(XPath_Part part, string key, Expression elements, Expression right)
-        {
-            if ("*" != key)
-            {
-                Expression xa = XPathUtils.Attribute(elements, key);
-                Expression value = XPathUtils.AttributeValue(elements, part, key);
-                Expression equals = ExpressionEquals(part, value, right);
-                Expression safe = xa.NullCheckReturnsBool(equals);
-                return safe;
-            }
-            else // [@*='ABC']
-            {
-                Expression attributes = Expression.Call(
-                    elements,
-                    "Attributes",
-                    null);
-                Expression type = Expression.Convert(pa, part.Value.GetType());
-                Expression equal = ExpressionEquals(part, type, Expression.Constant(part.Value));
-                Expression safe = pa.NullCheckReturnsBool(equal);
-                return Expression.Call(
-                        typeof(Enumerable),
-                        "Any",
-                        new[] { typeof(XAttribute) },
-                        attributes,
-                        Expression.Lambda<Func<XAttribute, bool>>(safe, new ParameterExpression[] { pa })
-                       );
-            }
-        }
-
         public IEnumerable<XElement> Elements(IEnumerable<XElement> elements)
         {
-            Expression _elements = null;
             IQueryable<XElement> query = elements.AsQueryable<XElement>();
-            MethodCallExpression call;
             Expression right = null, ex = null, e;
             string method = "Where";
 
@@ -155,96 +81,6 @@ namespace XmlLib.nXPath
                         f = new HasNode(part); // [nodeset]
                 }
                 e = f.GetExpression(pe);
-                /*
-                else if (null == part.Value)
-                {
-                    e = HasChildNodes(part);
-                }
-                else
-                {
-                    // Parse Key Value Pair Expression
-                    string[] split = part.Key.TrimStart('/').Split('/');
-                    _elements = null;
-                    for (int i = 0; i < split.Length; i++)
-                    {
-                        string key = split[i];
-                        bool last = (i + 1) == split.Length;
-                        if (part.IsValueAttribute || key.StartsWith("@"))
-                        {
-                            key = key.TrimStart('@');
-                            if (null != part.Function && null != part.Function.CompareAttribute)
-                                e = part.Function.CompareAttribute(part, key, _elements ?? pe, right);
-                            else
-                                e = CompareAttribute(part, key, _elements ?? pe, right);
-                            {
-                                // speeds up compares a lot if they don't have children elements or attributes
-                                Expression hasAttributes = Expression.Property(_elements ?? pe, "HasAttributes");
-                                e = Expression.Condition(hasAttributes, e, Expression.Constant(false));
-                                if (null != _elements)
-                                {
-                                    Expression hasElements = Expression.Property(pe, "HasElements");
-                                    e = Expression.Condition(hasElements, e, Expression.Constant(false));
-                                }
-                            }
-                            break;
-                        }
-                        else
-                        {
-                            Expression parent = _elements;
-                            switch (key)
-                            {
-                                case null:
-                                case "":
-                                case "*": // [*='ABC']
-                                    _elements = Expression.Call(
-                                        _elements ?? pe,
-                                        typeof(XElement).GetMethod("Elements", Type.EmptyTypes)
-                                        );
-                                    break;
-                                case ".": // [.='ABC'] means current node equals
-                                    _elements = _elements ?? pe;
-                                    break;
-                                default:
-                                    _elements = Expression.Call(
-                                        typeof(XElementExtensions),
-                                        last ? "GetElements" : "GetElement",
-                                        null,
-                                        _elements ?? pe,
-                                        Expression.Constant(key)
-                                        );
-                                    break;
-                            }
-                            if (last)
-                            {
-                                if (null != part.Function && null != part.Function.CompareElement)
-                                    e = part.Function.CompareElement(part, key, parent ?? pe, _elements ?? pe, right);
-                                else
-                                {
-                                    Expression type = Expression.Convert(pe, part.Value.GetType());
-                                    Expression equal = ExpressionEquals(part, type, Expression.Constant(part.Value));
-                                    if ("." == key) // [.='ABC'] means current node equals
-                                        e = equal;
-                                    else
-                                        e = Expression.Call(
-                                            typeof(Enumerable),
-                                            "Any",
-                                            new[] { typeof(XElement) },
-                                            _elements,
-                                            Expression.Lambda<Func<XElement, bool>>(equal, new ParameterExpression[] { pe })
-                                           );
-                                }
-                                if ("." != part.Key)
-                                {
-                                    // Check if element has children before doing above compares
-                                    // Can speed things up a lot
-                                    Expression hasElements = Expression.Property(pe, "HasElements");
-                                    e = Expression.Condition(hasElements, e, Expression.Constant(false));
-                                }
-                            }
-                        }
-                    }
-                }
-                 */
                 if (null == ex)
                     ex = e;
                 else if (AndOr)
@@ -253,6 +89,7 @@ namespace XmlLib.nXPath
                     ex = Expression.OrElse(ex, e);
             }
 
+            MethodCallExpression call;
             // if method returns a single element
             if ("ElementAt" == method)
             {

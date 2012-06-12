@@ -23,13 +23,17 @@ namespace XmlLib.nXPath.Functions
 
         static XElement GetElement(XElement source, string key)
         {
-            XElement temp = source.Element(key);
-            if (null == temp)
+            if (source.HasElements)
             {
-                XName xname = source.ToXName(key);
-                temp = source.Element(xname);
+                XElement temp = source.Element(key);
+                if (null == temp)
+                {
+                    XName xname = source.ToXName(key);
+                    temp = source.Element(xname);
+                }
+                return temp;
             }
-            return temp;
+            return null;
         }
 
         static IEnumerable<XElement> GetElements(XElement source, string key)
@@ -92,11 +96,18 @@ namespace XmlLib.nXPath.Functions
             }
             catch (FormatException)
             {
-                T @default = default(T);
-                if (part.Function is MinMax)
-                    @default = (T)part.Value;
                 if (null != node)
-                    value = node.Get(key, @default);
+                {
+                    // check for attribute or child node existing before calling .Get()
+                    if (null != node.GetAttribute(key) || null != GetElement(node, key))
+                    {
+                        T @default = default(T);
+                        if (part.Function is MinMax)
+                            @default = (T)part.Value;
+                        // Get will try and create the node if not exists
+                        value = node.Get(key, @default);
+                    }
+                }
             }
             return value;
         }
@@ -130,147 +141,5 @@ namespace XmlLib.nXPath.Functions
             }
             return false;
         }
-
-        #region old
-        static string ParseInternal(XPath_Part part, string path,
-            out string sAttribute,
-            out bool bAttribute
-            )
-        {
-            sAttribute = string.Empty;
-            bAttribute = false;
-            bool star = false;
-
-            if (bAttribute = part.IsValueAttribute)
-            {
-                if (path.Contains('/'))
-                {
-                    string[] parts = path.Split('/').Where(s => !string.IsNullOrEmpty(s)).ToArray();
-                    sAttribute = parts.Last();
-                    path = string.Join("/", parts.Take(parts.Length - 1).ToArray());
-                }
-                else
-                {
-                    sAttribute = path;
-                    path = string.Empty;
-                }
-            }
-            else if (bAttribute = path.Contains('@'))
-            {
-                string[] parts = path.Split('@');
-                path = string.Join("/", parts[0].Split('/').Where(s => !string.IsNullOrEmpty(s)).ToArray());
-                sAttribute = parts[1];
-            }
-            if (star = path.Contains('*'))
-            {
-                throw new NotImplementedException();
-            }
-            return path;
-        }
-
-        internal static Expression Parse(XPath_Part part, string path, bool enumerableResult)
-        {
-            Expression elements = null;
-            string sAttribute;
-            bool bAttribute;
-            path = ParseInternal(part, path, out sAttribute, out bAttribute);
-            if (!string.IsNullOrEmpty(path))
-                elements = Expression.Call(
-                            typeof(XElementExtensions),
-                            bAttribute || !enumerableResult ? "GetElement" : "GetElements",
-                            null,
-                            pe,
-                            Expression.Constant(path)
-                            );
-            if (bAttribute)
-                elements = XPathUtils.Attribute(elements ?? pe, sAttribute);
-            else if (null == elements)
-                throw new NotImplementedException("Empty path");
-            return elements;
-        }
-
-        /// <summary>
-        /// Bool check each level of path, if any don't exist, the whole thing is false.
-        /// </summary>
-        /// <returns>An Expression that is either true or the expression to evaluate to either true or false</returns>
-        internal static Expression GetElementsSafe(XPath_Part part, string path)
-        {
-            Expression elements = pe;
-            string sAttribute;
-            bool bAttribute;
-            path = ParseInternal(part, path, out sAttribute, out bAttribute);
-            {
-                //Expression @null = Expression.Constant(null, typeof(XElement));
-                //string[] split = path.Split('/');
-                //string sLast = split.Last();
-                if (!string.IsNullOrEmpty(path))
-                    elements = Expression.Call(
-                            typeof(XElementExtensions),
-                            "GetElements",
-                            null,
-                            pe,
-                            Expression.Constant(path)
-                            );
-                else
-                    elements = Expression.Call(
-                        pe,
-                        typeof(XElement).GetMethod("Elements"),
-                        null,
-                        Expression.Constant(Type.EmptyTypes)
-                        );
-
-                Expression notNull;
-                if (bAttribute)
-                {
-                    notNull = Expression.NotEqual(XPathUtils.Attribute(pe, sAttribute), Expression.Constant(null));
-                }
-                else
-                {
-                    notNull = Expression.NotEqual(pe, Expression.Constant(null));
-                }
-
-                Expression where = Expression.Call(
-                        typeof(Enumerable),
-                        "Where",
-                        new Type[] { typeof(XElement) },
-                        elements,
-                        Expression.Lambda<Func<XElement, bool>>(notNull, new ParameterExpression[] { XPath_Bracket.pe })
-                        );
-                elements = where;
-            }
-            return elements;
-        }
-
-        /// <summary>
-        /// Bool check each level of path, if any don't exist, the whole thing is false.
-        /// </summary>
-        /// <returns>An Expression that the path exists or not</returns>
-        internal static Expression PathExists(XPath_Part part, string path)
-        {
-            Expression element = pe;
-            Expression result = Expression.Constant(false);
-            string sAttribute;
-            bool bAttribute;
-            path = ParseInternal(part, path, out sAttribute, out bAttribute);
-            if (!string.IsNullOrEmpty(path))
-            {
-                Expression @null = Expression.Constant(null, typeof(XElement));
-                string[] split = path.Split('/');
-                string sLast = split.Last();
-                foreach (string name in split)
-                {
-                    Expression parent = element;
-                    element = Expression.Call(
-                        element,
-                        typeof(XElement).GetMethod("Element"),
-                        XPathUtils.ToXName(element, name)
-                        );
-                    Expression equal = Expression.Equal(@null, element);
-                    result = Expression.Condition(equal, result, equal);
-                }
-            }
-            return result;
-        }
-        #endregion
     }
 }

@@ -57,21 +57,6 @@ namespace XmlLib.nXPath.Functions
                 node);
         }
 
-        #region old
-        protected static ParameterExpression pe = XPath_Bracket.pe;
-        protected static ParameterExpression pa = XPath_Bracket.pa;
-        /// <summary>
-        /// Compare Attribute value Expression generator, if different than the norm.
-        /// </summary>
-        internal XPath_Bracket.DCompareAttribute CompareAttribute { get { return _CompareAttribute; } }
-        protected XPath_Bracket.DCompareAttribute _CompareAttribute = null;
-
-        /// <summary>
-        /// Compare Element value Expression generator, if different than the norm.
-        /// </summary>
-        internal XPath_Bracket.DCompareElement CompareElement { get { return _CompareElement; } }
-        protected XPath_Bracket.DCompareElement _CompareElement = null;
-
         /// <summary>
         /// true
         /// </summary>
@@ -88,16 +73,5 @@ namespace XmlLib.nXPath.Functions
         /// true
         /// </summary>
         internal virtual bool IsEqual { get { return true; } }
-
-        internal virtual Expression Left(XPath_Part part, Expression left, Expression right, Expression path)
-        {
-            return left;
-        }
-
-        internal virtual Expression Right(XPath_Part part, Expression left, Expression right, Expression path)
-        {
-            return right;
-        }
-        #endregion
     }
 }

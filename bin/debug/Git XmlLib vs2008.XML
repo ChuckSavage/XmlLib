@@ -4,16 +4,6 @@
         <name>Git XmlLib vs2008</name>
     </assembly>
     <members>
-        <member name="P:XmlLib.nXPath.Functions.FunctionBase.CompareAttribute">
-            <summary>
-            Compare Attribute value Expression generator, if different than the norm.
-            </summary>
-        </member>
-        <member name="P:XmlLib.nXPath.Functions.FunctionBase.CompareElement">
-            <summary>
-            Compare Element value Expression generator, if different than the norm.
-            </summary>
-        </member>
         <member name="P:XmlLib.nXPath.Functions.FunctionBase.HasKVP">
             <summary>
             true
@@ -551,18 +541,6 @@
             </summary>
             <param name="create">create path if it doesn't exist?</param>
             <exception cref="T:System.ArgumentOutOfRangeException"/>
-        </member>
-        <member name="M:XmlLib.nXPath.Functions.NodeSet.GetElementsSafe(XmlLib.nXPath.XPath_Part,System.String)">
-            <summary>
-            Bool check each level of path, if any don't exist, the whole thing is false.
-            </summary>
-            <returns>An Expression that is either true or the expression to evaluate to either true or false</returns>
-        </member>
-        <member name="M:XmlLib.nXPath.Functions.NodeSet.PathExists(XmlLib.nXPath.XPath_Part,System.String)">
-            <summary>
-            Bool check each level of path, if any don't exist, the whole thing is false.
-            </summary>
-            <returns>An Expression that the path exists or not</returns>
         </member>
     </members>
 </doc>

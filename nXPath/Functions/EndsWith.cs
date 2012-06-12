@@ -54,21 +54,5 @@ namespace XmlLib.nXPath.Functions
                 catch (Exception ex) { error = ex; }
             }
         }
-
-        #region old
-        internal override Expression Left(XPath_Part part, Expression left, Expression right, Expression path)
-        {
-            if (!(part.Value is string))
-            {
-                left = left.ToStringExpression();
-                right = right.ToStringExpression();
-            }
-            left = Expression.Call(
-                left,
-                typeof(string).GetMethod("EndsWith", new[] { typeof(string) }),
-                right);
-            return left;
-        }
-        #endregion
     }
 }
