@@ -28,7 +28,9 @@ namespace XmlLib
         /// </summary>
         public static XAttribute GetAttribute(this XElement source, string name)
         {
-            return GetAttribute(source, source.ToXName(name));
+            if (source.HasAttributes)
+                return GetAttribute(source, source.ToXName(name));
+            return null;
         }
 
         /// <summary>
@@ -37,10 +39,14 @@ namespace XmlLib
         /// </summary>
         public static XAttribute GetAttribute(this XElement source, XName name)
         {
-            XAttribute result = source.Attribute(name);
-            if (null == result && (name.Namespace == source.Name.Namespace))
-                result = source.Attribute(name.LocalName);
-            return result;
+            if (source.HasAttributes)
+            {
+                XAttribute result = source.Attribute(name);
+                if (null == result && (name.Namespace == source.Name.Namespace))
+                    result = source.Attribute(name.LocalName);
+                return result;
+            }
+            return null;
         }
         #endregion
 
