@@ -87,27 +87,31 @@ namespace XmlLib.nXPath
             return ex;
         }
 
-        protected Expression CompareAttribute(XPath_Part part, string key, Expression _elements, Expression right)
+        protected Expression CompareAttribute(XPath_Part part, string key, Expression elements, Expression right)
         {
             if ("*" != key)
             {
-                Expression att = XPathUtils.AttributeValue(_elements ?? pe, part, key);
-                return ExpressionEquals(part, att, right);
+                Expression xa = XPathUtils.Attribute(elements, key);
+                Expression value = XPathUtils.AttributeValue(elements, part, key);
+                Expression equals = ExpressionEquals(part, value, right);
+                Expression safe = xa.NullCheckReturnsBool(equals);
+                return safe;
             }
             else // [@*='ABC']
             {
                 Expression attributes = Expression.Call(
-                    _elements ?? pe,
+                    elements,
                     "Attributes",
                     null);
                 Expression type = Expression.Convert(pa, part.Value.GetType());
                 Expression equal = ExpressionEquals(part, type, Expression.Constant(part.Value));
+                Expression safe = pa.NullCheckReturnsBool(equal);
                 return Expression.Call(
                         typeof(Enumerable),
                         "Any",
                         new[] { typeof(XAttribute) },
                         attributes,
-                        Expression.Lambda<Func<XAttribute, bool>>(equal, new ParameterExpression[] { pa })
+                        Expression.Lambda<Func<XAttribute, bool>>(safe, new ParameterExpression[] { pa })
                        );
             }
         }
@@ -142,6 +146,16 @@ namespace XmlLib.nXPath
                     }
                     break; // break out of foreach
                 }
+                FunctionBase f = part.Function;
+                if (null == f)
+                {
+                    if (part.KVP)
+                        f = new KVP(part);
+                    else
+                        f = new HasNode(part); // [nodeset]
+                }
+                e = f.GetExpression(pe);
+                /*
                 else if (null == part.Value)
                 {
                     e = HasChildNodes(part);
@@ -161,7 +175,7 @@ namespace XmlLib.nXPath
                             if (null != part.Function && null != part.Function.CompareAttribute)
                                 e = part.Function.CompareAttribute(part, key, _elements ?? pe, right);
                             else
-                                e = CompareAttribute(part, key, _elements, right);
+                                e = CompareAttribute(part, key, _elements ?? pe, right);
                             {
                                 // speeds up compares a lot if they don't have children elements or attributes
                                 Expression hasAttributes = Expression.Property(_elements ?? pe, "HasAttributes");
@@ -230,6 +244,7 @@ namespace XmlLib.nXPath
                         }
                     }
                 }
+                 */
                 if (null == ex)
                     ex = e;
                 else if (AndOr)

@@ -5,6 +5,7 @@
 // the products at http://products.searisen.com, thank you.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Xml.Linq;
@@ -22,9 +23,9 @@ namespace XmlLib.nXPath.Functions
     internal class LocalName : FunctionBase
     {
         public LocalName(XPath_Part part)
-            : base(part)
+            : base(part, typeof(LocalNameGeneric<>))
         {
-            _CompareAttribute = LocalName_CompareAttribute;
+            //_CompareAttribute = LocalName_CompareAttribute;
         }
 
         /// <summary>
@@ -36,6 +37,65 @@ namespace XmlLib.nXPath.Functions
         /// </summary>
         internal override bool ArgumentsValueRequired { get { return false; } }
 
+        internal class LocalNameGeneric<T> : GenericBase
+        {
+            LocalName self;
+
+            public LocalNameGeneric(LocalName name, XElement nodeToCheck)
+                : base(nodeToCheck, name.part)
+            {
+                self = name;
+            }
+
+            bool IsEqual(object node)
+            {
+                XName xname = Name(node);
+                if (null != xname)
+                {
+                    return xname.LocalName == part.Value.ToString();
+                }
+                return false;
+            }
+
+            XName Name(object node)
+            {
+                if (node is XAttribute)
+                    return ((XAttribute)node).Name;
+                if (node is XElement)
+                    return ((XElement)node).Name;
+                return null;
+            }
+
+            public override bool Eval()
+            {
+                try
+                {
+                    if (string.IsNullOrEmpty(part.Key)) return IsEqual(node);
+                    object result = nodeset.Node(node, part.Key);
+                    if (null == result) return false;
+                    IEnumerable<object> list = result as IEnumerable<object>;
+                    if (null == list)
+                        return IsEqual(result);
+                    return list.Any(x => IsEqual(x));
+                }
+                catch (Exception ex)
+                {
+                    error = ex;
+                }
+                return false;
+            }
+
+            public override void Init()
+            {
+                try
+                {
+                }
+                catch (Exception ex) { error = ex; }
+            }
+        }
+
+
+        #region old
         bool byAttribute = false;
 
         internal Expression LocalName_CompareAttribute(XPath_Part part, string key, Expression left, Expression right)
@@ -81,5 +141,6 @@ namespace XmlLib.nXPath.Functions
             Expression localName = Expression.Property(name, "LocalName");
             return localName;
         }
+        #endregion
     }
 }

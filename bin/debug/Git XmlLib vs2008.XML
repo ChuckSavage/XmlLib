@@ -443,11 +443,6 @@
             </remarks>
             </summary>
         </member>
-        <member name="M:XmlLib.nXPath.XPathUtils.ToStringExpression(System.Linq.Expressions.Expression)">
-            <summary>
-            Call .ToString() on the Expression value.
-            </summary>
-        </member>
         <member name="M:XmlLib.nXPath.XPathUtils.Attribute(System.Linq.Expressions.Expression,System.String)">
             <summary>
             Get the Attribute from the parent node.
@@ -461,7 +456,11 @@
         <member name="M:XmlLib.nXPath.XPathUtils.Element(System.Linq.Expressions.Expression,System.String)">
             <summary>
             Get the child element based on the key.
-            Returns an empty element if not found.
+            </summary>
+        </member>
+        <member name="M:XmlLib.nXPath.XPathUtils.Element(System.Linq.Expressions.Expression,System.Linq.Expressions.Expression)">
+            <summary>
+            Get the child element based on the name.
             </summary>
         </member>
         <member name="M:XmlLib.nXPath.XPathUtils.ElementValue(System.Linq.Expressions.Expression,XmlLib.nXPath.XPath_Part,System.String)">
@@ -469,9 +468,23 @@
             Get the child Element value from the parent node.
             </summary>
         </member>
-        <member name="M:XmlLib.nXPath.XPathUtils.GetDefault(XmlLib.nXPath.XPath_Part)">
+        <member name="M:XmlLib.nXPath.XPathUtils.GetElement(System.Linq.Expressions.Expression,System.String)">
             <summary>
-            Get a default expression based on the value type that is being evaluated in the part.
+            Get the child element based on the key.
+            Returns an empty element if not found.
+            </summary>
+        </member>
+        <member name="M:XmlLib.nXPath.XPathUtils.GetMethodExpression``1(System.Linq.Expressions.Expression{System.Func{``0}})">
+            <summary>
+            var getRowValExpr = GetMethodExpression(x => x.GetRowValue(0));
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="e"></param>
+            <returns></returns>
+        </member>
+        <member name="M:XmlLib.nXPath.XPathUtils.ToStringExpression(System.Linq.Expressions.Expression)">
+            <summary>
+            Call .ToString() on the Expression value.
             </summary>
         </member>
         <member name="M:XmlLib.nXPath.XPathUtils.ToXName(System.Linq.Expressions.Expression,System.String)">
@@ -538,6 +551,18 @@
             </summary>
             <param name="create">create path if it doesn't exist?</param>
             <exception cref="T:System.ArgumentOutOfRangeException"/>
+        </member>
+        <member name="M:XmlLib.nXPath.Functions.NodeSet.GetElementsSafe(XmlLib.nXPath.XPath_Part,System.String)">
+            <summary>
+            Bool check each level of path, if any don't exist, the whole thing is false.
+            </summary>
+            <returns>An Expression that is either true or the expression to evaluate to either true or false</returns>
+        </member>
+        <member name="M:XmlLib.nXPath.Functions.NodeSet.PathExists(XmlLib.nXPath.XPath_Part,System.String)">
+            <summary>
+            Bool check each level of path, if any don't exist, the whole thing is false.
+            </summary>
+            <returns>An Expression that the path exists or not</returns>
         </member>
     </members>
 </doc>

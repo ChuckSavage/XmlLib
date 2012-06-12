@@ -5,18 +5,57 @@
 // the products at http://products.searisen.com, thank you.
 
 using System;
+using System.Linq;
 using System.Linq.Expressions;
+using System.Xml.Linq;
 
 namespace XmlLib.nXPath.Functions
 {
     internal class StartsWith : FunctionBase
     {
-        internal StartsWith(XPath_Part part) : base(part) { }
+        internal StartsWith(XPath_Part part) : base(part, typeof(StartsWithGeneric<>)) { }
+
         /// <summary>
         /// false
         /// </summary>
         internal override bool IsEqual { get { return false; } }
 
+        internal class StartsWithGeneric<T> : GenericBase
+        {
+            StartsWith self;
+
+            public StartsWithGeneric(StartsWith start, XElement nodeToCheck)
+                : base(nodeToCheck, start.part)
+            {
+                self = start;
+            }
+
+            public override bool Eval()
+            {
+                try
+                {
+                    string endsWith = part.Value.ToString();
+                    T[] values;
+                    if (nodeset.NodeValue(node, out values))
+                        return values.Any(v => v.ToString().StartsWith(endsWith));
+                }
+                catch (Exception ex)
+                {
+                    error = ex;
+                }
+                return false;
+            }
+
+            public override void Init()
+            {
+                try
+                {
+                }
+                catch (Exception ex) { error = ex; }
+            }
+        }
+
+        #region old
         internal override Expression Left(XPath_Part part, Expression left, Expression right, Expression path)
         {
             if (!(part.Value is string))
@@ -29,5 +68,6 @@ namespace XmlLib.nXPath.Functions
                 typeof(string).GetMethod("StartsWith", new[] { typeof(string) }),
                 right);
         }
+        #endregion
     }
 }

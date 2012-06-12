@@ -15,7 +15,7 @@ namespace XmlLib_Test
     [TestClass()]
     public class XPath_BracketTest
     {
-        XElement root1;
+        XElement root;
 
         // Use TestInitialize to run code before running each test
         [TestInitialize()]
@@ -23,7 +23,7 @@ namespace XmlLib_Test
         {
             DirectoryInfo projectDir = new DirectoryInfo(@"..\..\..\..\XmlLib\TestProject");
             string file = Path.Combine(projectDir.FullName, "XMLFile1.xml");
-            root1 = XElement.Load(file);
+            root = XElement.Load(file);
         }
 
         private TestContext testContextInstance;
@@ -83,13 +83,11 @@ namespace XmlLib_Test
         {
             XPathString path = new XPathString("[.='Mike']");
             XPath_Bracket target = new XPath_Bracket(path);
-            IEnumerable<XElement> elements = root1.Descendants();
-            IEnumerable<XElement> expected = root1.Descendants()
-                .Where(xe => xe.Value == "Mike");
-            IEnumerable<XElement> actual;
-            actual = target.Elements(elements);
-            var test = actual.Select(x => x.Value).ToArray();
-            CollectionAssert.AreEqual(expected.ToArray(), actual.ToArray());
+            IEnumerable<XElement> elements = root.Descendants();
+            var expected = root.Descendants()
+                .Where(xe => xe.Value == "Mike").ToArray();
+            var actual = target.Elements(elements).ToArray();
+            CollectionAssert.AreEqual(expected, actual);
         }
 
         /// <summary>

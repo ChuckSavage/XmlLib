@@ -46,13 +46,19 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="nXPath\Compare.cs" />
+    <Compile Include="nXPath\ConvertX.cs" />
     <Compile Include="nXPath\cXPath.cs" />
     <Compile Include="nXPath\Functions\Count.cs" />
     <Compile Include="nXPath\Functions\EndsWith.cs" />
     <Compile Include="nXPath\Functions\FunctionBase.cs" />
+    <Compile Include="nXPath\Functions\GenericBase.cs" />
+    <Compile Include="nXPath\Functions\HasNode.cs" />
+    <Compile Include="nXPath\Functions\KVP.cs" />
     <Compile Include="nXPath\Functions\LocalName.cs" />
     <Compile Include="nXPath\Functions\MinMax.cs" />
     <Compile Include="nXPath\Functions\Name.cs" />
+    <Compile Include="nXPath\Functions\NodeSet.cs" />
     <Compile Include="nXPath\Functions\StartsWith.cs" />
     <Compile Include="nXPath\XPathString.cs" />
     <Compile Include="nXPath\XPathUtils.cs" />

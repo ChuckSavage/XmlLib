@@ -217,7 +217,7 @@ namespace XmlLib_Test
             string path = "//*[local-name()={0}]";
             object[] args = new object[] { "div" };
             XElement[] expected = root.Descendants()
-                .Where(x => x.Elements().Any(xx => xx.Name.LocalName == "div"))
+                .Where(x => x.Name.LocalName == "div")
                 .ToArray();
             XElement[] actual = XPathExtensions.XPath(root, path, args).ToArray();
             CollectionAssert.AreEqual(expected, actual);
@@ -272,7 +272,7 @@ namespace XmlLib_Test
             string path = "//*[name()={0}]";
             object[] args = new object[] { ns + "div" };
             XElement[] expected = root.Descendants()
-                .Where(x => x.Elements().Any(xx => xx.Name == ns + "div"))
+                .Where(x => x.Name == ns + "div")
                 .ToArray();
             XElement[] actual = XPathExtensions.XPath(root, path, args).ToArray();
             CollectionAssert.AreEqual(expected, actual);
@@ -340,6 +340,7 @@ namespace XmlLib_Test
         {
             string path = "pair[max(@Key, {0})]";
             object[] args = new object[] { int.MinValue };
+            XElement actual = XPathExtensions.XPathElement(root, path, args);
 
             Func<XAttribute, int> aToInt = a => (int)(a ?? new XAttribute("xa", int.MinValue));
             Func<XElement, int> max = x => aToInt(x.Attribute("Key"));
@@ -347,15 +348,7 @@ namespace XmlLib_Test
                 .Where(x => aToInt(x.Attribute("Key")) == x.Parent.Elements(x.Name).Max(max))
                 .First();
 
-            try
-            {
-                XElement actual = XPathExtensions.XPathElement(root, path, args);
-                Assert.AreEqual(expected, actual);
-            }
-            catch
-            {
-                Assert.Fail();
-            }
+            Assert.AreEqual(expected, actual);
         }
 
         [TestMethod]
@@ -363,22 +356,15 @@ namespace XmlLib_Test
         {
             string path = "pair[min(Value2/Value, {0})]";
             object[] args = new object[] { int.MaxValue };
-
+            
+            XElement actual = XPathExtensions.XPathElement(root, path, args);
             Func<XElement, int> eToInt = x => string.IsNullOrEmpty(x.Value) ? int.MaxValue : (int)x;
             int min = root.Elements("pair").Min(x => eToInt(x.GetElement("Value2/Value")));
             XElement expected = root.Elements("pair")
                                     .Where(x => eToInt(x.GetElement("Value2/Value")) == min)
                                     .First();
 
-            try
-            {
-                XElement actual = XPathExtensions.XPathElement(root, path, args);
-                Assert.AreEqual(expected, actual);
-            }
-            catch
-            {
-                Assert.Fail();
-            }
+            Assert.AreEqual(expected, actual);
         }
     }
 }

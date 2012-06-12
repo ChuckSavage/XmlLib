@@ -4,8 +4,9 @@
 // If you find this code helpful and would like to donate, please consider purchasing one of
 // the products at http://products.searisen.com, thank you.
 
+using System;
+using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Xml.Linq;
 
 namespace XmlLib.nXPath.Functions
@@ -27,59 +28,55 @@ namespace XmlLib.nXPath.Functions
         readonly eMinMax Function;
 
         internal MinMax(XPath_Part part, string function)
-            : base(part)
+            : base(part, typeof(GenericMinMax<>))
         {
             if (function.StartsWith("min"))
                 Function = eMinMax.Min;
             else
                 Function = eMinMax.Max;
-            _CompareElement = MinMax_CompareElement;
         }
 
-        internal Expression MinMax_CompareElement(XPath_Part part, string key, Expression parent, Expression left, Expression right)
+        internal class GenericMinMax<T> : GenericBase
         {
-            left = XPathUtils.ElementValue(parent, part, key);
-            return XPath_Bracket.ExpressionEquals(part, left, right, null);
-        }
+            IEnumerable<XElement> nodes;
+            T max;
+            MinMax self;
 
-        internal override Expression Right(XPath_Part part, Expression left, Expression right, Expression path)
-        {
-            // right = x.Parent.Elements(x.Name).Max(xx => (int)xx.Attribute("Key")
-            string minmax = ((MinMax)part.Function).Function.ToString();
-            string[] keyParts = part.Key.Split('/');
-            string key = keyParts.Last();
-            ParameterExpression maxPe = Expression.Parameter(typeof(XElement), minmax.ToLower());
-            Expression parent = Expression.Property(XPath_Bracket.pe, "Parent");
-            Expression value;
-            if (keyParts.Length > 1)
-                path = Expression.Call(
-                        typeof(XElementExtensions),
-                        "GetElement",
-                        null,
-                        maxPe,
-                        Expression.Constant(string.Join("/", keyParts.Take(keyParts.Length - 1).ToArray()))
-                        );
+            public GenericMinMax(MinMax mm, XElement nodeToCheck)
+                :base(nodeToCheck, mm.part)
+            {
+                self = mm;
+            }
 
-            if (part.IsValueAttribute)
-                value = XPathUtils.AttributeValue(path ?? maxPe, part, key);
-            else
-                value = XPathUtils.ElementValue(path ?? maxPe, part, key);
-            
-            Expression name = Expression.Property(XPath_Bracket.pe, "Name");
-            Expression elements = Expression.Call(
-                    typeof(XElementExtensions),
-                    "GetElements",
-                    null,
-                    parent,
-                    name
-                    );
-            right = Expression.Call(
-                    typeof(Enumerable),
-                    minmax,
-                    new[] { typeof(XElement), part.Value.GetType() },
-                    elements,
-                    Expression.Lambda(value, new ParameterExpression[] { maxPe }));
-            return right;
+            public override bool Eval()
+            {
+                try
+                {
+                    T[] values;
+                    if (nodeset.NodeValue(node, out values))
+                        return values.Any(v => Compare<T>.Equal(v, max));
+                }
+                catch (Exception ex)
+                {
+                    error = ex;
+                }
+                return false;
+            }
+
+            public override void Init()
+            {
+                try
+                {
+                    nodes = node.Parent.Elements(node.Name)
+                        .Where(x => null != nodeset.Node(x, part.Key)).ToList();
+
+                    if (self.Function == eMinMax.Max)
+                        max = nodes.Max(x => { T[] value; nodeset.NodeValue(x, out value); return value.First(); });
+                    else
+                        max = nodes.Min(x => { T[] value; nodeset.NodeValue(x, out value); return value.First(); });
+                }
+                catch (Exception ex) { error = ex; }
+            }
         }
     }
 }

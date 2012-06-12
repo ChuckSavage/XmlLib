@@ -5,6 +5,7 @@
 // the products at http://products.searisen.com, thank you.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Xml.Linq;
@@ -21,12 +22,80 @@ namespace XmlLib.nXPath.Functions
     internal class Name : FunctionBase
     {
         public Name(XPath_Part part)
-            : base(part)
+            : base(part, typeof(NameGeneric<>))
         {
-            _CompareAttribute = Name_CompareAttribute;
-            _CompareElement = Name_CompareElement;
+            //_CompareAttribute = Name_CompareAttribute;
+            //_CompareElement = Name_CompareElement;
         }
 
+        /// <summary>
+        /// false
+        /// </summary>
+        internal override bool ArgumentsRequired { get { return false; } }
+        /// <summary>
+        /// false
+        /// </summary>
+        internal override bool ArgumentsValueRequired { get { return false; } }
+
+        internal class NameGeneric<T> : GenericBase
+        {
+            Name self;
+
+            public NameGeneric(Name name, XElement nodeToCheck)
+                : base(nodeToCheck, name.part)
+            {
+                self = name;
+            }
+
+            bool IsEqual(object node)
+            {
+                XName xname = Name(node);
+                if (null != xname)
+                {
+                    bool result = xname == ((XName)part.Value);
+                    return result;
+                }
+                return false;
+            }
+
+            XName Name(object node)
+            {
+                if (node is XAttribute)
+                    return ((XAttribute)node).Name;
+                if (node is XElement)
+                    return ((XElement)node).Name;
+                return null;
+            }
+
+            public override bool Eval()
+            {
+                try
+                {
+                    if (string.IsNullOrEmpty(part.Key)) return IsEqual(node);
+                    object result = nodeset.Node(node, part.Key);
+                    if (null == result) return false;
+                    IEnumerable<object> list = result as IEnumerable<object>;
+                    if (null == list)
+                        return IsEqual(result);
+                    return list.Any(x => IsEqual(x));
+                }
+                catch (Exception ex)
+                {
+                    error = ex;
+                }
+                return false;
+            }
+
+            public override void Init()
+            {
+                try
+                {
+                }
+                catch (Exception ex) { error = ex; }
+            }
+        }
+
+        #region old
         bool byAttribute = false;
 
         internal Expression Name_CompareAttribute(XPath_Part part, string key, Expression left, Expression right)
@@ -62,15 +131,6 @@ namespace XmlLib.nXPath.Functions
             }
         }
 
-        /// <summary>
-        /// false
-        /// </summary>
-        internal override bool ArgumentsRequired { get { return false; } }
-        /// <summary>
-        /// false
-        /// </summary>
-        internal override bool ArgumentsValueRequired { get { return false; } }
-
         internal Expression Name_CompareElement(XPath_Part part, string key, Expression parent, Expression left, Expression right)
         {
             // x => x.Elements().Any(xx => xx.Name == ns + "div")
@@ -95,5 +155,6 @@ namespace XmlLib.nXPath.Functions
                 return left; // we already computed it
             return Expression.Property(XPath_Bracket.pe, "Name");
         }
+        #endregion
     }
 }

@@ -15,14 +15,6 @@ namespace XmlLib.nXPath
     internal static class XPathUtils
     {
         /// <summary>
-        /// Call .ToString() on the Expression value.
-        /// </summary>
-        internal static Expression ToStringExpression(this Expression source)
-        {
-            return Expression.Call(source, typeof(string).GetMethod("ToString", Type.EmptyTypes));
-        }
-
-        /// <summary>
         /// Get the Attribute from the parent node.
         /// </summary>
         internal static Expression Attribute(Expression parent, string key)
@@ -43,25 +35,49 @@ namespace XmlLib.nXPath
         internal static Expression AttributeValue(Expression parent, XPath_Part part, string key)
         {
             Expression att = Attribute(parent, key);
+            Expression value = Expression.Convert(att, part.Value.GetType());
+            /*
             Expression isNull = Expression.Equal(att, Expression.Constant(null));
             Expression safe = Expression.Condition(isNull, GetDefault(part), att);
             Expression value = Expression.Convert(safe, part.Value.GetType());
+             */
             return value;
+        }
+
+        internal static bool ContainsAny(this string source, params string[] values)
+        {
+            foreach (string value in values)
+                if (source.Contains(value))
+                    return true;
+            return false;
+        }
+
+        internal static bool StartsWithAny(this string source, params string[] values)
+        {
+            foreach (string value in values)
+                if (source.StartsWith(value))
+                    return true;
+            return false;
         }
 
         /// <summary>
         /// Get the child element based on the key.
-        /// Returns an empty element if not found.
         /// </summary>
         internal static Expression Element(Expression parent, string key)
         {
+            return Element(parent, ToXName(parent, key));
+        }
+
+        /// <summary>
+        /// Get the child element based on the name.
+        /// </summary>
+        internal static Expression Element(Expression parent, Expression xname)
+        {
             Expression ex = Expression.Call(
-                                typeof(XElementExtensions),
-                                "GetElement",
-                                null,
-                                parent,
-                                Expression.Constant(key)
-                                );
+                parent,
+                typeof(XElement).GetMethod("Element"),
+                xname
+                );
             return ex;
         }
 
@@ -70,7 +86,9 @@ namespace XmlLib.nXPath
         /// </summary>
         internal static Expression ElementValue(Expression parent, XPath_Part part, string key)
         {
-            Expression e = Element(parent, key);
+            Expression e = GetElement(parent, key);
+            return Expression.Convert(e, part.Value.GetType());
+            /*
             Expression value = Expression.Property(e, "Value");
             Expression isNullOrEmpty = Expression.Call(
                 typeof(string),
@@ -80,8 +98,9 @@ namespace XmlLib.nXPath
             Func<Expression, Expression> Convert = exp => Expression.Convert(exp, part.Value.GetType());
             Expression safe = Expression.Condition(isNullOrEmpty, Convert(GetDefault(part)), Convert(e));
             return safe;
+             */
         }
-
+        /*
         /// <summary>
         /// Get a default expression based on the value type that is being evaluated in the part.
         /// </summary>
@@ -105,6 +124,54 @@ namespace XmlLib.nXPath
                 return Expression.Constant(new XAttribute("default", value));
             else
                 return Expression.Constant(new XElement("default", value));
+        }
+        */
+
+        /// <summary>
+        /// Get the child element based on the key.
+        /// Returns an empty element if not found.
+        /// </summary>
+        internal static Expression GetElement(Expression parent, string key)
+        {
+            Expression ex = Expression.Call(
+                                typeof(XElementExtensions),
+                                "GetElement",
+                                null,
+                                parent,
+                                Expression.Constant(key)
+                                );
+            return ex;
+        }
+
+        /// <summary>
+        /// var getRowValExpr = GetMethodExpression(x => x.GetRowValue(0));
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="e"></param>
+        /// <returns></returns>
+        internal static MethodCallExpression GetMethodExpression<T>(Expression<Func<T>> e)
+        {
+            return e.Body as MethodCallExpression;
+        }
+
+        internal static Expression NullCheckReturnsBool(this Expression e, Expression aok)
+        {
+            /* if(null == expression)
+             *     return false;
+             * return aok; // which should evaluate to a true/false condition
+             */
+            Expression isNull = Expression.Equal(e, Expression.Constant(null));
+            Expression @false = Expression.Constant(false);
+            Expression safe = Expression.Condition(isNull, @false, aok);
+            return safe;
+        }
+
+        /// <summary>
+        /// Call .ToString() on the Expression value.
+        /// </summary>
+        internal static Expression ToStringExpression(this Expression source)
+        {
+            return Expression.Call(source, typeof(string).GetMethod("ToString", Type.EmptyTypes));
         }
 
         /// <summary>
