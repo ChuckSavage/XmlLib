@@ -396,7 +396,7 @@ namespace XmlLib_Test
         }
 
         [TestMethod]
-        public void Function_StringLength_Nodeset()
+        public void Function_StringLength_Nodeset1()
         {
             string path = "//*[string-length(.)=4]";
             object[] args = null;
@@ -404,6 +404,28 @@ namespace XmlLib_Test
             XElement[] actual = XPathExtensions.XPath(root, path, args).ToArray();
             XElement[] expected = root.Descendants()
                                     .Where(x => !x.HasElements && x.Value.Length == 4)
+                                    .ToArray();
+
+            CollectionAssert.AreEqual(expected, actual);
+        }
+
+        [TestMethod]
+        public void Function_StringLength_Nodeset2()
+        {
+            string path = "//*[string-length(Item/Name)>3]";
+            object[] args = null;
+
+            XElement[] actual = XPathExtensions.XPath(root, path, args).ToArray();
+            XElement[] expected = root.Descendants()
+                                    .Where(x =>
+                                    {
+                                        if (!x.HasElements) return false;
+                                        XElement item = x.Element("Item");
+                                        if (null == item) return false;
+                                        XElement name = item.Element("Name");
+                                        if (null == name) return false;
+                                        return name.Value.Length > 3;
+                                    })
                                     .ToArray();
 
             CollectionAssert.AreEqual(expected, actual);
