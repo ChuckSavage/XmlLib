@@ -18,16 +18,35 @@ namespace XmlLib.nXPath.Functions
         {
         }
 
+        /// <summary>
+        /// Bool result of NotEqual, LessThanOrEqual, etc of any part.Value in values.
+        /// </summary>
+        internal static bool Eval<T>(XPath_Part part, T[] values)
+        {
+            T value = (T)part.Value;
+            return values.Any(v =>
+            {
+                if (part.NotEqual)
+                    return Compare<T>.NotEqual(v, value);
+                else if (part.LessThanOrEqual)
+                    return Compare<T>.LessThanOrEqual(v, value);
+                else if (part.GreaterThanOrEqual)
+                    return Compare<T>.GreaterThanOrEqual(v, value);
+                else if (part.Equal)
+                    return Compare<T>.Equal(v, value);
+                else if (part.LessThan)
+                    return Compare<T>.LessThan(v, value);
+                else if (part.GreaterThan)
+                    return Compare<T>.GreaterThan(v, value);
+                return false;
+            });
+        }
+
         internal class KVPGeneric<T> : GenericBase
         {
-            KVP self;
-            T value;
-
             public KVPGeneric(KVP kvp, XElement nodeToCheck)
                 :base(nodeToCheck, kvp.part)
             {
-                self = kvp;
-                value = (T)part.Value;
             }
 
             public override bool Eval()
@@ -36,22 +55,7 @@ namespace XmlLib.nXPath.Functions
                 {
                     T[] values;
                     if (nodeset.NodeValue(node, out values))
-                        return values.Any(v => 
-                        {
-                            if (part.NotEqual)
-                                return Compare<T>.NotEqual(v, value);
-                            else if (part.LessThanOrEqual)
-                                return Compare<T>.LessThanOrEqual(v, value);
-                            else if (part.GreaterThanOrEqual)
-                                return Compare<T>.GreaterThanOrEqual(v, value);
-                            else if (part.Equal)
-                                return Compare<T>.Equal(v, value);
-                            else if (part.LessThan)
-                                return Compare<T>.LessThan(v, value);
-                            else if (part.GreaterThan)
-                                return Compare<T>.GreaterThan(v, value);
-                            return false;
-                        });
+                        return KVP.Eval(part, values);
                 }
                 catch (Exception ex)
                 {

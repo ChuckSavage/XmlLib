@@ -356,7 +356,7 @@ namespace XmlLib_Test
         {
             string path = "pair[min(Value2/Value, {0})]";
             object[] args = new object[] { int.MaxValue };
-            
+
             XElement actual = XPathExtensions.XPathElement(root, path, args);
             Func<XElement, int> eToInt = x => string.IsNullOrEmpty(x.Value) ? int.MaxValue : (int)x;
             int min = root.Elements("pair").Min(x => eToInt(x.GetElement("Value2/Value")));
@@ -365,6 +365,48 @@ namespace XmlLib_Test
                                     .First();
 
             Assert.AreEqual(expected, actual);
+        }
+
+        [TestMethod]
+        public void Function_StringLength()
+        {
+            string path = "//*[string-length()=8]";
+            object[] args = null;
+
+            XElement[] actual = XPathExtensions.XPath(root, path, args).ToArray();
+            XElement[] expected = root.Descendants()
+                                    .Where(x => x.Name.LocalName.Length == 8)
+                                    .ToArray();
+
+            CollectionAssert.AreEqual(expected, actual);
+        }
+
+        [TestMethod]
+        public void Function_StringLength_Arg()
+        {
+            string path = "//*[string-length()={0}]";
+            object[] args = new object[] { 9 };
+
+            XElement[] actual = XPathExtensions.XPath(root, path, args).ToArray();
+            XElement[] expected = root.Descendants()
+                                    .Where(x => x.Name.LocalName.Length == 9)
+                                    .ToArray();
+
+            CollectionAssert.AreEqual(expected, actual);
+        }
+
+        [TestMethod]
+        public void Function_StringLength_Nodeset()
+        {
+            string path = "//*[string-length(.)=4]";
+            object[] args = null;
+
+            XElement[] actual = XPathExtensions.XPath(root, path, args).ToArray();
+            XElement[] expected = root.Descendants()
+                                    .Where(x => !x.HasElements && x.Value.Length == 4)
+                                    .ToArray();
+
+            CollectionAssert.AreEqual(expected, actual);
         }
     }
 }

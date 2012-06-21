@@ -45,14 +45,6 @@ namespace XmlLib.nXPath.Functions
                 }
                 return false;
             }
-
-            public override void Init()
-            {
-                try
-                {
-                }
-                catch (Exception ex) { error = ex; }
-            }
         }
     }
 }

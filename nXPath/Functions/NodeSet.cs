@@ -36,30 +36,31 @@ namespace XmlLib.nXPath.Functions
             return null;
         }
 
-        static IEnumerable<XElement> GetElements(XElement source, string key)
+        static NodeResult GetElements(XElement source, string key)
         {
             if ("*" == key)
-                return source.Elements();
+                return new NodeResult(source.Elements().ToArray(), NodeResult.eResultType.ElementArray);
             var temp = source.Elements(key);
             if (0 == temp.Count())
             {
                 XName xname = source.ToXName(key);
                 temp = source.Elements(xname);
             }
-            return temp.ToArray();
+            return new NodeResult(temp.ToArray(), NodeResult.eResultType.ElementArray);
         }
 
-        internal object Node(XElement x, string nodeset)
+        internal NodeResult Node(XElement x, string nodeset)
         {
             string key;
             return Node(x, nodeset, out key);
         }
 
-        internal object Node(XElement x, string nodeset, out string key)
+        internal NodeResult Node(XElement x, string nodeset, out string key)
         {
             key = nodeset;
-            if ("." == nodeset) return x;
-            if (".." == nodeset) return x.Parent;
+            if ("." == nodeset)
+                return new NodeResult(x, NodeResult.eResultType.Element);
+            if (".." == nodeset) return new NodeResult(x.Parent, NodeResult.eResultType.Element); ;
             if (nodeset.Contains('/'))
             {
                 string[] split = nodeset.Split('/');
@@ -73,12 +74,15 @@ namespace XmlLib.nXPath.Functions
                     nodeset = nodeset.Split('@').Last();
                 key = nodeset;
                 if ("*" == nodeset)
-                    return x.Attributes().ToArray();
-                return x.GetAttribute(nodeset);
+                    return new NodeResult(x.Attributes().ToArray(), NodeResult.eResultType.AttributeArray);
+                XAttribute a = x.GetAttribute(nodeset);
+                if (null == a)
+                    return null;
+                return new NodeResult(a, NodeResult.eResultType.Attribute);
             }
             return GetElements(x, nodeset);
         }
-
+        
         T Convert<T>(object result, string key)
         {
             T value = default(T);
@@ -120,26 +124,33 @@ namespace XmlLib.nXPath.Functions
         internal bool NodeValue<T>(XElement node, Func<object, string, T> convert, out T[] values)
         {
             values = new[] { default(T) };
+            // if nodeset is current node and it has children, it is false
+            if ("." == part.Key && node.HasElements)
+                return false;
+
             string key;
-            object result = Node(node, part.Key, out key);
+            NodeResult result = Node(node, part.Key, out key);
             if (null != result)
             {
-                IEnumerable<T> list;
-                IEnumerable<XElement> nodes = result as IEnumerable<XElement>;
-                if (null != nodes)
-                    list = nodes.Select(x => convert(x, key));
-                else
+                IEnumerable<T> list = values;
+                switch (result.ResultType)
                 {
-                    IEnumerable<XAttribute> atts = result as IEnumerable<XAttribute>;
-                    if (null != atts)
-                        list = atts.Select(a => convert(a, key));
-                    else
-                        list = new[] { convert(result, key) };
+                    case NodeResult.eResultType.ElementArray:
+                        list = result.ElementArray.Select(x => convert(x, key));
+                        break;
+                    case NodeResult.eResultType.AttributeArray:
+                        list = result.AttributeArray.Select(x => convert(x, key));
+                        break;
+                    case NodeResult.eResultType.Attribute:
+                    case NodeResult.eResultType.Element:
+                        list = new[] { convert(result.Result, key) };
+                        break;
                 }
                 values = list.ToArray();
                 return true;
             }
             return false;
         }
+ 
     }
 }

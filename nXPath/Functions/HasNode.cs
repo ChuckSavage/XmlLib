@@ -11,7 +11,7 @@ using System.Xml.Linq;
 
 namespace XmlLib.nXPath.Functions
 {
-    class HasNode: FunctionBase
+    class HasNode : FunctionBase
     {
         public HasNode(XPath_Part part)
             : base(part, typeof(HasNodeGeneric<>))
@@ -28,35 +28,23 @@ namespace XmlLib.nXPath.Functions
                 self = name;
             }
 
-            bool IsEqual(object node)
-            {
-                XName xname = Name(node);
-                if (null != xname)
-                {
-                    return xname.LocalName == part.Value.ToString();
-                }
-                return false;
-            }
-
-            XName Name(object node)
-            {
-                if (node is XAttribute)
-                    return ((XAttribute)node).Name;
-                if (node is XElement)
-                    return ((XElement)node).Name;
-                return null;
-            }
-
             public override bool Eval()
             {
                 try
                 {
-                    object result = nodeset.Node(node, part.Key);
+                    NodeResult result = nodeset.Node(node, part.Key);
                     if (null == result) return false;
-                    IEnumerable<object> list = result as IEnumerable<object>;
-                    if (null == list)
-                        return true;
-                    return list.Count() > 0;
+                    switch (result.ResultType)
+                    {
+                        case NodeResult.eResultType.AttributeArray:
+                            return result.AttributeArray.Length > 0;
+
+                        case NodeResult.eResultType.ElementArray:
+                            return result.ElementArray.Length > 0;
+
+                        default: // is an XAttribute or XElement, meaning it has the node
+                            return true;
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -64,16 +52,6 @@ namespace XmlLib.nXPath.Functions
                 }
                 return false;
             }
-
-            public override void Init()
-            {
-                try
-                {
-                }
-                catch (Exception ex) { error = ex; }
-            }
         }
-
-
     }
 }

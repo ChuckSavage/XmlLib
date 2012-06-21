@@ -47,9 +47,8 @@ namespace XmlLib.nXPath.Functions
                 self = name;
             }
 
-            bool IsEqual(object node)
+            bool IsEqual(XName xname)
             {
-                XName xname = Name(node);
                 if (null != xname)
                 {
                     bool result = xname == ((XName)part.Value);
@@ -58,40 +57,36 @@ namespace XmlLib.nXPath.Functions
                 return false;
             }
 
-            XName Name(object node)
-            {
-                if (node is XAttribute)
-                    return ((XAttribute)node).Name;
-                if (node is XElement)
-                    return ((XElement)node).Name;
-                return null;
-            }
-
             public override bool Eval()
             {
                 try
                 {
-                    if (string.IsNullOrEmpty(part.Key)) return IsEqual(node);
-                    object result = nodeset.Node(node, part.Key);
+                    if (string.IsNullOrEmpty(part.Key)) return IsEqual(node.Name);
+                    
+                    NodeResult result = nodeset.Node(node, part.Key);
                     if (null == result) return false;
-                    IEnumerable<object> list = result as IEnumerable<object>;
-                    if (null == list)
-                        return IsEqual(result);
-                    return list.Any(x => IsEqual(x));
+                    switch (result.ResultType)
+                    {
+                        case NodeResult.eResultType.Attribute:
+                            return IsEqual(result.Attribute.Name);
+
+                        case NodeResult.eResultType.AttributeArray:
+                            return result.AttributeArray
+                                .Any(a => IsEqual(a.Name));
+
+                        case NodeResult.eResultType.Element:
+                            return IsEqual(result.Element.Name);
+
+                        case NodeResult.eResultType.ElementArray:
+                            return result.ElementArray
+                                .Any(e => IsEqual(e.Name));
+                    }
                 }
                 catch (Exception ex)
                 {
                     error = ex;
                 }
                 return false;
-            }
-
-            public override void Init()
-            {
-                try
-                {
-                }
-                catch (Exception ex) { error = ex; }
             }
         }
     }

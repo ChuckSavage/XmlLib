@@ -526,6 +526,11 @@
             false
             </summary>
         </member>
+        <member name="M:XmlLib.nXPath.Functions.KVP.Eval``1(XmlLib.nXPath.XPath_Part,``0[])">
+            <summary>
+            Bool result of NotEqual, LessThanOrEqual, etc of any part.Value in values.
+            </summary>
+        </member>
         <member name="P:XmlLib.nXPath.Functions.StartsWith.IsEqual">
             <summary>
             false
@@ -541,6 +546,36 @@
             </summary>
             <param name="create">create path if it doesn't exist?</param>
             <exception cref="T:System.ArgumentOutOfRangeException"/>
+        </member>
+        <member name="T:XmlLib.nXPath.Functions.StringLength">
+            <summary>
+            <para>Example: root2.XPathElement("pair[string-length()={0}]", 5);</para>
+            <para>Syntax: string-length()</para>
+            <para>Syntax: string-length(nodeset to string node)</para>
+            <para>- nodeset: path to a node or attribute, and its local-name.</para>
+            <para>Returns: Evaulates to true or false, whether the string is equal to the value</para>
+            </summary>
+        </member>
+        <member name="P:XmlLib.nXPath.Functions.StringLength.IsEqual">
+            <summary>
+            false (isn't IsEqual exclusively)
+            </summary>
+        </member>
+        <member name="P:XmlLib.nXPath.Functions.StringLength.ArgumentsRequired">
+            <summary>
+            false
+            </summary>
+        </member>
+        <member name="P:XmlLib.nXPath.Functions.StringLength.ArgumentsValueRequired">
+            <summary>
+            false
+            </summary>
+        </member>
+        <member name="T:XmlLib.nXPath.Functions.NodeResult">
+            <summary>
+            NodeSet Node() returns an XElement, XAttribute or an array of either.  So
+            instead return this so we can know what it is.
+            </summary>
         </member>
     </members>
 </doc>

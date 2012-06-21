@@ -53,7 +53,7 @@ namespace XmlLib.nXPath.Functions
             Expression @this = Expression.Constant(this);
             return Expression.Call(
                 @this,
-                typeof(MinMax).GetMethod("Internal"),
+                this.GetType().GetMethod("Internal"),
                 node);
         }
 

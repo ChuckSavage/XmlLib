@@ -124,6 +124,9 @@ namespace XmlLib.nXPath
                         case "name":
                             Function = new Name(this);
                             break;
+                        case "string-length":
+                            Function = new StringLength(this);
+                            break;
                         case "starts-with":
                             Function = new StartsWith(this);
                             break;

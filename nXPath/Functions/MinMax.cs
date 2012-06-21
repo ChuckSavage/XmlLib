@@ -71,9 +71,9 @@ namespace XmlLib.nXPath.Functions
                         .Where(x => null != nodeset.Node(x, part.Key)).ToList();
 
                     if (self.Function == eMinMax.Max)
-                        max = nodes.Max(x => { T[] value; nodeset.NodeValue(x, out value); return value.First(); });
+                        max = nodes.Max(x => { T[] values; nodeset.NodeValue(x, out values); return values.First(); });
                     else
-                        max = nodes.Min(x => { T[] value; nodeset.NodeValue(x, out value); return value.First(); });
+                        max = nodes.Min(x => { T[] values; nodeset.NodeValue(x, out values); return values.First(); });
                 }
                 catch (Exception ex) { error = ex; }
             }
