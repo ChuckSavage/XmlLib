@@ -4,6 +4,12 @@
         <name>Git XmlLib vs2008</name>
     </assembly>
     <members>
+        <member name="F:XmlLib.nXPath.Functions.FunctionBase.args">
+            <summary>
+            Arguments to the function.
+            <remarks>Set by XPath_Part</remarks>
+            </summary>
+        </member>
         <member name="P:XmlLib.nXPath.Functions.FunctionBase.HasKVP">
             <summary>
             true
@@ -37,6 +43,20 @@
             <para>- type: isn't a value to compare against, but the type of the key to get 
             the min/max value of.</para>
             <para>Returns: The min/max pair node.</para>
+            </summary>
+        </member>
+        <member name="M:XmlLib.nXPath.XPath_Part.Format(System.String)">
+            <summary>
+            Get the possible Values parameter of the value, aka if its 
+            a {0} instead of an actual value it needs to be replaced with its value
+            from the Values list.
+            </summary>
+            <param name="sValue"></param>
+            <returns></returns>
+        </member>
+        <member name="F:XmlLib.nXPath.XPathString.StringFormatBrackets">
+            <summary>
+            Regex pattern for getting {0}, {1}, etc.
             </summary>
         </member>
         <member name="F:XmlLib.nXPath.XPathString.Create">
@@ -482,6 +502,12 @@
             Convert Attribute or Element key to the proper XName via the parent XElement node.
             </summary>
         </member>
+        <member name="T:XmlLib.nXPath.Functions.NodeResult">
+            <summary>
+            NodeSet Node() returns an XElement, XAttribute or an array of either.  So
+            instead return this so we can know what it is.
+            </summary>
+        </member>
         <member name="P:XmlLib.nXPath.XPath_Bracket.XPath">
             <summary>
             The expression.
@@ -531,22 +557,6 @@
             Bool result of NotEqual, LessThanOrEqual, etc of any part.Value in values.
             </summary>
         </member>
-        <member name="P:XmlLib.nXPath.Functions.StartsWith.IsEqual">
-            <summary>
-            false
-            </summary>
-        </member>
-        <member name="M:XmlLib.nXPath.cXPath.Enumerable(System.Xml.Linq.XElement,XmlLib.nXPath.XPathString,System.Boolean)">
-            <summary>
-            Get the elements of a path "path/to/node" or "path[to/node/@attribute&gt;=20.50]".
-            <remarks>
-            <para>See XPath docs for help on using [number][key=value]
-            - syntax (http://www.w3.org/TR/xpath/)</para>
-            </remarks>
-            </summary>
-            <param name="create">create path if it doesn't exist?</param>
-            <exception cref="T:System.ArgumentOutOfRangeException"/>
-        </member>
         <member name="T:XmlLib.nXPath.Functions.StringLength">
             <summary>
             <para>Example: root2.XPathElement("pair[string-length()={0}]", 5);</para>
@@ -571,10 +581,41 @@
             false
             </summary>
         </member>
-        <member name="T:XmlLib.nXPath.Functions.NodeResult">
+        <member name="P:XmlLib.nXPath.Functions.StartsWith.IsEqual">
             <summary>
-            NodeSet Node() returns an XElement, XAttribute or an array of either.  So
-            instead return this so we can know what it is.
+            false
+            </summary>
+        </member>
+        <member name="M:XmlLib.nXPath.cXPath.Enumerable(System.Xml.Linq.XElement,XmlLib.nXPath.XPathString,System.Boolean)">
+            <summary>
+            Get the elements of a path "path/to/node" or "path[to/node/@attribute&gt;=20.50]".
+            <remarks>
+            <para>See XPath docs for help on using [number][key=value]
+            - syntax (http://www.w3.org/TR/xpath/)</para>
+            </remarks>
+            </summary>
+            <param name="create">create path if it doesn't exist?</param>
+            <exception cref="T:System.ArgumentOutOfRangeException"/>
+        </member>
+        <member name="T:XmlLib.nXPath.Functions.Substring">
+            <summary>
+            <para>Example: root2.XPathElement("pair[substring()={0}]", 5);</para>
+            <para>Syntax: string-length(nodeset, start)</para>
+            <para>Syntax: string-length(nodeset, start, length)</para>
+            <para>- nodeset: path to a node or attribute, and its value.</para>
+            <para>- start: int value starting with 1 for first character.</para>
+            <para>- length: int value for last character.</para>
+            <para>Returns: Evaulates to true or false, whether the string is equal to the value</para>
+            </summary>
+        </member>
+        <member name="P:XmlLib.nXPath.Functions.Substring.IsEqual">
+            <summary>
+            false (isn't IsEqual exclusively)
+            </summary>
+        </member>
+        <member name="P:XmlLib.nXPath.Functions.Substring.HasKVP">
+            <summary>
+            false
             </summary>
         </member>
     </members>

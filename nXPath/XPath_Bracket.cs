@@ -47,13 +47,12 @@ namespace XmlLib.nXPath
         public IEnumerable<XElement> Elements(IEnumerable<XElement> elements)
         {
             IQueryable<XElement> query = elements.AsQueryable<XElement>();
-            Expression right = null, ex = null, e;
+            Expression ex = null, e;
             string method = "Where";
 
             foreach (XPath_Part part in Parts)
             {
                 e = null;
-                right = Expression.Constant(part.Value);
                 if (part.ElementAt)
                 {
                     method = "ElementAt";
@@ -121,7 +120,7 @@ namespace XmlLib.nXPath
         {
             Expression _elements = null;
             string path = part.Key, att = string.Empty;
-            bool attrib = false, star = false;
+            bool attrib = false, star;
 
             if (attrib = part.IsValueAttribute)
             {

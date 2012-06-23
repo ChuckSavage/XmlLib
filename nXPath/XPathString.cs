@@ -125,7 +125,7 @@ namespace XmlLib.nXPath
             foreach (XPathString xp in list.Skip(1))
             {
                 string xpFormat = xp.Format;
-                MatchCollection ms = Regex.Matches(xpFormat, ToPaths_Pattern);
+                MatchCollection ms = Regex.Matches(xpFormat, StringFormatBrackets);
                 if (ms.Count > 0)
                 {
                     for (int j = 0; j < ms.Count; j++)
@@ -238,7 +238,10 @@ namespace XmlLib.nXPath
             return ToPaths(Format.Split(separator, option));
         }
 
-        const string ToPaths_Pattern = @"\{(\d+):?\w*\}";  // "ggg[xcc={0}]/aa[xx={1}][fdjskl={2}]"
+        /// <summary>
+        /// Regex pattern for getting {0}, {1}, etc.
+        /// </summary>
+        public const string StringFormatBrackets = @"\{(\d+):?\w*\}";  // "ggg[xcc={0}]/aa[xx={1}][fdjskl={2}]"
 
         /// <summary>
         /// Split out separate XPathString's by parts of an array that concatted equals Text.
@@ -259,7 +262,7 @@ namespace XmlLib.nXPath
                     if (string.IsNullOrEmpty(part))
                         continue;
                     List<object> args = new List<object>();
-                    MatchCollection ms = Regex.Matches(part, ToPaths_Pattern);
+                    MatchCollection ms = Regex.Matches(part, StringFormatBrackets);
                     if (ms.Count > 0)
                     {
                         args.AddRange(Values.Skip(index).Take(ms.Count));

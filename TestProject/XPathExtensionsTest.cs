@@ -16,7 +16,7 @@ namespace XmlLib_Test
     [TestClass()]
     public class XPathExtensionsTest
     {
-        XElement root1;
+        XElement root;
 
         // Use TestInitialize to run code before running each test
         [TestInitialize()]
@@ -24,7 +24,7 @@ namespace XmlLib_Test
         {
             DirectoryInfo projectDir = new DirectoryInfo(@"..\..\..\..\XmlLib\TestProject");
             string file = Path.Combine(projectDir.FullName, "XMLFile1.xml");
-            root1 = XElement.Load(file);
+            root = XElement.Load(file);
         }
 
         private TestContext testContextInstance;
@@ -77,14 +77,12 @@ namespace XmlLib_Test
         [TestMethod()]
         public void XPathElementTest1()
         {
-            XElement source = root1; 
             string path = "pair[@Key>=2 and @Key<6][2]";
             object[] args = new object[] { };
-            XElement expected = root1.Elements("pair")
+            XElement expected = root.Elements("pair")
                                      .Where(x => ((int)x.Attribute("Key")) >= 2 && ((int)x.Attribute("Key")) < 6)
                                      .ElementAt(1);
-            XElement actual;
-            actual = XPathExtensions.XPathElement(source, path, args);
+            XElement actual = XPathExtensions.XPathElement(root, path, args);
             Assert.AreEqual(expected.ToString(), actual.ToString());
         }
 
@@ -94,16 +92,15 @@ namespace XmlLib_Test
         [TestMethod()]
         public void XPathElementTest()
         {
-            XElement source = root1; 
             XPathString path = new XPathString("pair[@Key={0}]/Items/Item[Name={1}]", 2, "Martin");
             bool create = false;
-            XElement expected = source.Elements("pair")
+            XElement expected = root.Elements("pair")
                 .Where(x => ((int)x.Attribute("Key")) == 2)
                 .SelectMany(x => x.Element("Items").Elements("Item"))
                 .Where(x => ((string)x.Element("Name")) == "Martin")
                 .FirstOrDefault();
             XElement actual;
-            actual = XPathExtensions.XPathElement(source, path, create);
+            actual = XPathExtensions.XPathElement(root, path, create);
             Assert.AreEqual(expected, actual);
         }
 
@@ -113,7 +110,7 @@ namespace XmlLib_Test
         [TestMethod()]
         public void XPath_RootDescendants()
         {
-            XElement pair2 = root1.XPathElement("pair[@Key=2]");
+            XElement pair2 = root.XPathElement("pair[@Key=2]");
             XElement[] expected = pair2.Root().Descendants("Item")
                 .Where(x => x.Elements().Any(xx => xx.Value == "Mike"))
                 .ToArray();
@@ -128,7 +125,7 @@ namespace XmlLib_Test
         [TestMethod()]
         public void XPath_RelativeDescendants()
         {
-            XElement pair2 = root1.XPathElement("pair[@Key=2]");
+            XElement pair2 = root.XPathElement("pair[@Key=2]");
             XElement[] expected = pair2.Descendants("Item")
                 .Where(x => x.Elements().Any(xx => xx.Value == "Mike"))
                 .ToArray();
@@ -143,7 +140,7 @@ namespace XmlLib_Test
         [TestMethod()]
         public void XPath_RelativeElements()
         {
-            XElement pair2 = root1.XPathElement("pair[@Key=2]");
+            XElement pair2 = root.XPathElement("pair[@Key=2]");
             XElement[] expected = pair2.GetElements("Items/Item")
                 .Where(x => x.Elements().Any(xx => xx.Value == "Mike"))
                 .ToArray();
@@ -158,7 +155,7 @@ namespace XmlLib_Test
         [TestMethod()]
         public void XGetElement_RootElement_DateValue()
         {
-            XElement pair2 = root1.XPathElement("pair[@Key=2]");
+            XElement pair2 = root.XPathElement("pair[@Key=2]");
             var actual = pair2.XGetElement("/Items/Item[Name='Mike']/Date", DateTime.MinValue);
             var expected = DateTime.Parse("5/4/2008"); // pair2's date is 5/4/2000
             Assert.AreEqual(expected, actual);
@@ -169,7 +166,7 @@ namespace XmlLib_Test
         {
             string path = "//*[food/@size={0}]";
             object[] args = new object[] { (decimal)2 };
-            XElement[] expected = root1.Descendants()
+            XElement[] expected = root.Descendants()
                 .Where(a =>
                 {
                     if (!a.HasElements) return false;
@@ -178,7 +175,7 @@ namespace XmlLib_Test
                     return x.Get("size", decimal.MinValue) == 2;
                 })
                 .ToArray();
-            XElement[] actual = XPathExtensions.XPath(root1, path, args).ToArray();
+            XElement[] actual = XPathExtensions.XPath(root, path, args).ToArray();
             CollectionAssert.AreEqual(expected, actual);
         }
 
@@ -187,7 +184,7 @@ namespace XmlLib_Test
         {
             string path = "//*[food/@size>{0}]";
             object[] args = new object[] { (decimal)2 };
-            XElement[] expected = root1.Descendants()
+            XElement[] expected = root.Descendants()
                 .Where(a =>
                 {
                     if (!a.HasElements) return false;
@@ -196,7 +193,7 @@ namespace XmlLib_Test
                     return x.Get("size", decimal.MinValue) > 2;
                 })
                 .ToArray();
-            XElement[] actual = XPathExtensions.XPath(root1, path, args).ToArray();
+            XElement[] actual = XPathExtensions.XPath(root, path, args).ToArray();
             CollectionAssert.AreEqual(expected, actual);
         }
 
@@ -205,7 +202,7 @@ namespace XmlLib_Test
         {
             string path = "//*[food/@size<{0}]";
             object[] args = new object[] { (decimal)2 };
-            XElement[] expected = root1.Descendants()
+            XElement[] expected = root.Descendants()
                 .Where(a =>
                 {
                     if (!a.HasElements) return false;
@@ -214,7 +211,7 @@ namespace XmlLib_Test
                     return x.Get("size", decimal.MinValue) < 2;
                 })
                 .ToArray();
-            XElement[] actual = XPathExtensions.XPath(root1, path, args).ToArray();
+            XElement[] actual = XPathExtensions.XPath(root, path, args).ToArray();
             CollectionAssert.AreEqual(expected, actual);
         }
 
@@ -223,7 +220,7 @@ namespace XmlLib_Test
         {
             string path = "//*[food/@size!={0}]";
             object[] args = new object[] { (decimal)2 };
-            XElement[] expected = root1.Descendants()
+            XElement[] expected = root.Descendants()
                 .Where(a =>
                 {
                     if (!a.HasElements) return false;
@@ -232,7 +229,7 @@ namespace XmlLib_Test
                     return x.Get("size", decimal.MinValue) != 2;
                 })
                 .ToArray();
-            XElement[] actual = XPathExtensions.XPath(root1, path, args).ToArray();
+            XElement[] actual = XPathExtensions.XPath(root, path, args).ToArray();
             CollectionAssert.AreEqual(expected, actual);
         }
 
@@ -242,7 +239,7 @@ namespace XmlLib_Test
         {
             string path = "//a:link[@rel={0}]";
             object[] args = new object[] { "next" };
-            XPathExtensions.XPathElement(root1, path, args);
+            XPathExtensions.XPathElement(root, path, args);
         }
 
         [TestMethod]
@@ -250,8 +247,8 @@ namespace XmlLib_Test
         {
             string path = "//link[@rel={0}]";
             object[] args = new object[] { "next" };
-            XElement actual = XPathExtensions.XPathElement(root1, path, args);
-            XElement expected = root1.GetDescendants("link")
+            XElement actual = XPathExtensions.XPathElement(root, path, args);
+            XElement expected = root.GetDescendants("link")
                 .FirstOrDefault(x =>
                 {
                     XAttribute xa = x.GetAttribute("rel");

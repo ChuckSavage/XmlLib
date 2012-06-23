@@ -52,12 +52,9 @@ namespace XmlLib.nXPath.Functions
 
         internal class StringLength_Generic<T> : GenericBase
         {
-            StringLength self;
-
             public StringLength_Generic(StringLength name, XElement nodeToCheck)
                 : base(nodeToCheck, name.part)
             {
-                self = name;
             }
 
             T Convert(string s) { return ConvertX<int, T>.ToValue(s.Length); }

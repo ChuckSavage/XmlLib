@@ -25,14 +25,23 @@ namespace XmlLib.nXPath
         public readonly bool ElementAt;
         public readonly FunctionBase Function = null;
         public bool KVP { get; private set; }
-        public string Key { get; private set; }
+        public string Key
+        {
+            get { return _Key; }
+            set { _Key = Format(value).ToString(); }
+        }
+        string _Key;
         public object Value
         {
             get { return _Value; }
             set
             {
                 if (null == _Value)
-                    _Value = value;
+                {
+                    _Value = Format(value.ToString());
+                    // isString is set in Format() or IsString()
+                    valueIsString = isString;
+                }
             }
         }
         object _Value;
@@ -41,31 +50,11 @@ namespace XmlLib.nXPath
 
         public XPath_Part(XPathString text)
         {
-            bool isString = false;
             self = text;
-            string part = text.Text;
-            if (text.Values.Length > 0)
+            string format = text.Format;
+            if (Equal = format.Contains('='))
             {
-                Value = text.Values[0];
-                isString = Value is string;
-            }
-            else
-            {
-                int i;
-                if (int.TryParse(part, out i))
-                {
-                    Value = i;
-                    ElementAt = true;
-                    return;
-                }
-                // have quoted value
-                isString = IsString(part, out part);
-            }
-
-            Key = part;
-            if (Equal = part.Contains('='))
-            {
-                string[] parts = part.Split('=');
+                string[] parts = format.Split('=');
                 Key = parts[0];
                 Value = parts[1];
 
@@ -77,23 +66,23 @@ namespace XmlLib.nXPath
                     Key = Key.TrimEnd('>');
                 KVP = true;
             }
-            else if (LessThan = part.Contains("<"))
+            else if (LessThan = format.Contains("<"))
             {
-                string[] parts = part.Split('<');
+                string[] parts = format.Split('<');
                 Key = parts[0];
                 Value = parts[1];
                 KVP = true;
             }
-            else if (GreaterThan = part.Contains(">"))
+            else if (GreaterThan = format.Contains(">"))
             {
-                string[] parts = part.Split('>');
+                string[] parts = format.Split('>');
                 Key = parts[0];
                 Value = parts[1];
                 KVP = true;
             }
-            
+
             {
-                Match functionMatch = Regex.Match(part, @"^\w+[^\(]*\([^\)]*\)"); // last(), starts-with(key, value)
+                Match functionMatch = Regex.Match(format, @"^\w+[^\(]*\([^\)]*\)"); // last(), starts-with(key, value)
                 if (functionMatch.Success)
                 {
                     string func = functionMatch.Value;
@@ -106,7 +95,7 @@ namespace XmlLib.nXPath
                         case "last":
                             ElementAt = true;
                             Key = functionMatch.Value;
-                            Match digits = Regex.Match(part, @"\d+$"); // ddd
+                            Match digits = Regex.Match(format, @"\d+$"); // ddd
                             int i;
                             if (digits.Success && int.TryParse(digits.Value, out i))
                                 _Value = i;
@@ -130,27 +119,26 @@ namespace XmlLib.nXPath
                         case "starts-with":
                             Function = new StartsWith(this);
                             break;
+                        case "substring":
+                            Function = new Substring(this);
+                            break;
                     }
 
                     if (null != Function)
                     {
+                        string kvp = Regex.Match(func, @"\(([^\)]*)\)").Groups[1].Value;//.TrimStart('(').TrimEnd(')');
+                        if (!string.IsNullOrEmpty(kvp))
+                            Function.args = kvp.Split(',').Select(s => Format(s)).ToArray();
+
                         if (Function.HasKVP)
                         {
-                            string kvp = Regex.Match(func, @"\(([^\}]*)\)").Value.TrimStart('(').TrimEnd(')');
                             if (!string.IsNullOrEmpty(kvp) || Function.ArgumentsRequired)
                             {
                                 string[] parts = kvp.Split(',');
                                 Key = parts[0];
-                                string value;
                                 try
                                 {
-                                    if (isString) // had form "node[func(@key, 'value')]"
-                                        Value = parts[1];
-                                    else
-                                    {
-                                        isString = IsString(parts[1], out value);
-                                        Value = value;
-                                    }
+                                    Value = parts[1];
                                 }
                                 catch (IndexOutOfRangeException)
                                 {
@@ -162,16 +150,39 @@ namespace XmlLib.nXPath
                             else
                                 Key = string.Empty;
                         }
+                        else if (Function.args.Length > 0)
+                            Key = Function.args[0].ToString();
+                        else
+                            Key = string.Empty;
+
                         if (Function.IsEqual)
                             Equal = true;
                     }
                 }
             }
 
+            if (null == Key)
+            {
+                // is this a [0] or [{0}] format?
+                int i;
+                object value = Format(format);
+                if (ElementAt = value is int)
+                {
+                    Value = (int)value;
+                    return;
+                }
+                if (ElementAt = int.TryParse(format, out i))
+                {
+                    Value = i;
+                    return;
+                }
+                Key = value.ToString();
+            }
+
             if (IsValueAttribute = Key.StartsWith("@"))
                 Key = Key.Substring(1);
 
-            if (Value is string && !isString)
+            if (Value is string && !valueIsString)
             {
                 decimal d;
                 if (decimal.TryParse((string)Value, out d))
@@ -179,6 +190,38 @@ namespace XmlLib.nXPath
             }
         }
 
+        /// <summary>
+        /// Get the possible Values parameter of the value, aka if its 
+        /// a {0} instead of an actual value it needs to be replaced with its value
+        /// from the Values list.
+        /// </summary>
+        /// <param name="sValue"></param>
+        /// <returns></returns>
+        public object Format(string sValue)
+        {
+            string temp;
+            if (IsString(sValue, out temp))
+                return temp;
+            if (self.Values.Length > 0)
+            {
+                Match match = Regex.Match(sValue.Trim(), @"^\{(\d+)\}$"); // match "{0}" values only
+                if (!match.Success)
+                    return sValue;
+                var groups = match.Groups;
+                //var one = groups[0].Value;
+                string number = groups[1].Value;
+                int index;
+                if (int.TryParse(number, out index) && index < self.Values.Length)
+                {
+                    object value = self.Values[index];
+                    isString = value is string;
+                    return value;
+                }
+            }
+            return sValue;
+        }
+
+        bool valueIsString = false, isString = false;
         bool IsString(string value, out string newValue)
         {
             newValue = value;
@@ -187,7 +230,7 @@ namespace XmlLib.nXPath
             if (quotes.Success)
             {
                 newValue = value.Replace("'", "");
-                return true;
+                return isString = true;
             }
             return false;
         }

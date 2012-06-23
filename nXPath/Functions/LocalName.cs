@@ -39,12 +39,9 @@ namespace XmlLib.nXPath.Functions
 
         internal class LocalNameGeneric<T> : GenericBase
         {
-            LocalName self;
-
             public LocalNameGeneric(LocalName name, XElement nodeToCheck)
                 : base(nodeToCheck, name.part)
             {
-                self = name;
             }
 
             bool IsEqual(XName xname)

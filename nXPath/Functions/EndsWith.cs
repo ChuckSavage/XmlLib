@@ -22,12 +22,9 @@ namespace XmlLib.nXPath.Functions
 
         internal class EndsWithGeneric<T> : GenericBase
         {
-            EndsWith self;
-
             public EndsWithGeneric(EndsWith ends, XElement nodeToCheck)
                 : base(nodeToCheck, ends.part)
             {
-                self = ends;
             }
 
             public override bool Eval()

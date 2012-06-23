@@ -16,6 +16,12 @@ namespace XmlLib.nXPath.Functions
         protected XPath_Part part;
         Type generic;
 
+        /// <summary>
+        /// Arguments to the function.
+        /// <remarks>Set by XPath_Part</remarks>
+        /// </summary>
+        internal object[] args = { };
+
         public FunctionBase(XPath_Part part, Type genericType)
         {
             this.part = part;
