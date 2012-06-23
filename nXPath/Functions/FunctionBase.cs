@@ -30,27 +30,40 @@ namespace XmlLib.nXPath.Functions
 
         public FunctionBase(XPath_Part part) : this(part, null) { }
 
+        protected GenericBase Generic;
+
         public virtual bool Internal(XElement nodeToCheck)
         {
-            Type type = (part.Value ?? 0).GetType(); // 0 for generic types that have no type
+            if (null == Generic)
+            {
+                Type type = (part.Value ?? 0).GetType(); // 0 for generic types that have no type
 
-            var gmm = generic.MakeGenericType(new[] { type });
+                var gmm = generic.MakeGenericType(new[] { type });
 
-            var instance = gmm
-                .GetConstructor(new[] { this.GetType(), typeof(XElement) })
-                .Invoke(new object[] { this, nodeToCheck })
-                as GenericBase;
+                Generic = (GenericBase)gmm
+                    .GetConstructor(new[] { this.GetType() })
+                    .Invoke(new object[] { this });
 
+                try
+                {
+                    Generic.Init();
+                }
+                catch (TargetInvocationException)
+                {
+                    if (null != Generic.error)
+                        throw Generic.error;
+                    throw;
+                }
+            }
             try
             {
-                instance.Init(); // gmm.GetMethod("Init").Invoke(instance, null);
-                return instance.Eval(); // return (bool)gmm.GetMethod("Eval").Invoke(instance, null);
+                return Generic.Eval(nodeToCheck);
             }
             catch (TargetInvocationException)
             {
-                FieldInfo info = instance.GetType().GetField("error");
-                Exception e = info.GetValue(instance) as Exception;
-                throw e;
+                if (null != Generic.error)
+                    throw Generic.error;
+                throw;
             }
         }
 

@@ -39,8 +39,8 @@ namespace XmlLib.nXPath.Functions
 
         internal class LocalNameGeneric<T> : GenericBase
         {
-            public LocalNameGeneric(LocalName name, XElement nodeToCheck)
-                : base(nodeToCheck, name.part)
+            public LocalNameGeneric(LocalName name)
+                : base(name.part)
             {
             }
 
@@ -53,7 +53,7 @@ namespace XmlLib.nXPath.Functions
                 return false;
             }
 
-            public override bool Eval()
+            public override bool Eval(XElement node)
             {
                 try
                 {

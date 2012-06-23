@@ -22,12 +22,12 @@ namespace XmlLib.nXPath.Functions
 
         internal class StartsWithGeneric<T> : GenericBase
         {
-            public StartsWithGeneric(StartsWith start, XElement nodeToCheck)
-                : base(nodeToCheck, start.part)
+            public StartsWithGeneric(StartsWith start)
+                : base(start.part)
             {
             }
 
-            public override bool Eval()
+            public override bool Eval(XElement node)
             {
                 try
                 {

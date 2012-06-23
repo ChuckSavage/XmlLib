@@ -430,5 +430,62 @@ namespace XmlLib_Test
 
             CollectionAssert.AreEqual(expected, actual);
         }
+
+        [TestMethod]
+        public void Function_Substring()
+        {
+            string path = "//*[substring(,1,5)='Value']";
+            object[] args = null;
+
+            XElement[] actual = XPathExtensions.XPath(root, path, args).ToArray();
+            XElement[] expected = root.Descendants()
+                                    .Where(x =>
+                                    {
+                                        string name = x.Name.LocalName;
+                                        if (name.Length < 5) return false;
+                                        return name.Substring(0, 5) == "Value";
+                                    })
+                                    .ToArray();
+
+            CollectionAssert.AreEqual(expected, actual);
+        }
+
+        [TestMethod]
+        public void Function_Substring_DynamicArgs()
+        {
+            string path = "//*[substring(.,{0},{1})='20']";
+            object[] args = { 5, 2 };
+
+            XElement[] actual = XPathExtensions.XPath(root, path, args).ToArray();
+            XElement[] expected = root.Descendants()
+                                    .Where(x =>
+                                    {
+                                        string value = x.Value;
+                                        if (value.Length < 6) return false;
+                                        return value.Substring(4, 2) == "20";
+                                    })
+                                    .ToArray();
+
+            CollectionAssert.AreEqual(expected, actual);
+        }
+
+        [TestMethod]
+        public void Function_Substring_DynamicArgs_DynamicValue()
+        {
+            string path = "//*[substring(.,{0},{1})={2}]";
+            object[] args = { 5, 2, "20" };
+
+            XElement[] actual = XPathExtensions.XPath(root, path, args).ToArray();
+            XElement[] expected = root.Descendants()
+                                    .Where(x =>
+                                    {
+                                        string value = x.Value;
+                                        if (value.Length < 6) return false;
+                                        return value.Substring(4, 2) == "20";
+                                    })
+                                    .ToArray();
+
+            CollectionAssert.AreEqual(expected, actual);
+        }
     }
 }

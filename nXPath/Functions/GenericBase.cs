@@ -13,17 +13,15 @@ namespace XmlLib.nXPath.Functions
     {
         public Exception error;
         protected XPath_Part part;
-        protected XElement node;
         protected NodeSet nodeset;
 
-        public GenericBase(XElement nodeToCheck, XPath_Part part)
+        public GenericBase(XPath_Part part)
         {
             this.part = part;
-            node = nodeToCheck;
             nodeset = new NodeSet(part);
         }
 
-        public abstract bool Eval();
+        public abstract bool Eval(XElement node);
 
         public virtual void Init()
         {

@@ -39,8 +39,8 @@ namespace XmlLib.nXPath.Functions
 
         internal class NameGeneric<T> : GenericBase
         {
-            public NameGeneric(Name name, XElement nodeToCheck)
-                : base(nodeToCheck, name.part)
+            public NameGeneric(Name name)
+                : base(name.part)
             {
             }
 
@@ -54,7 +54,7 @@ namespace XmlLib.nXPath.Functions
                 return false;
             }
 
-            public override bool Eval()
+            public override bool Eval(XElement node)
             {
                 try
                 {

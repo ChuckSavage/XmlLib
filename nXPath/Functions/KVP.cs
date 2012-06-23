@@ -44,12 +44,12 @@ namespace XmlLib.nXPath.Functions
 
         internal class KVPGeneric<T> : GenericBase
         {
-            public KVPGeneric(KVP kvp, XElement nodeToCheck)
-                :base(nodeToCheck, kvp.part)
+            public KVPGeneric(KVP kvp)
+                :base(kvp.part)
             {
             }
 
-            public override bool Eval()
+            public override bool Eval(XElement node)
             {
                 try
                 {

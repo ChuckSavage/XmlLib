@@ -7,13 +7,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Xml.Linq;
 
 namespace XmlLib.nXPath.Functions
 {
     /// <summary>
-    /// <para>Example: root2.XPathElement("pair[substring()={0}]", 5);</para>
+    /// <para>Example: root2.XPathElement("pair[substring(., 3, 5)={0}]", "child");</para>
     /// <para>Syntax: string-length(nodeset, start)</para>
     /// <para>Syntax: string-length(nodeset, start, length)</para>
     /// <para>- nodeset: path to a node or attribute, and its value.</para>
@@ -50,13 +49,34 @@ namespace XmlLib.nXPath.Functions
             string key;
             int start, length = -1;
 
-            public Substring_Generic(Substring parent, XElement nodeToCheck)
-                : base(nodeToCheck, parent.part)
+            public Substring_Generic(Substring parent)
+                : base(parent.part)
             {
                 self = parent;
             }
 
-            //int Convert<TT>(TT s) { return ConvertX<TT, int>.ToValue(s); }
+            public override bool Eval(XElement node)
+            {
+                try
+                {
+                    List<string> values = new List<string>();
+                    if (string.IsNullOrEmpty(key))
+                        values.Add(substring(node.Name.LocalName));
+                    else
+                    {
+                        string[] sArray;
+                        if (!nodeset.NodeValue(node, out sArray))
+                            return false;
+                        values.AddRange(sArray.Select(s => substring(s)));
+                    }
+                    return KVP.Eval(part, values.ToArray());
+                }
+                catch (Exception ex)
+                {
+                    error = ex;
+                }
+                return false;
+            }
 
             public override void Init()
             {
@@ -78,34 +98,6 @@ namespace XmlLib.nXPath.Functions
                     else
                         return value.Substring(start);
                 return value.Substring(start, length);
-            }
-
-            public override bool Eval()
-            {
-                try
-                {
-                    //var part = self.part;
-
-                    //if (!node.HasElements && node.Value.Contains("33"))
-                    //    System.Diagnostics.Debugger.Break();
-
-                    List<string> values = new List<string>();
-                    if (string.IsNullOrEmpty(key))
-                        values.Add(substring(node.Name.LocalName));
-                    else
-                    {
-                        string[] sArray;
-                        if (!nodeset.NodeValue(node, out sArray))
-                            return false;
-                        values.AddRange(sArray.Select(s => substring(s)));
-                    }
-                    return KVP.Eval(part, values.ToArray());
-                }
-                catch (Exception ex)
-                {
-                    error = ex;
-                }
-                return false;
             }
         }
     }

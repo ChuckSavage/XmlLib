@@ -39,20 +39,28 @@ namespace XmlLib.nXPath.Functions
         internal class GenericMinMax<T> : GenericBase
         {
             IEnumerable<XElement> nodes;
-            T max;
             MinMax self;
 
-            public GenericMinMax(MinMax mm, XElement nodeToCheck)
-                :base(nodeToCheck, mm.part)
+            public GenericMinMax(MinMax mm)
+                : base(mm.part)
             {
                 self = mm;
             }
 
-            public override bool Eval()
+            public override bool Eval(XElement node)
             {
+                T[] values;
+                T max;
                 try
                 {
-                    T[] values;
+                    nodes = node.Parent.Elements(node.Name)
+                        .Where(x => null != nodeset.Node(x, part.Key)).ToList();
+
+                    if (self.Function == eMinMax.Max)
+                        max = nodes.Max(x => { nodeset.NodeValue(x, out values); return values.First(); });
+                    else
+                        max = nodes.Min(x => { nodeset.NodeValue(x, out values); return values.First(); });
+
                     if (nodeset.NodeValue(node, out values))
                         return values.Any(v => Compare<T>.Equal(v, max));
                 }
@@ -61,21 +69,6 @@ namespace XmlLib.nXPath.Functions
                     error = ex;
                 }
                 return false;
-            }
-
-            public override void Init()
-            {
-                try
-                {
-                    nodes = node.Parent.Elements(node.Name)
-                        .Where(x => null != nodeset.Node(x, part.Key)).ToList();
-
-                    if (self.Function == eMinMax.Max)
-                        max = nodes.Max(x => { T[] values; nodeset.NodeValue(x, out values); return values.First(); });
-                    else
-                        max = nodes.Min(x => { T[] values; nodeset.NodeValue(x, out values); return values.First(); });
-                }
-                catch (Exception ex) { error = ex; }
             }
         }
     }

@@ -20,12 +20,12 @@ namespace XmlLib.nXPath.Functions
 
         internal class HasNodeGeneric<T> : GenericBase
         {
-            public HasNodeGeneric(HasNode name, XElement nodeToCheck)
-                : base(nodeToCheck, name.part)
+            public HasNodeGeneric(HasNode name)
+                : base(name.part)
             {
             }
 
-            public override bool Eval()
+            public override bool Eval(XElement node)
             {
                 try
                 {
