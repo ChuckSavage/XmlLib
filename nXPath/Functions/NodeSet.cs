@@ -57,7 +57,7 @@ namespace XmlLib.nXPath.Functions
 
         internal NodeResult Node(XElement x, string nodeset, out string key)
         {
-            key = nodeset;
+            key = nodeset.Trim();
             if ("." == nodeset)
                 return new NodeResult(x, NodeResult.eResultType.Element);
             if (".." == nodeset) return new NodeResult(x.Parent, NodeResult.eResultType.Element); ;

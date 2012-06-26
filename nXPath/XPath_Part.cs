@@ -56,7 +56,7 @@ namespace XmlLib.nXPath
             {
                 string[] parts = format.Split('=');
                 Key = parts[0];
-                Value = parts[1];
+                Value = parts[1].Trim();
 
                 if (NotEqual = Key.EndsWith("!"))
                     Key = Key.TrimEnd('!');
@@ -70,16 +70,18 @@ namespace XmlLib.nXPath
             {
                 string[] parts = format.Split('<');
                 Key = parts[0];
-                Value = parts[1];
+                Value = parts[1].Trim();
                 KVP = true;
             }
             else if (GreaterThan = format.Contains(">"))
             {
                 string[] parts = format.Split('>');
                 Key = parts[0];
-                Value = parts[1];
+                Value = parts[1].Trim();
                 KVP = true;
             }
+            if (!string.IsNullOrEmpty(Key))
+                Key = Key.Trim();
 
             {
                 Match functionMatch = Regex.Match(format, @"^\w+[^\(]*\([^\)]*\)"); // last(), starts-with(key, value)
