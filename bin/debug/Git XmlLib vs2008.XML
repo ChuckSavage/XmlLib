@@ -4,6 +4,18 @@
         <name>Git XmlLib vs2008</name>
     </assembly>
     <members>
+        <member name="T:XmlLib.nXPath.Functions.EndsWith">
+            <summary>
+            <para>Example: root.XPath("//*[ends-with(first, second)]");</para>
+            <para>Syntax: ends-with(,'x')</para>
+            <para>Syntax: ends-with(nodeset, 'x')</para>
+            <para>Syntax: ends-with(nodeset, 'x', (bool)ConvertToUpper/ElseLower)</para>
+            <para>Syntax: ends-with('x', nodeset)</para>
+            <para>Syntax: ends-with('x', nodeset, (bool)ConvertToUpper/ElseLower)</para>
+            <para>- nodeset: path to a node or attribute and its value</para>
+            <para>Returns: Returns the nodes that first ends-with second.</para>
+            </summary>
+        </member>
         <member name="P:XmlLib.nXPath.Functions.FunctionBase.Args">
             <summary>
             Arguments to the function.
@@ -602,6 +614,18 @@
             false
             </summary>
         </member>
+        <member name="T:XmlLib.nXPath.Functions.StartsWith">
+            <summary>
+            <para>Example: root.XPath("//*[starts-with(first, second)]");</para>
+            <para>Syntax: starts-with(,'x')</para>
+            <para>Syntax: starts-with(nodeset, 'x')</para>
+            <para>Syntax: starts-with(nodeset, 'x', (bool)ConvertToUpper/ElseLower)</para>
+            <para>Syntax: starts-with('x', nodeset)</para>
+            <para>Syntax: starts-with('x', nodeset, (bool)ConvertToUpper/ElseLower)</para>
+            <para>- nodeset: path to a node or attribute and its value</para>
+            <para>Returns: Returns the nodes that first starts-with second.</para>
+            </summary>
+        </member>
         <member name="P:XmlLib.nXPath.Functions.StartsWith.IsEqual">
             <summary>
             false
@@ -617,6 +641,18 @@
             </summary>
             <param name="create">create path if it doesn't exist?</param>
             <exception cref="T:System.ArgumentOutOfRangeException"/>
+        </member>
+        <member name="T:XmlLib.nXPath.Functions.Contains">
+            <summary>
+            <para>Example: root.XPath("//*[contains(first, second)]");</para>
+            <para>Syntax: Contains(,'x') - tag-name contains 'x'</para>
+            <para>Syntax: Contains(nodeset, 'x') - nodeset contains 'x'</para>
+            <para>Syntax: Contains(nodeset, 'x', (bool)ConvertToUpper/ElseLower)</para>
+            <para>Syntax: Contains('x', nodeset) - 'x' contains nodeset</para>
+            <para>Syntax: Contains('x', nodeset, (bool)ConvertToUpper/ElseLower)</para>
+            <para>- nodeset: path to a node or attribute and its value</para>
+            <para>Returns: Returns the nodes that first contains second.</para>
+            </summary>
         </member>
         <member name="P:XmlLib.nXPath.Functions.Contains.IsEqual">
             <summary>

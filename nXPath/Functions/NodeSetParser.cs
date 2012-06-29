@@ -123,6 +123,11 @@ namespace XmlLib.nXPath.Functions
 
         internal bool NodeValue<T>(XElement node, Func<object, string, T> convert, out T[] values)
         {
+            if (string.IsNullOrEmpty(part.Key))
+            {
+                values = new[] { ConvertX<string, T>.ToValue(node.Name.LocalName) };
+                return true;
+            }
             values = new[] { default(T) };
             // if nodeset is current node and it has children, it is false
             if ("." == part.Key && node.HasElements)
@@ -150,7 +155,6 @@ namespace XmlLib.nXPath.Functions
                 return true;
             }
             return false;
-        }
- 
+        } 
     }
 }

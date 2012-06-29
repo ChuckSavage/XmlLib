@@ -11,6 +11,16 @@ using System.Xml.Linq;
 
 namespace XmlLib.nXPath.Functions
 {
+    /// <summary>
+    /// <para>Example: root.XPath("//*[ends-with(first, second)]");</para>
+    /// <para>Syntax: ends-with(,'x')</para>
+    /// <para>Syntax: ends-with(nodeset, 'x')</para>
+    /// <para>Syntax: ends-with(nodeset, 'x', (bool)ConvertToUpper/ElseLower)</para>
+    /// <para>Syntax: ends-with('x', nodeset)</para>
+    /// <para>Syntax: ends-with('x', nodeset, (bool)ConvertToUpper/ElseLower)</para>
+    /// <para>- nodeset: path to a node or attribute and its value</para>
+    /// <para>Returns: Returns the nodes that first ends-with second.</para>
+    /// </summary>
     internal class EndsWith : FunctionBase
     {
         internal EndsWith(XPath_Part part) : base(part, typeof(EndsWithGeneric<>)) { }
@@ -20,27 +30,16 @@ namespace XmlLib.nXPath.Functions
         /// </summary>
         internal override bool IsEqual { get { return false; } }
 
-        internal class EndsWithGeneric<T> : GenericBase
+        internal class EndsWithGeneric<T> : StringGeneric<T>
         {
-            public EndsWithGeneric(EndsWith ends)
-                : base(ends.part)
+            public EndsWithGeneric(EndsWith parent)
+                : base(Eval, parent)
             {
             }
 
-            public override bool Eval(XElement node)
+            static bool Eval(string a, string b)
             {
-                try
-                {
-                    string endsWith = part.Value.ToString();
-                    T[] values;
-                    if (nodeset.NodeValue(node, out values))
-                        return values.Any(v => v.ToString().EndsWith(endsWith));
-                }
-                catch (Exception ex)
-                {
-                    error = ex;
-                }
-                return false;
+                return a.EndsWith(b);
             }
         }
     }

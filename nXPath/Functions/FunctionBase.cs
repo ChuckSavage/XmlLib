@@ -13,7 +13,7 @@ namespace XmlLib.nXPath.Functions
 {
     internal class FunctionBase
     {
-        protected XPath_Part part;
+        protected internal XPath_Part part { get; private set; }
         Type generic;
 
         public FunctionBase(XPath_Part part, Type genericType)

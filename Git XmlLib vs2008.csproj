@@ -61,6 +61,7 @@
     <Compile Include="nXPath\Functions\Name.cs" />
     <Compile Include="nXPath\Functions\NodeSetParser.cs" />
     <Compile Include="nXPath\Functions\StartsWith.cs" />
+    <Compile Include="nXPath\Functions\StringGeneric.cs" />
     <Compile Include="nXPath\Functions\StringLength.cs" />
     <Compile Include="nXPath\Functions\NodeResult.cs" />
     <Compile Include="nXPath\Functions\Substring.cs" />
