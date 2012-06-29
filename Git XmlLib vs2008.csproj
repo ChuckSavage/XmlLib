@@ -49,6 +49,7 @@
     <Compile Include="nXPath\Compare.cs" />
     <Compile Include="nXPath\ConvertX.cs" />
     <Compile Include="nXPath\cXPath.cs" />
+    <Compile Include="nXPath\Functions\Contains.cs" />
     <Compile Include="nXPath\Functions\Count.cs" />
     <Compile Include="nXPath\Functions\EndsWith.cs" />
     <Compile Include="nXPath\Functions\FunctionBase.cs" />
@@ -63,6 +64,7 @@
     <Compile Include="nXPath\Functions\StringLength.cs" />
     <Compile Include="nXPath\Functions\NodeResult.cs" />
     <Compile Include="nXPath\Functions\Substring.cs" />
+    <Compile Include="nXPath\NodeSet.cs" />
     <Compile Include="nXPath\XPathString.cs" />
     <Compile Include="nXPath\XPathUtils.cs" />
     <Compile Include="nXPath\XPath_Bracket.cs" />

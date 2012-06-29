@@ -4,7 +4,7 @@
         <name>Git XmlLib vs2008</name>
     </assembly>
     <members>
-        <member name="F:XmlLib.nXPath.Functions.FunctionBase.args">
+        <member name="P:XmlLib.nXPath.Functions.FunctionBase.Args">
             <summary>
             Arguments to the function.
             <remarks>Set by XPath_Part</remarks>
@@ -617,6 +617,11 @@
             </summary>
             <param name="create">create path if it doesn't exist?</param>
             <exception cref="T:System.ArgumentOutOfRangeException"/>
+        </member>
+        <member name="P:XmlLib.nXPath.Functions.Contains.IsEqual">
+            <summary>
+            false
+            </summary>
         </member>
     </members>
 </doc>

@@ -68,6 +68,45 @@ namespace XmlLib_Test
         #endregion
 
         [TestMethod]
+        public void Function_Contains()
+        {
+            string path = "//*[contains(Name, {0}, 'false')]";
+            object[] args = new object[] { "ik" };
+            XElement[] expected = root.Descendants()
+                .Where(x => null != x.Element("Name"))
+                .Where(x => x.Value.Contains("ik"))
+                .ToArray();
+            XElement[] actual = XPathExtensions.XPath(root, path, args).ToArray();
+            CollectionAssert.AreEqual(expected, actual);
+        }
+
+        [TestMethod]
+        public void Function_Contains_PatternContainsNode()
+        {
+            string pattern = "ADF";
+            string path = "//*[contains('ADF', {0}) and . != '']";
+            object[] args = new object[] { new XmlLib.nXPath.NodeSet(".") };
+            XElement[] expected = root.Descendants()
+                .Where(x => !string.IsNullOrEmpty(x.Value) && pattern.Contains(x.Value))
+                .ToArray();
+            XElement[] actual = XPathExtensions.XPath(root, path, args).ToArray();
+            CollectionAssert.AreEqual(expected, actual);
+        }
+
+        [TestMethod]
+        public void Function_Contains_PatternContainsNode2()
+        {
+            string pattern = "ADF";
+            string path = "//*[contains({0}, {1}) and . != '']";
+            object[] args = new object[] { pattern, new XmlLib.nXPath.NodeSet(".") };
+            XElement[] expected = root.Descendants()
+                .Where(x => !string.IsNullOrEmpty(x.Value) && pattern.Contains(x.Value))
+                .ToArray();
+            XElement[] actual = XPathExtensions.XPath(root, path, args).ToArray();
+            CollectionAssert.AreEqual(expected, actual);
+        }
+
+        [TestMethod]
         public void Function_GenericCount_Descendants_TwoDeep()
         {
             string path = "//*[Items/Item]";

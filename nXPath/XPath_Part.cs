@@ -9,6 +9,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text.RegularExpressions;
 using XmlLib.nXPath.Functions;
+using System.Collections.Generic;
 
 namespace XmlLib.nXPath
 {
@@ -88,9 +89,12 @@ namespace XmlLib.nXPath
                 if (functionMatch.Success)
                 {
                     string func = functionMatch.Value;
-                    string function = func.Split('(')[0];
+                    string function = func.Split('(')[0].ToLower();
                     switch (function)
                     {
+                        case "contains":
+                            Function = new Contains(this);
+                            break;
                         case "ends-with":
                             Function = new EndsWith(this);
                             break;
@@ -130,17 +134,25 @@ namespace XmlLib.nXPath
                     {
                         string kvp = Regex.Match(func, @"\(([^\)]*)\)").Groups[1].Value;//.TrimStart('(').TrimEnd(')');
                         if (!string.IsNullOrEmpty(kvp))
-                            Function.args = kvp.Split(',').Select(s => Format(s)).ToArray();
+                            Function.Args = kvp.Split(',').Select(s => Format(s)).ToArray();
 
                         if (Function.HasKVP)
                         {
                             if (!string.IsNullOrEmpty(kvp) || Function.ArgumentsRequired)
                             {
                                 string[] parts = kvp.Split(',');
-                                Key = parts[0];
                                 try
                                 {
-                                    Value = parts[1];
+                                    if (null != Function.NodeSet)
+                                    {
+                                        Key = Function.NodeSet;
+                                        Value = parts[1 - Function.NodeSet.Index];
+                                    }
+                                    else
+                                    {
+                                        Key = parts[0];
+                                        Value = parts[1];
+                                    }
                                 }
                                 catch (IndexOutOfRangeException)
                                 {
@@ -152,8 +164,8 @@ namespace XmlLib.nXPath
                             else
                                 Key = string.Empty;
                         }
-                        else if (Function.args.Length > 0)
-                            Key = Function.args[0].ToString();
+                        else if (Function.Args.Length > 0)
+                            Key = Function.Args[0].ToString();
                         else
                             Key = string.Empty;
 
@@ -228,10 +240,10 @@ namespace XmlLib.nXPath
         {
             newValue = value;
             // have quoted value
-            Match quotes = Regex.Match(value, "'.*'"); // greedy .* so that can have quotes within the quote
+            Match quotes = Regex.Match(value, "'(.*)'"); // greedy .* so that can have quotes within the quote
             if (quotes.Success)
             {
-                newValue = value.Replace("'", "");
+                newValue = quotes.Groups[1].Value;
                 return isString = true;
             }
             return false;

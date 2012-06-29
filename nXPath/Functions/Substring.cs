@@ -82,12 +82,12 @@ namespace XmlLib.nXPath.Functions
             {
                 base.Init();
 
-                if (self.args.Length < 2)
+                if (self.Args.Length < 2)
                     throw new ArgumentException("Insufficient arguments to substring function");
-                key = self.args[0].ToString();
-                start = Convert.ToInt32(self.args[1]) - 1; // xpath is 1 for first character, c# is 0 for first character
-                if (self.args.Length > 2)
-                    length = Convert.ToInt32(self.args[2]);
+                key = self.Args[0].ToString();
+                start = Convert.ToInt32(self.Args[1]) - 1; // xpath is 1 for first character, c# is 0 for first character
+                if (self.Args.Length > 2)
+                    length = Convert.ToInt32(self.Args[2]);
             }
 
             string substring(string value)

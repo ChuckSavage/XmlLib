@@ -16,12 +16,6 @@ namespace XmlLib.nXPath.Functions
         protected XPath_Part part;
         Type generic;
 
-        /// <summary>
-        /// Arguments to the function.
-        /// <remarks>Set by XPath_Part</remarks>
-        /// </summary>
-        internal object[] args = { };
-
         public FunctionBase(XPath_Part part, Type genericType)
         {
             this.part = part;
@@ -29,6 +23,21 @@ namespace XmlLib.nXPath.Functions
         }
 
         public FunctionBase(XPath_Part part) : this(part, null) { }
+
+        /// <summary>
+        /// Arguments to the function.
+        /// <remarks>Set by XPath_Part</remarks>
+        /// </summary>
+        internal object[] Args
+        {
+            get { return _Args; }
+            set
+            {
+                _Args = value;
+                NodeSet = NodeSet.ParseArgs(value);
+            }
+        }
+        protected object[] _Args = { };
 
         protected GenericBase Generic;
 
@@ -75,6 +84,8 @@ namespace XmlLib.nXPath.Functions
                 this.GetType().GetMethod("Internal"),
                 node);
         }
+
+        internal NodeSet NodeSet { get; private set; }
 
         /// <summary>
         /// true

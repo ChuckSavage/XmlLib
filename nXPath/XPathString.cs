@@ -275,7 +275,6 @@ namespace XmlLib.nXPath
                         index += ms.Count;
                     }
                     // Pass on flags to new XPathString
-                    if (0 == list.Count)
                     {
                         string flags;
                         if (PreceedPathWithFlags(out flags))
