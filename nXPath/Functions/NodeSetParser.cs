@@ -12,9 +12,9 @@ using System.Xml.Linq;
 
 namespace XmlLib.nXPath.Functions
 {
-    internal class NodeSet : FunctionBase
+    internal class NodeSetParser : FunctionBase
     {
-        internal NodeSet(XPath_Part part) : base(part) { }
+        internal NodeSetParser(XPath_Part part) : base(part) { }
 
         internal override Expression GetExpression(Expression node)
         {

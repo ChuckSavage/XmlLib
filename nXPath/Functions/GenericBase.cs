@@ -13,12 +13,12 @@ namespace XmlLib.nXPath.Functions
     {
         public Exception error;
         protected XPath_Part part;
-        protected NodeSet nodeset;
+        protected NodeSetParser nodeset;
 
         public GenericBase(XPath_Part part)
         {
             this.part = part;
-            nodeset = new NodeSet(part);
+            nodeset = new NodeSetParser(part);
         }
 
         public abstract bool Eval(XElement node);
