@@ -4,11 +4,6 @@
 // If you find this code helpful and would like to donate, please consider purchasing one of
 // the products at http://products.searisen.com, thank you.
 
-using System;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Xml.Linq;
-
 namespace XmlLib.nXPath.Functions
 {
     /// <summary>

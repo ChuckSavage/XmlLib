@@ -1,21 +1,26 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿// Copyright SeaRisen LLC
+// You may use this code without restrictions, but keep the copyright notice with this code.
+// This file is found at: https://github.com/ChuckSavage/XmlLib
+// If you find this code helpful and would like to donate, please consider purchasing one of
+// the products at http://products.searisen.com, thank you.
 
 namespace XmlLib.nXPath
 {
+    /// <summary>
+    /// String wrapper class to diferentiate between parameters to functions, which
+    /// is the key(nodeset) and which is the value to compare versus.
+    /// </summary>
     public class NodeSet
     {
-        // this really should be a separate class, but for quick add, using this class with the name I want
         string nodeset;
         public NodeSet(string nodeset)
         {
             this.nodeset = nodeset;
         }
+
         public int Index { get; private set; }
 
-        public static NodeSet ParseArgs(object[] args)
+        internal static NodeSet ParseArgs(object[] args)
         {
             NodeSet nodeSet = null; int index = 0;
             foreach (object arg in args)

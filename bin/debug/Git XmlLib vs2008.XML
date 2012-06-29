@@ -659,5 +659,11 @@
             false
             </summary>
         </member>
+        <member name="T:XmlLib.nXPath.NodeSet">
+            <summary>
+            String wrapper class to diferentiate between parameters to functions, which
+            is the key(nodeset) and which is the value to compare versus.
+            </summary>
+        </member>
     </members>
 </doc>
