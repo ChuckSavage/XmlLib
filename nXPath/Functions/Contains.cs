@@ -39,23 +39,26 @@ namespace XmlLib.nXPath.Functions
                 self = parent;
             }
 
+            bool Eval(string value)
+            {
+                if (true == isUpper)
+                    value = value.ToUpperInvariant();
+                else if (false == isUpper)
+                    value = value.ToLowerInvariant();
+                if (null != self.NodeSet && 1 == self.NodeSet.Index)
+                    return pattern.Contains(value);
+                return value.Contains(pattern);
+            }
+
             public override bool Eval(XElement node)
             {
                 try
                 {
+                    if ("" == part.Key)
+                        return Eval(node.Name.LocalName);
                     T[] values;
                     if (nodeset.NodeValue(node, out values) && values.Length > 0)
-                        return values.Any(v =>
-                        {
-                            string value = v.ToString();
-                            if (true == isUpper)
-                                value = value.ToUpperInvariant();
-                            else if (false == isUpper)
-                                value = value.ToLowerInvariant();
-                            if (null != self.NodeSet && 1 == self.NodeSet.Index)
-                                return pattern.Contains(value);
-                            return value.Contains(pattern);
-                        });
+                        return values.Any(v => Eval(v.ToString()));
                 }
                 catch (Exception ex)
                 {

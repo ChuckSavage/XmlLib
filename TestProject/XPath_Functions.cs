@@ -81,6 +81,19 @@ namespace XmlLib_Test
         }
 
         [TestMethod]
+        public void Function_Contains_NodeName()
+        {
+            string pattern = "Work";
+            string path = "//*[contains(, {0})]";
+            object[] args = new object[] { pattern };
+            XElement[] expected = root.Descendants()
+                .Where(x => x.Name.LocalName.Contains(pattern))
+                .ToArray();
+            XElement[] actual = XPathExtensions.XPath(root, path, args).ToArray();
+            CollectionAssert.AreEqual(expected, actual);
+        }
+
+        [TestMethod]
         public void Function_Contains_PatternContainsNode()
         {
             string pattern = "ADF";
