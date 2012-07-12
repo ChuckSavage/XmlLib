@@ -159,7 +159,7 @@ namespace XmlLib.nXPath
                     name = Format.Remove(matches[0].Index);
                     List<string> list = new List<string>() { name };
                     list.AddRange(matches.Select(m => m.Value));
-                    XPathString[] parts = ToPaths(list);
+                    XPathString[] parts = ToPaths(true, list);
                     XPath_Bracket[] result = parts
                            .Skip(1)
                            .Select(xps => new XPath_Bracket(xps))
@@ -208,7 +208,7 @@ namespace XmlLib.nXPath
         /// <summary>
         /// Split the path into its separate XPathStrings.
         /// </summary>
-        public XPathString[] Split() { return ToPaths(SplitInternal()); } 
+        public XPathString[] Split() { return ToPaths(false, SplitInternal()); } 
 
         /*
          * Split by '/' but not when '/' is within '[]' square brackets
@@ -227,15 +227,15 @@ namespace XmlLib.nXPath
         /// </summary>
         public XPathString[] Split(params char[] separator)
         {
-            return ToPaths(Format.Split(separator));
+            return ToPaths(false, Format.Split(separator));
         }
 
         /// <summary>
         /// Returns a XPathString array with the associated values in each XPathString.
         /// </summary>
-        public XPathString[] Split(string[] separator, StringSplitOptions option)
+        public XPathString[] Split(string[] separator, StringSplitOptions option, bool passFlags2ndEtc)
         {
-            return ToPaths(Format.Split(separator, option));
+            return ToPaths(passFlags2ndEtc, Format.Split(separator, option));
         }
 
         /// <summary>
@@ -246,9 +246,12 @@ namespace XmlLib.nXPath
         /// <summary>
         /// Split out separate XPathString's by parts of an array that concatted equals Text.
         /// </summary>
+        /// <param name="passFlags2ndEtc">
+        /// You want to pass on flags to and/or splits (aka splits within brackets) but not on file paths.
+        /// </param>
         /// <param name="parts"></param>
         /// <returns></returns>
-        public XPathString[] ToPaths(params string[] parts)
+        public XPathString[] ToPaths(bool passFlags2ndEtc, params string[] parts)
         {
             if (null == parts)
                 throw new ArgumentNullException("parts");
@@ -275,6 +278,7 @@ namespace XmlLib.nXPath
                         index += ms.Count;
                     }
                     // Pass on flags to new XPathString
+                    if (0 == i || passFlags2ndEtc)
                     {
                         string flags;
                         if (PreceedPathWithFlags(out flags))
@@ -287,9 +291,9 @@ namespace XmlLib.nXPath
             return new[] { this };
         }
 
-        public XPathString[] ToPaths(IEnumerable<string> parts)
+        public XPathString[] ToPaths(bool passFlags2ndEtc, IEnumerable<string> parts)
         {
-            return ToPaths(parts.ToArray());
+            return ToPaths(passFlags2ndEtc, parts.ToArray());
         }
 
         #region Comparing

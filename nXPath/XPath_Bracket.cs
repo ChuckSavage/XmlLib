@@ -40,7 +40,7 @@ namespace XmlLib.nXPath
 
             // need new XPathString() that has brackets removed.
             XPathString[] paths = new XPathString(true, text, path.Values)
-                .Split(new string[] { " and ", " or " }, StringSplitOptions.RemoveEmptyEntries);
+                .Split(new string[] { " and ", " or " }, StringSplitOptions.RemoveEmptyEntries, true);
             Parts = paths.Select(s => new XPath_Part(s)).ToArray();
         }
 

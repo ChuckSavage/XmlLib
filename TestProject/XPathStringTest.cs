@@ -118,7 +118,7 @@ namespace XmlLib_Test
             object[] values = null; 
             XPathString target = new XPathString(path, values);
             XPathString[] expected = new[] { target };
-            XPathString[] actual = target.ToPaths(path);
+            XPathString[] actual = target.ToPaths(true, path);
             CollectionAssert.AreEqual(expected, actual);
         }
         /* Split_overrideEquals() and Split_Comparer() check this

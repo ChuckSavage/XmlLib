@@ -143,15 +143,18 @@
             Returns a XPathString array with the associated values in each XPathString.
             </summary>
         </member>
-        <member name="M:XmlLib.nXPath.XPathString.Split(System.String[],System.StringSplitOptions)">
+        <member name="M:XmlLib.nXPath.XPathString.Split(System.String[],System.StringSplitOptions,System.Boolean)">
             <summary>
             Returns a XPathString array with the associated values in each XPathString.
             </summary>
         </member>
-        <member name="M:XmlLib.nXPath.XPathString.ToPaths(System.String[])">
+        <member name="M:XmlLib.nXPath.XPathString.ToPaths(System.Boolean,System.String[])">
             <summary>
             Split out separate XPathString's by parts of an array that concatted equals Text.
             </summary>
+            <param name="passFlags2ndEtc">
+            You want to pass on flags to and/or splits (aka splits within brackets) but not on file paths.
+            </param>
             <param name="parts"></param>
             <returns></returns>
         </member>
