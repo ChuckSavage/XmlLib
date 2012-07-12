@@ -65,7 +65,6 @@ namespace XmlLib.nXPath
         public static IEnumerable<XElement> Enumerable(XElement source, XPathString path, bool create)
         {
             IEnumerable<XElement> enumerableXElement;
-            XElement result;
 
             if (null == path)
                 throw new ArgumentNullException("Path cannot be null.");
@@ -97,26 +96,7 @@ namespace XmlLib.nXPath
                         continue;
                     }
                 }
-                string part = xpathString.Text.Split('[')[0];
-                if (last)
-                    list.ForEach(xElement =>
-                    {
-                        if (xpathString.IsElements)
-                            newList.AddRange(xElement.GetElements(part));
-                        else
-                            newList.AddRange(xElement.GetDescendants(part));
-                    });
-                else
-                    list.ForEach(xElement =>
-                    {
-                        if (create)
-                            result = xElement.GetElement(part);
-                        else
-                            result = xElement.Element(xElement.ToXName(part));
-                        if (null != result)
-                            newList.Add(result);
-                    });
-
+                list.ForEach(xElement => newList.AddRange(PartToElements(xElement, xpathString)));
                 list = newList;
             }
             return list;

@@ -241,6 +241,23 @@
             false
             </summary>
         </member>
+        <member name="T:XmlLib.nXPath.Functions.Contains">
+            <summary>
+            <para>Example: root.XPath("//*[contains(first, second)]");</para>
+            <para>Syntax: Contains(,'x') - tag-name contains 'x'</para>
+            <para>Syntax: Contains(nodeset, 'x') - nodeset contains 'x'</para>
+            <para>Syntax: Contains(nodeset, 'x', (bool)ConvertToUpper/ElseLower)</para>
+            <para>Syntax: Contains('x', nodeset) - 'x' contains nodeset</para>
+            <para>Syntax: Contains('x', nodeset, (bool)ConvertToUpper/ElseLower)</para>
+            <para>- nodeset: path to a node or attribute and its value</para>
+            <para>Returns: Returns the nodes that first contains second.</para>
+            </summary>
+        </member>
+        <member name="P:XmlLib.nXPath.Functions.Contains.IsEqual">
+            <summary>
+            false
+            </summary>
+        </member>
         <member name="T:XmlLib.XElementExtensions">
             <summary>
             XElement extension methods.
@@ -590,6 +607,12 @@
             Bool result of NotEqual, LessThanOrEqual, etc of any part.Value in values.
             </summary>
         </member>
+        <member name="T:XmlLib.nXPath.NodeSet">
+            <summary>
+            String wrapper class to diferentiate between parameters to functions, which
+            is the key(nodeset) and which is the value to compare versus.
+            </summary>
+        </member>
         <member name="T:XmlLib.nXPath.Functions.StringLength">
             <summary>
             <para>Example: root2.XPathElement("pair[string-length()={0}]", 5);</para>
@@ -641,29 +664,6 @@
             </summary>
             <param name="create">create path if it doesn't exist?</param>
             <exception cref="T:System.ArgumentOutOfRangeException"/>
-        </member>
-        <member name="T:XmlLib.nXPath.Functions.Contains">
-            <summary>
-            <para>Example: root.XPath("//*[contains(first, second)]");</para>
-            <para>Syntax: Contains(,'x') - tag-name contains 'x'</para>
-            <para>Syntax: Contains(nodeset, 'x') - nodeset contains 'x'</para>
-            <para>Syntax: Contains(nodeset, 'x', (bool)ConvertToUpper/ElseLower)</para>
-            <para>Syntax: Contains('x', nodeset) - 'x' contains nodeset</para>
-            <para>Syntax: Contains('x', nodeset, (bool)ConvertToUpper/ElseLower)</para>
-            <para>- nodeset: path to a node or attribute and its value</para>
-            <para>Returns: Returns the nodes that first contains second.</para>
-            </summary>
-        </member>
-        <member name="P:XmlLib.nXPath.Functions.Contains.IsEqual">
-            <summary>
-            false
-            </summary>
-        </member>
-        <member name="T:XmlLib.nXPath.NodeSet">
-            <summary>
-            String wrapper class to diferentiate between parameters to functions, which
-            is the key(nodeset) and which is the value to compare versus.
-            </summary>
         </member>
     </members>
 </doc>
