@@ -714,7 +714,7 @@ namespace XmlLib
     }
 
     /// <summary>
-    /// Try to get a constructor that takes a single string value
+    /// Try to get a constructor that takes a string value or the XElement source
     /// </summary>
     internal static class ConstructorCache<T>
     {
