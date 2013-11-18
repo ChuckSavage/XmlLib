@@ -739,7 +739,7 @@ namespace XmlLib
             }
             if (null != XElementInfo)
             {
-                result = (T)XElementInfo.Invoke(new object[] { value });
+                result = (T)XElementInfo.Invoke(new object[] { source });
                 return true;
             }
             return false;
