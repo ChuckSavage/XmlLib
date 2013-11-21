@@ -1,19 +1,30 @@
 <?xml version="1.0"?>
 <doc>
     <assembly>
-        <name>Git XmlLib vs2008</name>
+        <name>XmlLib</name>
     </assembly>
     <members>
-        <member name="T:XmlLib.nXPath.Functions.EndsWith">
+        <member name="M:XmlLib.nXPath.cXPath.Enumerable(System.Xml.Linq.XElement,XmlLib.nXPath.XPathString,System.Boolean)">
             <summary>
-            <para>Example: root.XPath("//*[ends-with(first, second)]");</para>
-            <para>Syntax: ends-with(,'x')</para>
-            <para>Syntax: ends-with(nodeset, 'x')</para>
-            <para>Syntax: ends-with(nodeset, 'x', (bool)ConvertToUpper/ElseLower)</para>
-            <para>Syntax: ends-with('x', nodeset)</para>
-            <para>Syntax: ends-with('x', nodeset, (bool)ConvertToUpper/ElseLower)</para>
+            Get the elements of a path "path/to/node" or "path[to/node/@attribute&gt;=20.50]".
+            <remarks>
+            <para>See XPath docs for help on using [number][key=value]
+            - syntax (http://www.w3.org/TR/xpath/)</para>
+            </remarks>
+            </summary>
+            <param name="create">create path if it doesn't exist?</param>
+            <exception cref="T:System.ArgumentOutOfRangeException"/>
+        </member>
+        <member name="T:XmlLib.nXPath.Functions.Contains">
+            <summary>
+            <para>Example: root.XPath("//*[contains(first, second)]");</para>
+            <para>Syntax: Contains(,'x') - tag-name contains 'x'</para>
+            <para>Syntax: Contains(nodeset, 'x') - nodeset contains 'x'</para>
+            <para>Syntax: Contains(nodeset, 'x', (bool)ConvertToUpper/ElseLower)</para>
+            <para>Syntax: Contains('x', nodeset) - 'x' contains nodeset</para>
+            <para>Syntax: Contains('x', nodeset, (bool)ConvertToUpper/ElseLower)</para>
             <para>- nodeset: path to a node or attribute and its value</para>
-            <para>Returns: Returns the nodes that first ends-with second.</para>
+            <para>Returns: Returns the nodes that first contains second.</para>
             </summary>
         </member>
         <member name="P:XmlLib.nXPath.Functions.FunctionBase.Args">
@@ -42,7 +53,49 @@
             true
             </summary>
         </member>
+        <member name="P:XmlLib.nXPath.Functions.Contains.IsEqual">
+            <summary>
+            false
+            </summary>
+        </member>
+        <member name="T:XmlLib.nXPath.Functions.EndsWith">
+            <summary>
+            <para>Example: root.XPath("//*[ends-with(first, second)]");</para>
+            <para>Syntax: ends-with(,'x')</para>
+            <para>Syntax: ends-with(nodeset, 'x')</para>
+            <para>Syntax: ends-with(nodeset, 'x', (bool)ConvertToUpper/ElseLower)</para>
+            <para>Syntax: ends-with('x', nodeset)</para>
+            <para>Syntax: ends-with('x', nodeset, (bool)ConvertToUpper/ElseLower)</para>
+            <para>- nodeset: path to a node or attribute and its value</para>
+            <para>Returns: Returns the nodes that first ends-with second.</para>
+            </summary>
+        </member>
         <member name="P:XmlLib.nXPath.Functions.EndsWith.IsEqual">
+            <summary>
+            false
+            </summary>
+        </member>
+        <member name="M:XmlLib.nXPath.Functions.KVP.Eval``1(XmlLib.nXPath.XPath_Part,``0[])">
+            <summary>
+            Bool result of NotEqual, LessThanOrEqual, etc of any part.Value in values.
+            </summary>
+        </member>
+        <member name="T:XmlLib.nXPath.Functions.LocalName">
+            <summary>
+            <para>Example: root2.XPathElement("pair[local-name()={0}]", "div");</para>
+            <para>Syntax: local-name()</para>
+            <para>Syntax: local-name(nodeset)</para>
+            <para>- nodeset: path to a node or attribute, and its local-name.</para>
+            <para>Returns: Returns the name of the current node or the first node 
+            in the specified node set - without the namespace prefix</para>
+            </summary>
+        </member>
+        <member name="P:XmlLib.nXPath.Functions.LocalName.ArgumentsRequired">
+            <summary>
+            false
+            </summary>
+        </member>
+        <member name="P:XmlLib.nXPath.Functions.LocalName.ArgumentsValueRequired">
             <summary>
             false
             </summary>
@@ -57,14 +110,98 @@
             <para>Returns: The min/max pair node.</para>
             </summary>
         </member>
-        <member name="M:XmlLib.nXPath.XPath_Part.Format(System.String)">
+        <member name="T:XmlLib.nXPath.Functions.Name">
             <summary>
-            Get the possible Values parameter of the value, aka if its 
-            a {0} instead of an actual value it needs to be replaced with its value
-            from the Values list.
+            <para>Example: root2.XPathElement("//*[name()={0}]", "div");</para>
+            <para>Syntax: name()</para>
+            <para>Syntax: name(nodeset)</para>
+            <para>- nodeset: path to a node or attribute, and its name.</para>
+            <para>Returns the name of the current node or the first node in the specified node set</para>
             </summary>
-            <param name="sValue"></param>
-            <returns></returns>
+        </member>
+        <member name="P:XmlLib.nXPath.Functions.Name.ArgumentsRequired">
+            <summary>
+            false
+            </summary>
+        </member>
+        <member name="P:XmlLib.nXPath.Functions.Name.ArgumentsValueRequired">
+            <summary>
+            false
+            </summary>
+        </member>
+        <member name="T:XmlLib.nXPath.Functions.StartsWith">
+            <summary>
+            <para>Example: root.XPath("//*[starts-with(first, second)]");</para>
+            <para>Syntax: starts-with(,'x')</para>
+            <para>Syntax: starts-with(nodeset, 'x')</para>
+            <para>Syntax: starts-with(nodeset, 'x', (bool)ConvertToUpper/ElseLower)</para>
+            <para>Syntax: starts-with('x', nodeset)</para>
+            <para>Syntax: starts-with('x', nodeset, (bool)ConvertToUpper/ElseLower)</para>
+            <para>- nodeset: path to a node or attribute and its value</para>
+            <para>Returns: Returns the nodes that first starts-with second.</para>
+            </summary>
+        </member>
+        <member name="P:XmlLib.nXPath.Functions.StartsWith.IsEqual">
+            <summary>
+            false
+            </summary>
+        </member>
+        <member name="T:XmlLib.nXPath.Functions.StringLength">
+            <summary>
+            <para>Example: root2.XPathElement("pair[string-length()={0}]", 5);</para>
+            <para>Syntax: string-length()</para>
+            <para>Syntax: string-length(nodeset to string node)</para>
+            <para>- nodeset: path to a node or attribute, and its local-name.</para>
+            <para>Returns: Evaulates to true or false, whether the string is equal to the value</para>
+            </summary>
+        </member>
+        <member name="P:XmlLib.nXPath.Functions.StringLength.IsEqual">
+            <summary>
+            false (isn't IsEqual exclusively)
+            </summary>
+        </member>
+        <member name="P:XmlLib.nXPath.Functions.StringLength.ArgumentsRequired">
+            <summary>
+            false
+            </summary>
+        </member>
+        <member name="P:XmlLib.nXPath.Functions.StringLength.ArgumentsValueRequired">
+            <summary>
+            false
+            </summary>
+        </member>
+        <member name="T:XmlLib.nXPath.Functions.NodeResult">
+            <summary>
+            NodeSet Node() returns an XElement, XAttribute or an array of either.  So
+            instead return this so we can know what it is.
+            </summary>
+        </member>
+        <member name="T:XmlLib.nXPath.Functions.Substring">
+            <summary>
+            <para>Example: root2.XPathElement("pair[substring(., 3, 5)={0}]", "child");</para>
+            <para>Syntax: string-length(nodeset, start)</para>
+            <para>Syntax: string-length(nodeset, start, length)</para>
+            <para>- nodeset: path to a node or attribute, and its value.</para>
+            <para>- start: int value starting with 1 for first character.</para>
+            <para>- length: int value for last character.</para>
+            <para>Returns: Evaulates to true or false, whether the string is equal to the value</para>
+            </summary>
+        </member>
+        <member name="P:XmlLib.nXPath.Functions.Substring.IsEqual">
+            <summary>
+            false (isn't IsEqual exclusively)
+            </summary>
+        </member>
+        <member name="P:XmlLib.nXPath.Functions.Substring.HasKVP">
+            <summary>
+            false
+            </summary>
+        </member>
+        <member name="T:XmlLib.nXPath.NodeSet">
+            <summary>
+            String wrapper class to diferentiate between parameters to functions, which
+            is the key(nodeset) and which is the value to compare versus.
+            </summary>
         </member>
         <member name="F:XmlLib.nXPath.XPathString.StringFormatBrackets">
             <summary>
@@ -169,97 +306,68 @@
             The name of the node's that will be returned from the search if successful.
             </summary>
         </member>
-        <member name="M:XmlLib.XPathExtensions.XPath(System.Xml.Linq.XElement,XmlLib.nXPath.XPathString,System.Boolean)">
+        <member name="M:XmlLib.nXPath.XPathUtils.Attribute(System.Linq.Expressions.Expression,System.String)">
             <summary>
-            Navigate to a specific path within source.  (create path if it doesn't exist?)
-            <remarks>See XPath docs for help on using [number][key=value] 
-            syntax (http://www.w3.org/TR/xpath/)</remarks>
-            </summary>
-            <exception cref="T:System.ArgumentOutOfRangeException"/>
-        </member>
-        <member name="M:XmlLib.XPathExtensions.XPath(System.Xml.Linq.XElement,System.String,System.Object[])">
-            <summary>
-            Navigate to a specific path within source, create it if it doesn't exist.
-            <remarks>See XPath docs for help on using [number][key=value] 
-            syntax (http://www.w3.org/TR/xpath/)</remarks>
-            </summary>
-            <exception cref="T:System.ArgumentOutOfRangeException"/>
-        </member>
-        <member name="M:XmlLib.XPathExtensions.XPathElement(System.Xml.Linq.XElement,XmlLib.nXPath.XPathString,System.Boolean)">
-            <summary>
-            Navigate to a specific path within source.  (create path if it doesn't exist?)
-            <remarks>See XPath docs for help on using [number][key=value] 
-            syntax (http://www.w3.org/TR/xpath/)</remarks>
-            </summary>
-            <exception cref="T:System.ArgumentOutOfRangeException"/>
-        </member>
-        <member name="M:XmlLib.XPathExtensions.XPathElement(System.Xml.Linq.XElement,System.String,System.Object[])">
-            <summary>
-            Navigate to a specific path within source, create it if it doesn't exist.
-            <remarks>See XPath docs for help on using [number][key=value] 
-            syntax (http://www.w3.org/TR/xpath/)</remarks>
-            </summary>
-            <exception cref="T:System.ArgumentOutOfRangeException"/>
-        </member>
-        <member name="M:XmlLib.XPathExtensions.XGet``1(System.Xml.Linq.XElement,System.String,``0,System.Object[])">
-            <summary>
-            Generic Get for a type.
-            <remarks>
-            It works as long as there is a converter for the type to convert 
-            from string.
-            </remarks>
-            </summary>
-            <returns>The elements converted to its type or the default if it 
-            didn't exist or was empty.</returns>
-        </member>
-        <member name="M:XmlLib.XPathExtensions.XGetElement``1(System.Xml.Linq.XElement,System.String,``0,System.Object[])">
-            <summary>
-            Generic Get for a type.
-            <remarks>
-            It works as long as there is a converter for the type to convert 
-            from string.
-            </remarks>
-            </summary>
-            <returns>The element converted to its type or the default if it 
-            didn't exist or was empty.</returns>
-        </member>
-        <member name="T:XmlLib.nXPath.Functions.Substring">
-            <summary>
-            <para>Example: root2.XPathElement("pair[substring(., 3, 5)={0}]", "child");</para>
-            <para>Syntax: string-length(nodeset, start)</para>
-            <para>Syntax: string-length(nodeset, start, length)</para>
-            <para>- nodeset: path to a node or attribute, and its value.</para>
-            <para>- start: int value starting with 1 for first character.</para>
-            <para>- length: int value for last character.</para>
-            <para>Returns: Evaulates to true or false, whether the string is equal to the value</para>
+            Get the Attribute from the parent node.
             </summary>
         </member>
-        <member name="P:XmlLib.nXPath.Functions.Substring.IsEqual">
+        <member name="M:XmlLib.nXPath.XPathUtils.AttributeValue(System.Linq.Expressions.Expression,XmlLib.nXPath.XPath_Part,System.String)">
             <summary>
-            false (isn't IsEqual exclusively)
+            Get the Attribute value from the parent node.
             </summary>
         </member>
-        <member name="P:XmlLib.nXPath.Functions.Substring.HasKVP">
+        <member name="M:XmlLib.nXPath.XPathUtils.Element(System.Linq.Expressions.Expression,System.String)">
             <summary>
-            false
+            Get the child element based on the key.
             </summary>
         </member>
-        <member name="T:XmlLib.nXPath.Functions.Contains">
+        <member name="M:XmlLib.nXPath.XPathUtils.Element(System.Linq.Expressions.Expression,System.Linq.Expressions.Expression)">
             <summary>
-            <para>Example: root.XPath("//*[contains(first, second)]");</para>
-            <para>Syntax: Contains(,'x') - tag-name contains 'x'</para>
-            <para>Syntax: Contains(nodeset, 'x') - nodeset contains 'x'</para>
-            <para>Syntax: Contains(nodeset, 'x', (bool)ConvertToUpper/ElseLower)</para>
-            <para>Syntax: Contains('x', nodeset) - 'x' contains nodeset</para>
-            <para>Syntax: Contains('x', nodeset, (bool)ConvertToUpper/ElseLower)</para>
-            <para>- nodeset: path to a node or attribute and its value</para>
-            <para>Returns: Returns the nodes that first contains second.</para>
+            Get the child element based on the name.
             </summary>
         </member>
-        <member name="P:XmlLib.nXPath.Functions.Contains.IsEqual">
+        <member name="M:XmlLib.nXPath.XPathUtils.ElementValue(System.Linq.Expressions.Expression,XmlLib.nXPath.XPath_Part,System.String)">
             <summary>
-            false
+            Get the child Element value from the parent node.
             </summary>
+        </member>
+        <member name="M:XmlLib.nXPath.XPathUtils.GetElement(System.Linq.Expressions.Expression,System.String)">
+            <summary>
+            Get the child element based on the key.
+            Returns an empty element if not found.
+            </summary>
+        </member>
+        <member name="M:XmlLib.nXPath.XPathUtils.GetMethodExpression``1(System.Linq.Expressions.Expression{System.Func{``0}})">
+            <summary>
+            var getRowValExpr = GetMethodExpression(x => x.GetRowValue(0));
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="e"></param>
+            <returns></returns>
+        </member>
+        <member name="M:XmlLib.nXPath.XPathUtils.ToStringExpression(System.Linq.Expressions.Expression)">
+            <summary>
+            Call .ToString() on the Expression value.
+            </summary>
+        </member>
+        <member name="M:XmlLib.nXPath.XPathUtils.ToXName(System.Linq.Expressions.Expression,System.String)">
+            <summary>
+            Convert Attribute or Element key to the proper XName via the parent XElement node.
+            </summary>
+        </member>
+        <member name="P:XmlLib.nXPath.XPath_Bracket.XPath">
+            <summary>
+            The expression.
+            </summary>
+        </member>
+        <member name="M:XmlLib.nXPath.XPath_Part.Format(System.String)">
+            <summary>
+            Get the possible Values parameter of the value, aka if its 
+            a {0} instead of an actual value it needs to be replaced with its value
+            from the Values list.
+            </summary>
+            <param name="sValue"></param>
+            <returns></returns>
         </member>
         <member name="T:XmlLib.XElementExtensions">
             <summary>
@@ -471,6 +579,13 @@
             source.GetNamespaceOfPrefix("im") + "big".
             </summary>
         </member>
+        <member name="M:XmlLib.XElementExtensions.CopyTo(System.Xml.Linq.XElement,System.Xml.Linq.XElement)">
+            <summary>
+            Copy all the elements in A that are not in B to B.
+            </summary>
+            <param name="A"></param>
+            <param name="B"></param>
+        </member>
         <member name="T:XmlLib.XElementExtensions.ConverterCache`1">
             <summary>
             Store converters for a quicker lookup.
@@ -492,7 +607,7 @@
         </member>
         <member name="T:XmlLib.ConstructorCache`1">
             <summary>
-            Try to get a constructor that takes a single string value
+            Try to get a constructor that takes a string value or the XElement source
             </summary>
         </member>
         <member name="M:XmlLib.ConstructorCache`1.TryInvoke(System.Xml.Linq.XElement,System.String,`0@)">
@@ -506,167 +621,59 @@
             </remarks>
             </summary>
         </member>
-        <member name="M:XmlLib.nXPath.XPathUtils.Attribute(System.Linq.Expressions.Expression,System.String)">
+        <member name="M:XmlLib.XPathExtensions.XPath(System.Xml.Linq.XElement,XmlLib.nXPath.XPathString,System.Boolean)">
             <summary>
-            Get the Attribute from the parent node.
+            Navigate to a specific path within source.  (create path if it doesn't exist?)
+            <remarks>See XPath docs for help on using [number][key=value] 
+            syntax (http://www.w3.org/TR/xpath/)</remarks>
             </summary>
+            <exception cref="T:System.ArgumentOutOfRangeException"/>
         </member>
-        <member name="M:XmlLib.nXPath.XPathUtils.AttributeValue(System.Linq.Expressions.Expression,XmlLib.nXPath.XPath_Part,System.String)">
+        <member name="M:XmlLib.XPathExtensions.XPath(System.Xml.Linq.XElement,System.String,System.Object[])">
             <summary>
-            Get the Attribute value from the parent node.
+            Navigate to a specific path within source, create it if it doesn't exist.
+            <remarks>See XPath docs for help on using [number][key=value] 
+            syntax (http://www.w3.org/TR/xpath/)</remarks>
             </summary>
+            <exception cref="T:System.ArgumentOutOfRangeException"/>
         </member>
-        <member name="M:XmlLib.nXPath.XPathUtils.Element(System.Linq.Expressions.Expression,System.String)">
+        <member name="M:XmlLib.XPathExtensions.XPathElement(System.Xml.Linq.XElement,XmlLib.nXPath.XPathString,System.Boolean)">
             <summary>
-            Get the child element based on the key.
+            Navigate to a specific path within source.  (create path if it doesn't exist?)
+            <remarks>See XPath docs for help on using [number][key=value] 
+            syntax (http://www.w3.org/TR/xpath/)</remarks>
             </summary>
+            <exception cref="T:System.ArgumentOutOfRangeException"/>
         </member>
-        <member name="M:XmlLib.nXPath.XPathUtils.Element(System.Linq.Expressions.Expression,System.Linq.Expressions.Expression)">
+        <member name="M:XmlLib.XPathExtensions.XPathElement(System.Xml.Linq.XElement,System.String,System.Object[])">
             <summary>
-            Get the child element based on the name.
+            Navigate to a specific path within source, create it if it doesn't exist.
+            <remarks>See XPath docs for help on using [number][key=value] 
+            syntax (http://www.w3.org/TR/xpath/)</remarks>
             </summary>
+            <exception cref="T:System.ArgumentOutOfRangeException"/>
         </member>
-        <member name="M:XmlLib.nXPath.XPathUtils.ElementValue(System.Linq.Expressions.Expression,XmlLib.nXPath.XPath_Part,System.String)">
+        <member name="M:XmlLib.XPathExtensions.XGet``1(System.Xml.Linq.XElement,System.String,``0,System.Object[])">
             <summary>
-            Get the child Element value from the parent node.
-            </summary>
-        </member>
-        <member name="M:XmlLib.nXPath.XPathUtils.GetElement(System.Linq.Expressions.Expression,System.String)">
-            <summary>
-            Get the child element based on the key.
-            Returns an empty element if not found.
-            </summary>
-        </member>
-        <member name="M:XmlLib.nXPath.XPathUtils.GetMethodExpression``1(System.Linq.Expressions.Expression{System.Func{``0}})">
-            <summary>
-            var getRowValExpr = GetMethodExpression(x => x.GetRowValue(0));
-            </summary>
-            <typeparam name="T"></typeparam>
-            <param name="e"></param>
-            <returns></returns>
-        </member>
-        <member name="M:XmlLib.nXPath.XPathUtils.ToStringExpression(System.Linq.Expressions.Expression)">
-            <summary>
-            Call .ToString() on the Expression value.
-            </summary>
-        </member>
-        <member name="M:XmlLib.nXPath.XPathUtils.ToXName(System.Linq.Expressions.Expression,System.String)">
-            <summary>
-            Convert Attribute or Element key to the proper XName via the parent XElement node.
-            </summary>
-        </member>
-        <member name="T:XmlLib.nXPath.Functions.NodeResult">
-            <summary>
-            NodeSet Node() returns an XElement, XAttribute or an array of either.  So
-            instead return this so we can know what it is.
-            </summary>
-        </member>
-        <member name="P:XmlLib.nXPath.XPath_Bracket.XPath">
-            <summary>
-            The expression.
-            </summary>
-        </member>
-        <member name="T:XmlLib.nXPath.Functions.Name">
-            <summary>
-            <para>Example: root2.XPathElement("//*[name()={0}]", "div");</para>
-            <para>Syntax: name()</para>
-            <para>Syntax: name(nodeset)</para>
-            <para>- nodeset: path to a node or attribute, and its name.</para>
-            <para>Returns the name of the current node or the first node in the specified node set</para>
-            </summary>
-        </member>
-        <member name="P:XmlLib.nXPath.Functions.Name.ArgumentsRequired">
-            <summary>
-            false
-            </summary>
-        </member>
-        <member name="P:XmlLib.nXPath.Functions.Name.ArgumentsValueRequired">
-            <summary>
-            false
-            </summary>
-        </member>
-        <member name="T:XmlLib.nXPath.Functions.LocalName">
-            <summary>
-            <para>Example: root2.XPathElement("pair[local-name()={0}]", "div");</para>
-            <para>Syntax: local-name()</para>
-            <para>Syntax: local-name(nodeset)</para>
-            <para>- nodeset: path to a node or attribute, and its local-name.</para>
-            <para>Returns: Returns the name of the current node or the first node 
-            in the specified node set - without the namespace prefix</para>
-            </summary>
-        </member>
-        <member name="P:XmlLib.nXPath.Functions.LocalName.ArgumentsRequired">
-            <summary>
-            false
-            </summary>
-        </member>
-        <member name="P:XmlLib.nXPath.Functions.LocalName.ArgumentsValueRequired">
-            <summary>
-            false
-            </summary>
-        </member>
-        <member name="M:XmlLib.nXPath.Functions.KVP.Eval``1(XmlLib.nXPath.XPath_Part,``0[])">
-            <summary>
-            Bool result of NotEqual, LessThanOrEqual, etc of any part.Value in values.
-            </summary>
-        </member>
-        <member name="T:XmlLib.nXPath.NodeSet">
-            <summary>
-            String wrapper class to diferentiate between parameters to functions, which
-            is the key(nodeset) and which is the value to compare versus.
-            </summary>
-        </member>
-        <member name="T:XmlLib.nXPath.Functions.StringLength">
-            <summary>
-            <para>Example: root2.XPathElement("pair[string-length()={0}]", 5);</para>
-            <para>Syntax: string-length()</para>
-            <para>Syntax: string-length(nodeset to string node)</para>
-            <para>- nodeset: path to a node or attribute, and its local-name.</para>
-            <para>Returns: Evaulates to true or false, whether the string is equal to the value</para>
-            </summary>
-        </member>
-        <member name="P:XmlLib.nXPath.Functions.StringLength.IsEqual">
-            <summary>
-            false (isn't IsEqual exclusively)
-            </summary>
-        </member>
-        <member name="P:XmlLib.nXPath.Functions.StringLength.ArgumentsRequired">
-            <summary>
-            false
-            </summary>
-        </member>
-        <member name="P:XmlLib.nXPath.Functions.StringLength.ArgumentsValueRequired">
-            <summary>
-            false
-            </summary>
-        </member>
-        <member name="T:XmlLib.nXPath.Functions.StartsWith">
-            <summary>
-            <para>Example: root.XPath("//*[starts-with(first, second)]");</para>
-            <para>Syntax: starts-with(,'x')</para>
-            <para>Syntax: starts-with(nodeset, 'x')</para>
-            <para>Syntax: starts-with(nodeset, 'x', (bool)ConvertToUpper/ElseLower)</para>
-            <para>Syntax: starts-with('x', nodeset)</para>
-            <para>Syntax: starts-with('x', nodeset, (bool)ConvertToUpper/ElseLower)</para>
-            <para>- nodeset: path to a node or attribute and its value</para>
-            <para>Returns: Returns the nodes that first starts-with second.</para>
-            </summary>
-        </member>
-        <member name="P:XmlLib.nXPath.Functions.StartsWith.IsEqual">
-            <summary>
-            false
-            </summary>
-        </member>
-        <member name="M:XmlLib.nXPath.cXPath.Enumerable(System.Xml.Linq.XElement,XmlLib.nXPath.XPathString,System.Boolean)">
-            <summary>
-            Get the elements of a path "path/to/node" or "path[to/node/@attribute&gt;=20.50]".
+            Generic Get for a type.
             <remarks>
-            <para>See XPath docs for help on using [number][key=value]
-            - syntax (http://www.w3.org/TR/xpath/)</para>
+            It works as long as there is a converter for the type to convert 
+            from string.
             </remarks>
             </summary>
-            <param name="create">create path if it doesn't exist?</param>
-            <exception cref="T:System.ArgumentOutOfRangeException"/>
+            <returns>The elements converted to its type or the default if it 
+            didn't exist or was empty.</returns>
+        </member>
+        <member name="M:XmlLib.XPathExtensions.XGetElement``1(System.Xml.Linq.XElement,System.String,``0,System.Object[])">
+            <summary>
+            Generic Get for a type.
+            <remarks>
+            It works as long as there is a converter for the type to convert 
+            from string.
+            </remarks>
+            </summary>
+            <returns>The element converted to its type or the default if it 
+            didn't exist or was empty.</returns>
         </member>
     </members>
 </doc>

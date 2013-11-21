@@ -155,8 +155,8 @@ namespace XmlLib
         /// </summary>
         public static bool TryGetElement
         (
-            this XElement source, 
-            string name, 
+            this XElement source,
+            string name,
             out XElement value
         )
         {
@@ -179,8 +179,8 @@ namespace XmlLib
         /// </summary>
         public static string GetString
         (
-            this XElement source, 
-            XName name, 
+            this XElement source,
+            XName name,
             string defaultValue
         )
         {
@@ -205,8 +205,8 @@ namespace XmlLib
         /// </summary>
         public static string GetString
         (
-            this XElement source, 
-            string name, 
+            this XElement source,
+            string name,
             string defaultValue
         )
         {
@@ -306,9 +306,9 @@ namespace XmlLib
         /// <returns>source or XElement value</returns>
         public static XElement Set
         (
-            this XElement source, 
-            string name, 
-            object value, 
+            this XElement source,
+            string name,
+            object value,
             bool isAttribute
         )
         {
@@ -327,10 +327,10 @@ namespace XmlLib
         /// <returns>source or XElement value</returns>
         public static XElement Set
         (
-            this XElement source, 
-            string name, 
-            object value, 
-            bool isAttribute, 
+            this XElement source,
+            string name,
+            object value,
+            bool isAttribute,
             bool preserveChildren
         )
         {
@@ -351,9 +351,9 @@ namespace XmlLib
         /// <returns>source or XElement value</returns>
         public static XElement Set
         (
-            this XElement source, 
-            XName name, 
-            object value, 
+            this XElement source,
+            XName name,
+            object value,
             bool isAttribute
         )
         {
@@ -374,10 +374,10 @@ namespace XmlLib
         /// <returns>source or XElement value</returns>
         public static XElement Set
         (
-            this XElement source, 
-            XName name, 
-            object value, 
-            bool isAttribute, 
+            this XElement source,
+            XName name,
+            object value,
+            bool isAttribute,
             bool preserveChildren
         )
         {
@@ -466,7 +466,7 @@ namespace XmlLib
                 source.SetSave();
             return result;
         }
-#endregion
+        #endregion
 
         #region Enumerable
         /// <summary>
@@ -474,8 +474,8 @@ namespace XmlLib
         /// </summary>
         public static IEnumerable<T> GetEnumerable<T>
         (
-            this XElement source, 
-            XName name, 
+            this XElement source,
+            XName name,
             Func<XElement, T> convert
         )
         {
@@ -489,8 +489,8 @@ namespace XmlLib
         /// </summary>
         public static IEnumerable<T> GetEnumerable<T>
         (
-            this XElement source, 
-            string name, 
+            this XElement source,
+            string name,
             Func<XElement, T> convert
         )
         {
@@ -505,7 +505,7 @@ namespace XmlLib
         /// </summary>
         public static IEnumerable<T> GetEnumerable<T>
         (
-            this XElement source, 
+            this XElement source,
             Func<XElement, T> convert
         )
         {
@@ -543,7 +543,7 @@ namespace XmlLib
             source.GetElements(first.Name).Remove();
             if (elements.Length > 0)
                 source.Add(elements);
-            source.SetSave(); 
+            source.SetSave();
             return source;
         }
 
@@ -675,6 +675,73 @@ namespace XmlLib
             return defaultValue;
         }
         #endregion
+
+        /// <summary>
+        /// Copy all the elements in A that are not in B to B.
+        /// </summary>
+        /// <param name="A"></param>
+        /// <param name="B"></param>
+        public static void CopyTo(this XElement A, XElement B)
+        {
+            XNode lastB = null, nodeA = null, nodeB = null;
+
+            Action Copy_A_To_B = () =>
+            {
+                if (null == lastB)
+                    B.AddFirst(nodeA);
+                else
+                    lastB.AddAfterSelf(nodeA);
+            };
+
+            var listA = A.Nodes().ToList();
+            var listB = B.Nodes().ToList();
+            int a, b;
+
+            for (a = 0, b = 0; a < listA.Count && b < listB.Count; a++, b++)
+            {
+                nodeA = listA[a];
+                nodeB = listB[b];
+
+                XElement xA = nodeA as XElement,
+                    xB = nodeB as XElement;
+
+                XText tA = nodeA as XText,
+                    tB = nodeB as XText;
+
+                if (null != xA && null != xB)
+                {
+                    if (xA.Name.LocalName == xB.Name.LocalName)
+                        CopyTo(xA, xB);
+                    else
+                    {
+                        Copy_A_To_B();
+                        CopyTo(A, B); // Restart this iteration for various reasons such as 
+                        // the next nodeA might be the same as current nodeB
+                        return;
+                    }
+                }
+                else if (null != xA)
+                    Copy_A_To_B();
+                else if (null != tA && null != tB)
+                {
+                    if (tA.Value != tB.Value)
+                        tB.Value = tA.Value;
+                }
+                else if (null != tA)
+                    Copy_A_To_B();
+
+                lastB = nodeB;
+            }
+            for (; a < listA.Count; a++)
+            {
+                nodeA = listA[a];
+                Copy_A_To_B();
+                if (null == lastB)
+                    lastB = B.FirstNode;
+                else
+                    lastB = lastB.NextNode;
+            }
+        }
     }
 
     /// <summary>
@@ -700,10 +767,10 @@ namespace XmlLib
             if (method == null)
             {
                 if (typeof(T) == typeof(string))
-                    func = delegate(string sValue, out T value) 
+                    func = delegate(string sValue, out T value)
                         { value = (T)(object)sValue; return true; };
                 else
-                    func = delegate(string sValue, out T value) 
+                    func = delegate(string sValue, out T value)
                         { value = default(T); return false; };
             }
             else

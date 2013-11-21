@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Xml.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using XmlLib;
@@ -8,6 +9,9 @@ namespace XmlLib_Test
     [TestClass]
     public class XElementExtensionsTest
     {
+        const string CopyToA = "<xml><header><some></some><addThis></addThis></header><footer></footer><a /><this><is><deep><like></like></deep></is></this><test></test><page></page><addThis></addThis></xml>";
+        const string CopyToB = "<xml><header><some>English file</some></header><footer>Footer</footer><this><is><deep><like>Hey</like></deep></is></this><test>Something</test></xml>";
+
         #region Get
         #region Get_FromElement
 
@@ -129,6 +133,113 @@ namespace XmlLib_Test
             XElement test = new XElement("Node", new XAttribute("A", value));
             DateTime result = test.Get("A", DateTime.MinValue);
             Assert.AreEqual(value.Ticks, result.Ticks);
+        }
+        #endregion
+        #region CopyTo
+
+        [TestMethod]
+        public void CopyTo_Empty()
+        {
+            XElement A = XElement.Load(@"..\..\..\TestProject\xmlfile1.xml");
+            XElement B = new XElement(A.Name);
+            A.CopyTo(B);
+            Assert.AreEqual(A.ToString(), B.ToString());
+        }
+
+        [TestMethod]
+        public void CopyTo_AToDiffB_AddThisCount()
+        {
+            XElement A = XElement.Parse(CopyToA);
+            XElement B = XElement.Parse(CopyToB);
+            A.CopyTo(B);
+            var addThis = B.Descendants("addThis").ToList();
+            Assert.AreEqual(addThis.Count, 2);
+        }
+
+        [TestMethod]
+        public void CopyTo_AToDiffB_Anscestors()
+        {
+            XElement A = XElement.Parse(CopyToA);
+            XElement B = XElement.Parse(CopyToB);
+            A.CopyTo(B);
+            var addThis = B.Descendants("addThis").First();
+            Assert.AreEqual(string.Join(",", addThis.Ancestors().Select(x => x.Name.LocalName)), "header,xml");
+        }
+
+        [TestMethod]
+        public void CopyTo_AToDiffB_Anscestors2()
+        {
+            XElement A = XElement.Parse(CopyToA);
+            XElement B = XElement.Parse(CopyToB);
+            A.CopyTo(B);
+            var addThis = B.Descendants("addThis").Skip(1).First();
+            Assert.AreEqual(string.Join(",", addThis.Ancestors().Select(x => x.Name.LocalName)), "xml");
+        }
+
+        [TestMethod]
+        public void CopyTo_AToDiffB_Prev1()
+        {
+            XElement A = XElement.Parse(CopyToA);
+            XElement B = XElement.Parse(CopyToB);
+            A.CopyTo(B);
+            var addThis = B.Descendants("addThis").First();
+            XElement some = (XElement)addThis.PreviousNode;
+            Assert.AreEqual(some.Name.LocalName, "some");
+        }
+
+        [TestMethod]
+        public void CopyTo_AToDiffB_Prev1_Value()
+        {
+            XElement A = XElement.Parse(CopyToA);
+            XElement B = XElement.Parse(CopyToB);
+            A.CopyTo(B);
+            var addThis = B.Descendants("addThis").First();
+            XElement some = (XElement)addThis.PreviousNode;
+            Assert.AreEqual(some.Value, "English file");
+        }
+
+        [TestMethod]
+        public void CopyTo_AToDiffB_a_NotNull()
+        {
+            XElement A = XElement.Parse(CopyToA);
+            XElement B = XElement.Parse(CopyToB);
+            A.CopyTo(B);
+
+            XElement a = B.Descendants("a").FirstOrDefault();
+            Assert.AreNotEqual(a, null);
+        }
+
+        [TestMethod]
+        public void CopyTo_AToDiffB_a_Prev()
+        {
+            XElement A = XElement.Parse(CopyToA);
+            XElement B = XElement.Parse(CopyToB);
+            A.CopyTo(B);
+
+            XElement a = B.Descendants("a").FirstOrDefault();
+            Assert.AreEqual(((XElement)a.PreviousNode).Name.LocalName, "footer");
+        }
+
+        [TestMethod]
+        public void CopyTo_AToDiffB_a_Next()
+        {
+            XElement A = XElement.Parse(CopyToA);
+            XElement B = XElement.Parse(CopyToB);
+            A.CopyTo(B);
+
+            XElement a = B.Descendants("a").FirstOrDefault();
+            Assert.AreEqual(((XElement)a.NextNode).Name.LocalName, "this");
+        }
+
+        [TestMethod]
+        public void CopyTo_AToDiffB_a_Anscestors()
+        {
+            XElement A = XElement.Parse(CopyToA);
+            XElement B = XElement.Parse(CopyToB);
+            A.CopyTo(B);
+
+            XElement a = B.Descendants("a").FirstOrDefault();
+            Assert.AreEqual(string.Join(",", a.Ancestors().Select(x => x.Name.LocalName)), "xml");
         }
         #endregion
     }
