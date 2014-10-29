@@ -305,5 +305,15 @@ namespace XmlLib_Test
             Assert.AreEqual(expected, actual);
         }
 
+        [TestMethod]
+        public void XPathString_Clone_NoBrackets()
+        {
+            XPathString xpath = new XPathString("//Site[Id={0}]/add[@key={1}]", "C", "landingName2");
+            XPathString actual = xpath.Clone_NoBrackets();
+            XPathString expected = new XPathString("//Site/add");
+            Assert.AreEqual(actual.Text, expected.Text);
+            Assert.AreEqual(actual.IsRelative, expected.IsRelative);
+            Assert.AreEqual(actual.IsElements, expected.IsElements);
+        }
     }
 }

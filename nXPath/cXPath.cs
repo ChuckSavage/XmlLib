@@ -60,6 +60,8 @@ namespace XmlLib.nXPath
         /// - syntax (http://www.w3.org/TR/xpath/)</para>
         /// </remarks>
         /// </summary>
+        /// <param name="source"></param>
+        /// <param name="path"></param>
         /// <param name="create">create path if it doesn't exist?</param>
         /// <exception cref="ArgumentOutOfRangeException" />
         public static IEnumerable<XElement> Enumerable(XElement source, XPathString path, bool create)
@@ -76,7 +78,7 @@ namespace XmlLib.nXPath
             {
                 List<XElement> newList = new List<XElement>();
                 XPathString xpathString = path.PathSegments[i];
-                bool last = (i + 1) == path.PathSegments.Length;
+                //bool last = (i + 1) == path.PathSegments.Length;
 
                 if (xpathString.IsXPath)
                 {
@@ -98,6 +100,45 @@ namespace XmlLib.nXPath
                 }
                 list.ForEach(xElement => newList.AddRange(PartToElements(xElement, xpathString)));
                 list = newList;
+            }
+
+            // If the node wasn't found and we were asked to create it, do the best we can
+            // If it is a simple search, then we won't be able to place the node and it will be dangling (without a parent node)
+            if (list.Count == 0 && create)
+            {
+                // Find parent element if we can, and plug in the new node there
+                XElement parent = null;
+                foreach (var seg in path.PathSegments.Take(path.PathSegments.Length - 1))
+                    parent = (parent ?? source).XPathElement(seg, create);
+                // If not found, try finding a sibling without search parameters
+                // and use it's parent.
+                if (null == parent)
+                {
+                    XPathString clean = path.Clone_NoBrackets();
+                    XElement sibling = source.XPathElement(clean, false);
+                    if (null != sibling)
+                        parent = sibling.Parent;
+                }
+
+                // Using last segment in XPath, create the node that is missing
+                var segment = path.PathSegments.Last();
+                XElement node = new XElement(segment.Name);
+                if (null != parent)
+                    parent.Add(node);
+
+                // Add any child element's or attribute's that were requested in the search
+                foreach (var b in segment.Brackets)
+                {
+                    foreach (var part in b.Parts)
+                    {
+                        if (!part.Equal) continue;
+                        if (part.IsValueAttribute)
+                            node.Add(new XAttribute(part.Key, part.Value));
+                        else
+                            node.Add(new XElement(part.Key, part.Value));
+                    }
+                }
+                list.Add(node);
             }
             return list;
         }

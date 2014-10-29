@@ -296,6 +296,21 @@ namespace XmlLib.nXPath
             return ToPaths(passFlags2ndEtc, parts.ToArray());
         }
 
+        /// <summary>
+        /// Make a clone, without any attendant brackets or values.
+        /// </summary>
+        /// <returns></returns>
+        public XPathString Clone_NoBrackets()
+        {
+            var names = PathSegments.Select(seg => new XPathString(seg.Name));
+            var xpath = Combine(names);
+            StringBuilder sb = new StringBuilder();
+            if (IsRelative) sb.Append(".");
+            if (!IsElements) sb.Append("//");
+            sb.Append(xpath.Text);
+            return new XPathString(sb.ToString());
+        }
+
         #region Comparing
 
         public static IComparer Comparer { get { return new _Comparer(); } }

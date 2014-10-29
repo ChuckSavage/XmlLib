@@ -21,7 +21,7 @@ namespace XmlLib_Test
         [TestInitialize()]
         public void MyTestInitialize()
         {
-            DirectoryInfo projectDir = new DirectoryInfo(@"..\..\..\..\XmlLib\TestProject");
+            DirectoryInfo projectDir = new DirectoryInfo(@"..\..\..\TestProject");
             string file = Path.Combine(projectDir.FullName, "XMLFile1.xml");
             root = XElement.Load(file);
         }

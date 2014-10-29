@@ -33,7 +33,7 @@ namespace XmlLib
         /// <exception cref="ArgumentOutOfRangeException" />
         public static IEnumerable<XElement> XPath(this XElement source, string path, params object[] args)
         {
-            return XPath(source, new XPathString(path, args), true);
+            return XPath(source, new XPathString(path, args), false);
         }
 
         /// <summary>
@@ -55,7 +55,7 @@ namespace XmlLib
         /// <exception cref="ArgumentOutOfRangeException" />
         public static XElement XPathElement(this XElement source, string path, params object[] args)
         {
-            return XPathElement(source, new XPathString(path, args), true);
+            return XPathElement(source, new XPathString(path, args), false);
         }
 
         /// <summary>

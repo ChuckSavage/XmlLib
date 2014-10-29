@@ -12,6 +12,8 @@
             - syntax (http://www.w3.org/TR/xpath/)</para>
             </remarks>
             </summary>
+            <param name="source"></param>
+            <param name="path"></param>
             <param name="create">create path if it doesn't exist?</param>
             <exception cref="T:System.ArgumentOutOfRangeException"/>
         </member>
@@ -293,6 +295,12 @@
             You want to pass on flags to and/or splits (aka splits within brackets) but not on file paths.
             </param>
             <param name="parts"></param>
+            <returns></returns>
+        </member>
+        <member name="M:XmlLib.nXPath.XPathString.Clone_NoBrackets">
+            <summary>
+            Make a clone, without any attendant brackets or values.
+            </summary>
             <returns></returns>
         </member>
         <member name="P:XmlLib.nXPath.XPathString.IsXPath">
