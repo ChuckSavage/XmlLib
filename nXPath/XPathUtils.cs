@@ -46,18 +46,29 @@ namespace XmlLib.nXPath
 
         internal static bool ContainsAny(this string source, params string[] values)
         {
-            foreach (string value in values)
-                if (source.Contains(value))
+            return values.Any(v => source.Contains(v));
+        }
+
+        internal static bool EndsWithAny(this string source, params string[] values)
+        {
+            return values.Any(v => source.EndsWith(v));
+        }
+
+        internal static bool TryEndsWithAny(this string source, out string with, params string[] values)
+        {
+            foreach (var v in values)
+                if (source.EndsWith(v))
+                {
+                    with = v;
                     return true;
+                }
+            with = string.Empty;
             return false;
         }
 
         internal static bool StartsWithAny(this string source, params string[] values)
         {
-            foreach (string value in values)
-                if (source.StartsWith(value))
-                    return true;
-            return false;
+            return values.Any(v => source.StartsWith(v));
         }
 
         /// <summary>

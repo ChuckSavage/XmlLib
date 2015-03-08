@@ -1,8 +1,6 @@
 ﻿// Copyright SeaRisen LLC
 // You may use this code without restrictions, but keep the copyright notice with this code.
 // This file is found at: https://github.com/ChuckSavage/XmlLib
-// If you find this code helpful and would like to donate, please consider purchasing one of
-// the products at http://products.searisen.com, thank you.
 
 using System;
 using System.Diagnostics;
@@ -23,15 +21,24 @@ namespace XmlLib.nXPath
         public bool LessThanOrEqual { get { return Equal && LessThan; } }
         public bool GreaterThan { get; private set; }
         public bool GreaterThanOrEqual { get { return Equal && GreaterThan; } }
+        /// <summary>
+        /// Is the Element at an index location
+        /// </summary>
         public readonly bool ElementAt;
         public readonly FunctionBase Function = null;
         public bool KVP { get; private set; }
+        /// <summary>
+        /// The name(path) of the Attribute or Element to compare
+        /// </summary>
         public string Key
         {
             get { return _Key; }
             set { _Key = Format(value).ToString(); }
         }
         string _Key;
+        /// <summary>
+        /// The value that we're comparing in the Attribute or Element
+        /// </summary>
         public object Value
         {
             get { return _Value; }
@@ -47,7 +54,36 @@ namespace XmlLib.nXPath
         }
         object _Value;
 
+        /// <summary>
+        /// Is the Key an Attribute (or false if is an Element)
+        /// </summary>
         public bool IsValueAttribute { get; private set; }
+
+        bool SwapSymbol { get; set; }
+
+        void SetKVP(string format, char split)
+        {
+            string[] parts = format.Split(split);
+            // If Left side of expression starts with a quote or a Format variable {0}
+            // Then the lessthan, greater than, equal symbol's need to be flipped
+            if (SwapSymbol = parts[0].StartsWithAny("{", "\""))
+            {
+                Key = parts[1].Trim();
+                string ends;
+                if (split == '=' && parts[0].TryEndsWithAny(out ends, "!", "<", ">"))
+                {
+                    Key += ends;
+                    parts[0] = parts[0].Substring(0, parts[0].Length - 1);
+                }
+                Value = parts[0].Trim();
+            }
+            else
+            {
+                Key = parts[0];
+                Value = parts[1].Trim();
+            }
+            KVP = true;
+        }
 
         public XPath_Part(XPathString text)
         {
@@ -55,31 +91,29 @@ namespace XmlLib.nXPath
             string format = text.Format;
             if (Equal = format.Contains('='))
             {
-                string[] parts = format.Split('=');
-                Key = parts[0];
-                Value = parts[1].Trim();
-
+                SetKVP(format, '=');
                 if (NotEqual = Key.EndsWith("!"))
                     Key = Key.TrimEnd('!');
                 else if (LessThan = Key.EndsWith("<"))
                     Key = Key.TrimEnd('<');
                 else if (GreaterThan = Key.EndsWith(">"))
                     Key = Key.TrimEnd('>');
-                KVP = true;
+                if (!LessThan && !GreaterThan)
+                    SwapSymbol = false; // don't swap Equal to false or NotEqual to true
             }
             else if (LessThan = format.Contains("<"))
             {
-                string[] parts = format.Split('<');
-                Key = parts[0];
-                Value = parts[1].Trim();
-                KVP = true;
+                SetKVP(format, '<');
             }
             else if (GreaterThan = format.Contains(">"))
             {
-                string[] parts = format.Split('>');
-                Key = parts[0];
-                Value = parts[1].Trim();
-                KVP = true;
+                SetKVP(format, '>');
+            }
+            if (SwapSymbol)
+            {
+                LessThan = !LessThan;
+                GreaterThan = !GreaterThan;
+                Equal = !Equal;
             }
             if (!string.IsNullOrEmpty(Key))
                 Key = Key.Trim();

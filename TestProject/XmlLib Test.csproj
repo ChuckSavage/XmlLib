@@ -69,6 +69,7 @@
   <ItemGroup>
     <Compile Include="cXPathTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="XPath_PartTest.cs" />
     <Compile Include="XElementExtensionsTest.cs" />
     <Compile Include="XPathExtensionsTest.cs" />
     <Compile Include="XPathStringTest.cs" />

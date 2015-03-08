@@ -368,6 +368,11 @@
             The expression.
             </summary>
         </member>
+        <member name="F:XmlLib.nXPath.XPath_Part.ElementAt">
+            <summary>
+            Is the Element at an index location
+            </summary>
+        </member>
         <member name="M:XmlLib.nXPath.XPath_Part.Format(System.String)">
             <summary>
             Get the possible Values parameter of the value, aka if its 
@@ -376,6 +381,21 @@
             </summary>
             <param name="sValue"></param>
             <returns></returns>
+        </member>
+        <member name="P:XmlLib.nXPath.XPath_Part.Key">
+            <summary>
+            The name(path) of the Attribute or Element to compare
+            </summary>
+        </member>
+        <member name="P:XmlLib.nXPath.XPath_Part.Value">
+            <summary>
+            The value that we're comparing in the Attribute or Element
+            </summary>
+        </member>
+        <member name="P:XmlLib.nXPath.XPath_Part.IsValueAttribute">
+            <summary>
+            Is the Key an Attribute (or false if is an Element)
+            </summary>
         </member>
         <member name="T:XmlLib.XElementExtensions">
             <summary>
