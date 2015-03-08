@@ -57,6 +57,52 @@ namespace XmlLib_Test
         ///A test for XPath_Part
         ///</summary>
         [TestMethod()]
+        public void XPath_Part_KVP_LTEqualL()
+        {
+            XPathString path = new XPathString("[@to <= {0}]", 0);
+            XPath_Bracket target = new XPath_Bracket(path);
+            Assert.AreEqual(target.Parts.Length, 1);
+            var part = target.Parts[0]; // XPath_Part
+            Assert.AreEqual(part.ElementAt, false);
+            Assert.AreEqual(part.IsValueAttribute, true);
+            Assert.AreEqual(part.KVP, true);
+            Assert.AreEqual(null, part.Function);
+            Assert.AreEqual(part.Equal, true);
+            Assert.AreEqual(part.GreaterThan, false);
+            Assert.AreEqual(part.GreaterThanOrEqual, false);
+            Assert.AreEqual(part.LessThan, true);
+            Assert.AreEqual(part.LessThanOrEqual, true);
+            Assert.AreEqual(part.NotEqual, false);
+            Assert.AreEqual(part.Key, "to");
+            Assert.AreEqual(part.Value, 0);
+        }
+        /// <summary>
+        ///A test for XPath_Part
+        ///</summary>
+        [TestMethod()]
+        public void XPath_Part_KVP_GTEqualR()
+        {
+            XPathString path = new XPathString("[{0}>=to]", 0);
+            XPath_Bracket target = new XPath_Bracket(path);
+            Assert.AreEqual(target.Parts.Length, 1);
+            var part = target.Parts[0]; // XPath_Part becomes "to < {0}"
+            Assert.AreEqual(part.ElementAt, false);
+            Assert.AreEqual(part.IsValueAttribute, false);
+            Assert.AreEqual(part.KVP, true);
+            Assert.AreEqual(null, part.Function);
+            Assert.AreEqual(part.Equal, false);
+            Assert.AreEqual(part.GreaterThan, false);
+            Assert.AreEqual(part.GreaterThanOrEqual, false);
+            Assert.AreEqual(part.LessThan, true);
+            Assert.AreEqual(part.LessThanOrEqual, false);
+            Assert.AreEqual(part.NotEqual, false);
+            Assert.AreEqual(part.Key, "to");
+            Assert.AreEqual(part.Value, 0);
+        }
+        /// <summary>
+        ///A test for XPath_Part
+        ///</summary>
+        [TestMethod()]
         public void XPath_Part_KVP_Left()
         {
             XPathString path = new XPathString("[@to < {0}]", 0);
